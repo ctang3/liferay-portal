@@ -21,7 +21,6 @@ import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.taglib.servlet.taglib.HTMLTag;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
@@ -94,8 +93,7 @@ public class DDMFormInstanceRecordCTDisplayRenderer
 
 	@Override
 	public String getTitle(
-			Locale locale, DDMFormInstanceRecord ddmFormInstanceRecord)
-		throws PortalException {
+		Locale locale, DDMFormInstanceRecord ddmFormInstanceRecord) {
 
 		return String.valueOf(ddmFormInstanceRecord.getPrimaryKey());
 	}
@@ -107,15 +105,10 @@ public class DDMFormInstanceRecordCTDisplayRenderer
 
 		DDMFormInstanceRecord ddmFormInstanceRecord = displayBuilder.getModel();
 
-		DDMFormInstance ddmFormInstance =
-			ddmFormInstanceRecord.getFormInstance();
-
 		DisplayContext<?> displayContext = displayBuilder.getDisplayContext();
 
-		DDMFormValues ddmFormValues = ddmFormInstanceRecord.getDDMFormValues();
-
 		displayBuilder.display(
-			"created-by",
+			"author",
 			() -> {
 				String userName = ddmFormInstanceRecord.getUserName();
 
@@ -127,13 +120,6 @@ public class DDMFormInstanceRecordCTDisplayRenderer
 			}
 		).display(
 			"version", ddmFormInstanceRecord.getVersion()
-		).display(
-			"default-language", ddmFormValues.getDefaultLocale()
-		).display(
-			"name", ddmFormInstance.getName(displayBuilder.getLocale())
-		).display(
-			"description",
-			ddmFormInstance.getDescription(displayBuilder.getLocale())
 		).display(
 			"content",
 			_getContent(
@@ -152,12 +138,14 @@ public class DDMFormInstanceRecordCTDisplayRenderer
 
 		HTMLTag htmlTag = new HTMLTag();
 
+		htmlTag.setClassNameId(
+			_classNameLocalService.getClassNameId(DDMStructure.class));
+
 		DDMFormInstance ddmFormInstance =
 			ddmFormInstanceRecord.getFormInstance();
 
-		htmlTag.setClassNameId(
-			_classNameLocalService.getClassNameId(DDMStructure.class));
 		htmlTag.setClassPK(ddmFormInstance.getStructureId());
+
 		htmlTag.setDdmFormValues(ddmFormInstanceRecord.getDDMFormValues());
 		htmlTag.setGroupId(ddmFormInstanceRecord.getGroupId());
 		htmlTag.setReadOnly(true);
