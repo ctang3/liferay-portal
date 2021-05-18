@@ -313,7 +313,7 @@ public class MBStatsUserLocalServiceUtil {
 		return getService().getStatsUser(groupId, userId);
 	}
 
-	public static List<MBStatsUser> getStatsUsersByGroupId(
+	public static List<Object[]> getStatsUsersByGroupId(
 			long groupId, int start, int end)
 		throws PortalException {
 

@@ -280,7 +280,7 @@ public interface MBStatsUserLocalService
 	public MBStatsUser getStatsUser(long groupId, long userId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<MBStatsUser> getStatsUsersByGroupId(
+	public List<Object[]> getStatsUsersByGroupId(
 			long groupId, int start, int end)
 		throws PortalException;
 

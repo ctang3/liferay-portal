@@ -341,7 +341,7 @@ public class MBStatsUserLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List<MBStatsUser> getStatsUsersByGroupId(
+	public java.util.List<Object[]> getStatsUsersByGroupId(
 			long groupId, int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
