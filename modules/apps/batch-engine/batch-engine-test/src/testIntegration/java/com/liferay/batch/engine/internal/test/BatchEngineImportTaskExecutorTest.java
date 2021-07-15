@@ -295,7 +295,7 @@ public class BatchEngineImportTaskExecutorTest
 			BatchEngineTaskOperation.DELETE,
 			_getBlogPostingsCSVDeleteContent(blogsEntries), "CSV", null);
 
-		Assert.assertEquals(0, blogsEntryLocalService.getBlogsEntriesCount());
+		_assertDeletedBlogPostings();
 	}
 
 	@Test
@@ -309,7 +309,7 @@ public class BatchEngineImportTaskExecutorTest
 			BatchEngineTaskOperation.DELETE,
 			_getBlogPostingsJSONDeleteContent(blogsEntries), "JSON", null);
 
-		Assert.assertEquals(0, blogsEntryLocalService.getBlogsEntriesCount());
+		_assertDeletedBlogPostings();
 	}
 
 	@Test
@@ -323,7 +323,7 @@ public class BatchEngineImportTaskExecutorTest
 			BatchEngineTaskOperation.DELETE,
 			_getBlogPostingsJSONLDeleteContent(blogsEntries), "JSONL", null);
 
-		Assert.assertEquals(0, blogsEntryLocalService.getBlogsEntriesCount());
+		_assertDeletedBlogPostings();
 	}
 
 	@Test
@@ -337,7 +337,7 @@ public class BatchEngineImportTaskExecutorTest
 			BatchEngineTaskOperation.DELETE,
 			_getBlogPostingsXLSDeleteContent(blogsEntries), "XLS", null);
 
-		Assert.assertEquals(0, blogsEntryLocalService.getBlogsEntriesCount());
+		_assertDeletedBlogPostings();
 	}
 
 	@Test
@@ -398,6 +398,8 @@ public class BatchEngineImportTaskExecutorTest
 
 	private void _assertCreatedBlogPostings() {
 		Assert.assertEquals(
+			ROWS_COUNT, _batchEngineImportTask.getProcessedItemsCount());
+		Assert.assertEquals(
 			ROWS_COUNT, blogsEntryLocalService.getBlogsEntriesCount());
 
 		List<BlogsEntry> blogsEntries = new ArrayList<>(
@@ -418,7 +420,14 @@ public class BatchEngineImportTaskExecutorTest
 		}
 	}
 
+	private void _assertDeletedBlogPostings() {
+		Assert.assertEquals(
+			ROWS_COUNT, _batchEngineImportTask.getProcessedItemsCount());
+		Assert.assertEquals(0, blogsEntryLocalService.getBlogsEntriesCount());
+	}
+
 	private void _assertInvalidFile(LogCapture logCapture) {
+		Assert.assertEquals(0, _batchEngineImportTask.getProcessedItemsCount());
 		Assert.assertEquals(0, blogsEntryLocalService.getBlogsEntriesCount());
 
 		List<LogEntry> logEntries = logCapture.getLogEntries();
@@ -436,6 +445,8 @@ public class BatchEngineImportTaskExecutorTest
 	}
 
 	private void _assertUpdatedBlogPostings() {
+		Assert.assertEquals(
+			ROWS_COUNT, _batchEngineImportTask.getProcessedItemsCount());
 		Assert.assertEquals(
 			ROWS_COUNT, blogsEntryLocalService.getBlogsEntriesCount());
 

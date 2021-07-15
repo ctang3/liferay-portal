@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.liferay.batch.engine.internal.ZipInputStreamUtil;
+import com.liferay.batch.engine.internal.util.ZipInputStreamUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -59,6 +59,8 @@ public class JSONBatchEngineTaskProgressImpl
 		}
 		catch (Exception exception) {
 			_log.error("Unable to get total items count", exception);
+
+			totalItemsCount = 0;
 		}
 		finally {
 			try {

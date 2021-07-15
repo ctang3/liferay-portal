@@ -144,6 +144,7 @@ CProduct cProduct = cpDefinition.getCProduct();
 				namespace="<%= liferayPortletResponse.getNamespace() %>"
 				pageNumber="<%= 1 %>"
 				portletURL="<%= currentURLObj %>"
+				selectedItemsKey="pricingClassId"
 			/>
 		</commerce-ui:panel>
 	</div>

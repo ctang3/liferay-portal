@@ -23,7 +23,7 @@ CommerceChannelDisplayContext commerceChannelDisplayContext = (CommerceChannelDi
 <portlet:actionURL name="/commerce_channels/edit_commerce_channel_external_reference_code" var="editCommerceChannelExternalReferenceCodeURL" />
 
 <commerce-ui:modal-content>
-	<aui:form action="<%= editCommerceChannelExternalReferenceCodeURL %>" cssClass="container-fluid container-fluid-max-xl p-0" method="post" name="fm">
+	<aui:form action="<%= editCommerceChannelExternalReferenceCodeURL %>" method="post" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 
 		<aui:model-context bean="<%= commerceChannelDisplayContext.getCommerceChannel() %>" model="<%= CommerceChannel.class %>" />

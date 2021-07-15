@@ -16,6 +16,7 @@
 		<field name="pkObjectFieldName" type="String" />
 		<field name="system" type="boolean" />
 		<field name="version" type="int" />
+		<field name="status" type="int" />
 	</model>
 	<model name="com.liferay.object.model.ObjectEntry">
 		<field name="mvccVersion" type="long" />

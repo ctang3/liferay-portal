@@ -26,6 +26,7 @@
 		<column method-name="PKObjectFieldName" name="pkObjectFieldName" type="String" />
 		<column name="system" type="boolean" />
 		<column name="version" type="int" />
+		<column name="status" type="int" />
 
 		<!-- Finder methods -->
 
@@ -38,6 +39,10 @@
 		<finder name="C_N" return-type="ObjectDefinition">
 			<finder-column name="companyId" />
 			<finder-column name="name" />
+		</finder>
+		<finder name="S_S" return-type="Collection">
+			<finder-column name="system" />
+			<finder-column name="status" />
 		</finder>
 
 		<!-- Order -->
@@ -186,6 +191,7 @@
 		<exception>DuplicateObjectDefinition</exception>
 		<exception>DuplicateObjectField</exception>
 		<exception>ObjectDefinitionName</exception>
+		<exception>ObjectDefinitionStatus</exception>
 		<exception>ObjectDefinitionVersion</exception>
 		<exception>ObjectEntryValues</exception>
 		<exception>ObjectFieldName</exception>

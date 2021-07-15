@@ -139,82 +139,73 @@ Map<String, String> contextParams = HashMapBuilder.<String, String>put(
 </aui:form>
 
 <c:if test="<%= (commerceChannel.getSiteGroupId() > 0) && commerceChannelDisplayContext.hasUnsatisfiedCommerceHealthChecks() %>">
-	<div class="row">
-		<div class="col">
-			<commerce-ui:panel
-				bodyClasses="p-0"
-				title='<%= LanguageUtil.get(request, "health-checks") %>'
-			>
-				<clay:data-set-display
-					contextParams="<%= contextParams %>"
-					dataProviderKey="<%= CommerceChannelHealthCheckClayTable.NAME %>"
-					id="<%= CommerceChannelHealthCheckClayTable.NAME %>"
-					itemsPerPage="<%= 10 %>"
-					namespace="<%= liferayPortletResponse.getNamespace() %>"
-					pageNumber="<%= 1 %>"
-					portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
-					showManagementBar="<%= false %>"
-				/>
-			</commerce-ui:panel>
-		</div>
-	</div>
+	<commerce-ui:panel
+		bodyClasses="p-0"
+		title='<%= LanguageUtil.get(request, "health-checks") %>'
+	>
+		<clay:data-set-display
+			contextParams="<%= contextParams %>"
+			dataProviderKey="<%= CommerceChannelHealthCheckClayTable.NAME %>"
+			id="<%= CommerceChannelHealthCheckClayTable.NAME %>"
+			itemsPerPage="<%= 10 %>"
+			namespace="<%= liferayPortletResponse.getNamespace() %>"
+			pageNumber="<%= 1 %>"
+			portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
+			showManagementBar="<%= false %>"
+		/>
+	</commerce-ui:panel>
 </c:if>
 
-<div class="row">
-	<div class="col-12">
-		<commerce-ui:panel
-			bodyClasses="p-0"
-			title='<%= LanguageUtil.get(request, "payment-methods") %>'
-		>
-			<clay:data-set-display
-				contextParams="<%= contextParams %>"
-				dataProviderKey="<%= CommercePaymentMethodClayTable.NAME %>"
-				id="<%= CommercePaymentMethodClayTable.NAME %>"
-				itemsPerPage="<%= 10 %>"
-				namespace="<%= liferayPortletResponse.getNamespace() %>"
-				pageNumber="<%= 1 %>"
-				portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
-				showManagementBar="<%= false %>"
-			/>
-		</commerce-ui:panel>
-	</div>
+<commerce-ui:panel
+	bodyClasses="p-0"
+	title='<%= LanguageUtil.get(request, "payment-methods") %>'
+>
+	<clay:data-set-display
+		contextParams="<%= contextParams %>"
+		dataProviderKey="<%= CommercePaymentMethodClayTable.NAME %>"
+		id="<%= CommercePaymentMethodClayTable.NAME %>"
+		itemsPerPage="<%= 10 %>"
+		namespace="<%= liferayPortletResponse.getNamespace() %>"
+		pageNumber="<%= 1 %>"
+		portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
+		selectedItemsKey="key"
+		showManagementBar="<%= false %>"
+	/>
+</commerce-ui:panel>
 
-	<div class="col-12">
-		<commerce-ui:panel
-			bodyClasses="p-0"
-			title='<%= LanguageUtil.get(request, "shipping-methods") %>'
-		>
-			<clay:data-set-display
-				contextParams="<%= contextParams %>"
-				dataProviderKey="<%= CommerceShippingMethodClayTable.NAME %>"
-				id="<%= CommerceShippingMethodClayTable.NAME %>"
-				itemsPerPage="<%= 10 %>"
-				namespace="<%= liferayPortletResponse.getNamespace() %>"
-				pageNumber="<%= 1 %>"
-				portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
-				showManagementBar="<%= false %>"
-			/>
-		</commerce-ui:panel>
-	</div>
+<commerce-ui:panel
+	bodyClasses="p-0"
+	title='<%= LanguageUtil.get(request, "shipping-methods") %>'
+>
+	<clay:data-set-display
+		contextParams="<%= contextParams %>"
+		dataProviderKey="<%= CommerceShippingMethodClayTable.NAME %>"
+		id="<%= CommerceShippingMethodClayTable.NAME %>"
+		itemsPerPage="<%= 10 %>"
+		namespace="<%= liferayPortletResponse.getNamespace() %>"
+		pageNumber="<%= 1 %>"
+		portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
+		selectedItemsKey="key"
+		showManagementBar="<%= false %>"
+	/>
+</commerce-ui:panel>
 
-	<div class="col-12">
-		<commerce-ui:panel
-			bodyClasses="p-0"
-			title='<%= LanguageUtil.get(request, "tax-calculations") %>'
-		>
-			<clay:data-set-display
-				contextParams="<%= contextParams %>"
-				dataProviderKey="<%= CommerceTaxMethodClayTable.NAME %>"
-				id="<%= CommerceTaxMethodClayTable.NAME %>"
-				itemsPerPage="<%= 10 %>"
-				namespace="<%= liferayPortletResponse.getNamespace() %>"
-				pageNumber="<%= 1 %>"
-				portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
-				showManagementBar="<%= false %>"
-			/>
-		</commerce-ui:panel>
-	</div>
-</div>
+<commerce-ui:panel
+	bodyClasses="p-0"
+	title='<%= LanguageUtil.get(request, "tax-calculations") %>'
+>
+	<clay:data-set-display
+		contextParams="<%= contextParams %>"
+		dataProviderKey="<%= CommerceTaxMethodClayTable.NAME %>"
+		id="<%= CommerceTaxMethodClayTable.NAME %>"
+		itemsPerPage="<%= 10 %>"
+		namespace="<%= liferayPortletResponse.getNamespace() %>"
+		pageNumber="<%= 1 %>"
+		portletURL="<%= commerceChannelDisplayContext.getPortletURL() %>"
+		selectedItemsKey="key"
+		showManagementBar="<%= false %>"
+	/>
+</commerce-ui:panel>
 
 <%
 String shippingTaxCategoryId = StringPool.BLANK;

@@ -35,6 +35,16 @@ BatchEngineExportTaskDisplayContext batchEngineExportTaskDisplayContext = (Batch
 			modelVar="batchEngineExportTask"
 		>
 			<liferay-ui:search-container-column-text
+				name="user"
+				value="<%= PortalUtil.getUserEmailAddress(batchEngineExportTask.getUserId()) %>"
+			/>
+
+			<liferay-ui:search-container-column-text
+				name="entity"
+				value="<%= batchEngineExportTaskDisplayContext.getSimpleName(batchEngineExportTask.getClassName()) %>"
+			/>
+
+			<liferay-ui:search-container-column-text
 				name="content-type"
 				property="contentType"
 			/>

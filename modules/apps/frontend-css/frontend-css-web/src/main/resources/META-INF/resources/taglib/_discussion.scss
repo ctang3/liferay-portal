@@ -9,6 +9,10 @@ $light-color: #e7e7ed;
 	font-size: 0.875rem;
 	margin-top: 1rem;
 
+	.actions-menu .component-action {
+		display: inline-flex;
+	}
+
 	.button-holder {
 		margin: 1rem 0;
 	}
@@ -90,13 +94,13 @@ $light-color: #e7e7ed;
 		color: #67678c;
 		font-weight: 600;
 		margin-left: 1em;
-	}
 
-	.lfr-discussion-reply {
-		font-size: 0.875rem;
-
-		&.popover {
-			max-width: 100%;
+		@include media-breakpoint-down(sm) {
+			display: block;
+			margin-left: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 	}
 
@@ -111,5 +115,13 @@ $light-color: #e7e7ed;
 		margin-top: 1.5rem;
 		padding-top: 1.5rem;
 		text-align: center;
+	}
+}
+
+.lfr-discussion-reply-popover {
+	width: 25rem;
+
+	@include media-breakpoint-up(sm) {
+		max-width: 25rem;
 	}
 }

@@ -45,22 +45,18 @@ CommercePricingClass commercePricingClass = cpDefinitionPricingClassDisplayConte
 				<aui:button cssClass="btn-lg" type="cancel" />
 			</aui:button-row>
 
-			<div class="row">
-				<div class="col-12">
-					<c:if test="<%= CustomAttributesUtil.hasCustomAttributes(commercePricingClass.getCompanyId(), CommercePricingClass.class.getName(), commercePricingClass.getCommercePricingClassId(), null) %>">
-						<commerce-ui:panel
-							title='<%= LanguageUtil.get(request, "custom-attributes") %>'
-						>
-							<liferay-expando:custom-attribute-list
-								className="<%= CommercePricingClass.class.getName() %>"
-								classPK="<%= (commercePricingClass != null) ? commercePricingClass.getCommercePricingClassId() : 0 %>"
-								editable="<%= true %>"
-								label="<%= true %>"
-							/>
-						</commerce-ui:panel>
-					</c:if>
-				</div>
-			</div>
+			<c:if test="<%= CustomAttributesUtil.hasCustomAttributes(commercePricingClass.getCompanyId(), CommercePricingClass.class.getName(), commercePricingClass.getCommercePricingClassId(), null) %>">
+				<commerce-ui:panel
+					title='<%= LanguageUtil.get(request, "custom-attributes") %>'
+				>
+					<liferay-expando:custom-attribute-list
+						className="<%= CommercePricingClass.class.getName() %>"
+						classPK="<%= (commercePricingClass != null) ? commercePricingClass.getCommercePricingClassId() : 0 %>"
+						editable="<%= true %>"
+						label="<%= true %>"
+					/>
+				</commerce-ui:panel>
+			</c:if>
 		</aui:form>
 	</commerce-ui:panel>
 </commerce-ui:side-panel-content>

@@ -25,7 +25,7 @@ CommerceCatalog commerceCatalog = commerceCatalogDisplayContext.getCommerceCatal
 <portlet:actionURL name="/commerce_catalogs/edit_commerce_catalog_external_reference_code" var="editCommerceCatalogExternalReferenceCodeURL" />
 
 <commerce-ui:modal-content>
-	<aui:form action="<%= editCommerceCatalogExternalReferenceCodeURL %>" cssClass="container-fluid container-fluid-max-xl p-0" method="post" name="fm">
+	<aui:form action="<%= editCommerceCatalogExternalReferenceCodeURL %>" method="post" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 		<aui:input name="commerceCatalogId" type="hidden" value="<%= commerceCatalog.getCommerceCatalogId() %>" />
 

@@ -226,7 +226,7 @@ definition {
 
 		JSONUser.setFirstPassword(
 			requireReset = "false",
-			userEmailAddress = "userea1@liferay.com");
+			userEmailAddress = "userea@liferay.com");
 
 		User.logoutPG();
 
@@ -630,6 +630,7 @@ definition {
 			userEmailAddress = "test@www.able.com");
 
 		PortalSettings.gotoConfiguration(
+			baseURL = "http://www.able.com:8080",
 			configurationCategory = "SSO",
 			configurationName = "OpenID Connect Provider",
 			configurationScope = "Virtual Instance Scope");

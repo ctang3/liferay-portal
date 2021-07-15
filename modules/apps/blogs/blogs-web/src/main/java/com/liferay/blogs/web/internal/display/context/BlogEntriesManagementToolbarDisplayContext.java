@@ -68,7 +68,6 @@ public class BlogEntriesManagementToolbarDisplayContext
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
 			searchContainer);
 
-		_httpServletRequest = httpServletRequest;
 		_trashHelper = trashHelper;
 		_displayStyle = displayStyle;
 
@@ -186,13 +185,33 @@ public class BlogEntriesManagementToolbarDisplayContext
 		return PortletURLBuilder.createRenderURL(
 			liferayPortletResponse
 		).setMVCRenderCommandName(
-			"/blogs/view"
+			"/blogs/search"
 		).setNavigation(
 			navigation
 		).setParameter(
-			"orderByCol", getOrderByCol()
+			"orderByCol",
+			() -> {
+				String mvcRenderCommandName = ParamUtil.getString(
+					httpServletRequest, "mvcRenderCommandName");
+
+				if (mvcRenderCommandName.equals("/blogs/search")) {
+					return getOrderByCol();
+				}
+
+				return null;
+			}
 		).setParameter(
-			"orderByType", getOrderByType()
+			"orderByType",
+			() -> {
+				String mvcRenderCommandName = ParamUtil.getString(
+					httpServletRequest, "mvcRenderCommandName");
+
+				if (mvcRenderCommandName.equals("/blogs/search")) {
+					return getOrderByType();
+				}
+
+				return null;
+			}
 		).buildString();
 	}
 
@@ -261,6 +280,16 @@ public class BlogEntriesManagementToolbarDisplayContext
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "display-date"));
 			}
+		).add(
+			this::_isSearch,
+			dropdownItem -> {
+				dropdownItem.setActive(
+					Objects.equals(getOrderByCol(), "relevance"));
+				dropdownItem.setHref(
+					_getCurrentSortingURL(), "orderByCol", "relevance");
+				dropdownItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "relevance"));
+			}
 		).build();
 	}
 
@@ -273,19 +302,35 @@ public class BlogEntriesManagementToolbarDisplayContext
 			SearchContainer.DEFAULT_CUR_PARAM, "0"
 		).build();
 
-		String keywords = ParamUtil.getString(httpServletRequest, "keywords");
-
-		if (Validator.isNotNull(keywords)) {
-			sortingURL.setParameter("keywords", keywords);
+		if (_isSearch()) {
+			sortingURL.setParameter("keywords", _getKeywords());
 		}
 
 		return sortingURL;
 	}
 
+	private String _getKeywords() {
+		if (Validator.isNotNull(_keywords)) {
+			return _keywords;
+		}
+
+		_keywords = ParamUtil.getString(httpServletRequest, "keywords");
+
+		return _keywords;
+	}
+
+	private boolean _isSearch() {
+		if (Validator.isNull(_getKeywords())) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private boolean _isTrashEnabled() {
 		try {
 			return _trashHelper.isTrashEnabled(
-				PortalUtil.getScopeGroupId(_httpServletRequest));
+				PortalUtil.getScopeGroupId(httpServletRequest));
 		}
 		catch (PortalException portalException) {
 			return ReflectionUtil.throwException(portalException);
@@ -293,7 +338,7 @@ public class BlogEntriesManagementToolbarDisplayContext
 	}
 
 	private final String _displayStyle;
-	private final HttpServletRequest _httpServletRequest;
+	private String _keywords;
 	private final ThemeDisplay _themeDisplay;
 	private final TrashHelper _trashHelper;
 

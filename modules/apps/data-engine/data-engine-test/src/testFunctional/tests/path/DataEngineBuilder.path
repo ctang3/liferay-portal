@@ -56,6 +56,21 @@
 	<td></td>
 </tr>
 <tr>
+	<td>OPTIONS_CHECKBOX_INDEXED</td>
+	<td>xpath=(((//label[normalize-space(text())='${key_fieldLabel}'] | //legend[normalize-space(text())='${key_fieldLabel}'])[${fieldIndex}])//following-sibling::div//div[contains(@class,'custom-checkbox')]//label[.='${key_optionLabel}'])[${optionIndex}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>OPTIONS_INLINE_INDEXED</td>
+	<td>xpath=(((//label[normalize-space(text())='${key_fieldLabel}'] | //legend[normalize-space(text())='${key_fieldLabel}'])[${fieldIndex}])//following-sibling::div//div[contains(@class,'custom-control-inline')]//label[.='${key_optionLabel}'])[${optionIndex}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>OPTIONS_NOT_INLINE_INDEXED</td>
+	<td>xpath=(((//label[normalize-space(text())='${key_fieldLabel}'] | //legend[normalize-space(text())='${key_fieldLabel}'])[${fieldIndex}])//following-sibling::div//div[not(contains(@class,'custom-control-inline'))]//label[.='${key_optionLabel}'])[${optionIndex}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>OPTION_REMOVE_BUTTON_WITH_LABEL_INDEXED</td>
 	<td>xpath=(//label[normalize-space(text())='${key_optionFieldLabel}']//following-sibling::div[contains(@class,'options-container')]//div[contains(@class,'ddm-option-entry')]//button[contains(@class,'close')])[${index}]</td>
 	<td></td>
@@ -63,6 +78,11 @@
 <tr>
 	<td>OPTION_REMOVE_BUTTON_INDEXED</td>
 	<td>xpath=(//div[contains(@class,'ddm-option-entry')]//button[contains(@class,'close')])[${index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>OPTIONS_SWITCHER_INDEXED</td>
+	<td>xpath=(((//label[normalize-space(text())='${key_fieldLabel}'] | //legend[normalize-space(text())='${key_fieldLabel}'])[${fieldIndex}])//following-sibling::div//div[contains(@class,'lfr-ddm-form-field-checkbox-switch')]//label[.='${key_optionLabel}'])[${optionIndex}]</td>
 	<td></td>
 </tr>
 <tr>

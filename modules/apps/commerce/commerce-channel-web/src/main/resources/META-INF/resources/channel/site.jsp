@@ -57,59 +57,55 @@ if (commerceChannel != null) {
 	<aui:input name="commerceChannelId" type="hidden" value="<%= commerceChannelId %>" />
 	<aui:input name="siteGroupId" type="hidden" value="<%= (commerceChannel == null) ? 0 : commerceChannel.getSiteGroupId() %>" />
 
-	<div class="row">
-		<div class="col-12">
-			<commerce-ui:panel
-				bodyClasses="flex-fill"
-				title='<%= LanguageUtil.get(request, "details") %>'
+	<commerce-ui:panel
+		bodyClasses="flex-fill"
+		title='<%= LanguageUtil.get(request, "details") %>'
+	>
+		<commerce-ui:info-box
+			title='<%= LanguageUtil.get(request, "type") %>'
+		>
+			<div class="item mb-4 pl-4">
+				<liferay-ui:message key="site" />
+			</div>
+		</commerce-ui:info-box>
+
+		<liferay-ui:search-container
+			curParam="commerceChannelSiteCur"
+			headerNames="null,null"
+			id="<%= searchContainerId %>"
+			iteratorURL="<%= currentURLObj %>"
+			total="<%= groups.size() %>"
+		>
+			<liferay-ui:search-container-results
+				results="<%= groups %>"
+			/>
+
+			<liferay-ui:search-container-row
+				className="com.liferay.portal.kernel.model.Group"
+				keyProperty="groupId"
+				modelVar="group"
 			>
-				<commerce-ui:info-box
-					title='<%= LanguageUtil.get(request, "type") %>'
-				>
-					<div class="item mb-4 pl-4">
-						<liferay-ui:message key="site" />
-					</div>
-				</commerce-ui:info-box>
-
-				<liferay-ui:search-container
-					curParam="commerceChannelSiteCur"
-					headerNames="null,null"
-					id="<%= searchContainerId %>"
-					iteratorURL="<%= currentURLObj %>"
-					total="<%= groups.size() %>"
-				>
-					<liferay-ui:search-container-results
-						results="<%= groups %>"
-					/>
-
-					<liferay-ui:search-container-row
-						className="com.liferay.portal.kernel.model.Group"
-						keyProperty="groupId"
-						modelVar="group"
-					>
-						<liferay-ui:search-container-column-text
-							cssClass="table-cell-expand"
-							value="<%= HtmlUtil.escape(group.getName(locale)) %>"
-						/>
-
-						<c:if test="<%= !viewOnly %>">
-							<liferay-ui:search-container-column-text>
-								<a class="float-right modify-link" data-rowId="<%= group.getGroupId() %>" href="javascript:;"><%= removeCommerceChannelSiteIcon %></a>
-							</liferay-ui:search-container-column-text>
-						</c:if>
-					</liferay-ui:search-container-row>
-
-					<liferay-ui:search-iterator
-						markupView="lexicon"
-					/>
-				</liferay-ui:search-container>
+				<liferay-ui:search-container-column-text
+					cssClass="table-cell-expand"
+					value="<%= HtmlUtil.escape(group.getName(locale)) %>"
+				/>
 
 				<c:if test="<%= !viewOnly %>">
-					<aui:button cssClass="mb-4" name="selectSite" value='<%= LanguageUtil.format(locale, "select-x", "site") %>' />
+					<liferay-ui:search-container-column-text>
+						<a class="float-right modify-link" data-rowId="<%= group.getGroupId() %>" href="javascript:;"><%= removeCommerceChannelSiteIcon %></a>
+					</liferay-ui:search-container-column-text>
 				</c:if>
-			</commerce-ui:panel>
-		</div>
-	</div>
+			</liferay-ui:search-container-row>
+
+			<liferay-ui:search-iterator
+				markupView="lexicon"
+			/>
+		</liferay-ui:search-container>
+
+		<c:if test="<%= !viewOnly %>">
+			<aui:button cssClass="mb-4" name="selectSite" value='<%= LanguageUtil.format(locale, "select-x", "site") %>' />
+		</c:if>
+	</commerce-ui:panel>
 </aui:form>
 
 <liferay-frontend:component

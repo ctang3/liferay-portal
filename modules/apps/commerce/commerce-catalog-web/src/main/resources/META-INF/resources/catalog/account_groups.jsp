@@ -22,21 +22,17 @@ CommerceCatalogDisplayContext commerceCatalogDisplayContext = (CommerceCatalogDi
 CommerceCatalog commerceCatalog = commerceCatalogDisplayContext.getCommerceCatalog();
 %>
 
-<div class="row">
-	<div class="col-12">
-		<clay:data-set-display
-			contextParams='<%=
-				HashMapBuilder.<String, String>put(
-					"commerceCatalogId", String.valueOf(commerceCatalog.getCommerceCatalogId())
-				).build()
-			%>'
-			dataProviderKey="<%= CommerceCatalogDataSetConstants.COMMERCE_DATA_SET_KEY_CATALOG_ACCOUNT_GROUPS %>"
-			id="<%= CommerceCatalogDataSetConstants.COMMERCE_DATA_SET_KEY_CATALOG_ACCOUNT_GROUPS %>"
-			itemsPerPage="<%= 10 %>"
-			namespace="<%= liferayPortletResponse.getNamespace() %>"
-			pageNumber="<%= 1 %>"
-			portletURL="<%= commerceCatalogDisplayContext.getPortletURL() %>"
-			style="fluid"
-		/>
-	</div>
-</div>
+<clay:data-set-display
+	contextParams='<%=
+		HashMapBuilder.<String, String>put(
+			"commerceCatalogId", String.valueOf(commerceCatalog.getCommerceCatalogId())
+		).build()
+	%>'
+	dataProviderKey="<%= CommerceCatalogDataSetConstants.COMMERCE_DATA_SET_KEY_CATALOG_ACCOUNT_GROUPS %>"
+	id="<%= CommerceCatalogDataSetConstants.COMMERCE_DATA_SET_KEY_CATALOG_ACCOUNT_GROUPS %>"
+	itemsPerPage="<%= 10 %>"
+	namespace="<%= liferayPortletResponse.getNamespace() %>"
+	pageNumber="<%= 1 %>"
+	portletURL="<%= commerceCatalogDisplayContext.getPortletURL() %>"
+	style="fluid"
+/>

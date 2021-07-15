@@ -285,7 +285,7 @@ function defineServerResponses(app) {
 				{
 					countryId: '001',
 					countryName: 'United States',
-					fields: [
+					restrictionFields: [
 						{
 							label: 'Money Order',
 							name: 'autorizeDotNet',
@@ -306,7 +306,7 @@ function defineServerResponses(app) {
 				{
 					countryId: '002',
 					countryName: 'Afghanistan',
-					fields: [
+					restrictionFields: [
 						{
 							label: 'Money Order',
 							name: 'autorizeDotNet',
@@ -327,7 +327,7 @@ function defineServerResponses(app) {
 				{
 					countryId: '003',
 					countryName: 'Albania',
-					fields: [
+					restrictionFields: [
 						{
 							label: 'Money Order',
 							name: 'autorizeDotNet',
@@ -348,7 +348,7 @@ function defineServerResponses(app) {
 				{
 					countryId: '004',
 					countryName: 'Algeria',
-					fields: [
+					restrictionFields: [
 						{
 							label: 'Money Order',
 							name: 'autorizeDotNet',
@@ -369,7 +369,7 @@ function defineServerResponses(app) {
 				{
 					countryId: '005',
 					countryName: 'American Samoa',
-					fields: [
+					restrictionFields: [
 						{
 							label: 'Money Order',
 							name: 'autorizeDotNet',

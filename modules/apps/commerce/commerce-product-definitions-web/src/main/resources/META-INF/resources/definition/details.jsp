@@ -325,6 +325,7 @@ if ((cpDefinition != null) && (cpDefinition.getExpirationDate() != null)) {
 						namespace="<%= liferayPortletResponse.getNamespace() %>"
 						pageNumber="<%= 1 %>"
 						portletURL="<%= currentURLObj %>"
+						selectedItemsKey="cpdefinitionSpecificationOptionValueId"
 						showManagementBar="<%= false %>"
 					/>
 				</commerce-ui:panel>

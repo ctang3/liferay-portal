@@ -88,6 +88,11 @@ public class ObjectEntryLocalServiceTest {
 				TestPropsValues.getUserId(), "Irrelevant",
 				Collections.<ObjectField>emptyList());
 
+		_irrelevantObjectDefinition =
+			ObjectDefinitionLocalServiceUtil.publishCustomObjectDefinition(
+				TestPropsValues.getUserId(),
+				_irrelevantObjectDefinition.getObjectDefinitionId());
+
 		List<ObjectField> objectFields = Arrays.asList(
 			_createObjectField(true, false, "ageOfDeath", false, "Long"),
 			_createObjectField(true, false, "authorOfGospel", false, "Boolean"),
@@ -108,6 +113,11 @@ public class ObjectEntryLocalServiceTest {
 		_objectDefinition =
 			ObjectDefinitionLocalServiceUtil.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), "Test", objectFields);
+
+		_objectDefinition =
+			ObjectDefinitionLocalServiceUtil.publishCustomObjectDefinition(
+				TestPropsValues.getUserId(),
+				_objectDefinition.getObjectDefinitionId());
 	}
 
 	@Test

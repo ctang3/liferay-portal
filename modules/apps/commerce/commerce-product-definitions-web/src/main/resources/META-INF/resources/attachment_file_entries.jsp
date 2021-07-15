@@ -46,6 +46,7 @@ Map<String, String> contextParams = HashMapBuilder.<String, String>put(
 				namespace="<%= liferayPortletResponse.getNamespace() %>"
 				pageNumber="<%= 1 %>"
 				portletURL="<%= portletURL %>"
+				selectedItemsKey="cpattachmentFileEntryId"
 			/>
 		</commerce-ui:panel>
 
@@ -63,6 +64,7 @@ Map<String, String> contextParams = HashMapBuilder.<String, String>put(
 				namespace="<%= liferayPortletResponse.getNamespace() %>"
 				pageNumber="<%= 1 %>"
 				portletURL="<%= portletURL %>"
+				selectedItemsKey="cpattachmentFileEntryId"
 			/>
 		</commerce-ui:panel>
 	</aui:form>

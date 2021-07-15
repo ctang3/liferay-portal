@@ -138,6 +138,7 @@ String defaultLanguageId = cpDefinitionOptionRelDisplayContext.getCatalogDefault
 					namespace="<%= liferayPortletResponse.getNamespace() %>"
 					pageNumber="<%= 1 %>"
 					portletURL="<%= currentURLObj %>"
+					selectedItemsKey="cpdefinitionOptionValueRelId"
 				/>
 			</commerce-ui:panel>
 		</div>
