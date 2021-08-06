@@ -75,8 +75,7 @@ public class UpgradePortletPreferences
 
 			Element rootElement = document.getRootElement();
 
-			Element assetEntryTypeElement = rootElement.element(
-				"asset-entry-type");
+			Element assetEntryTypeElement = rootElement.element("asset-type");
 
 			if (assetEntryTypeElement == null) {
 				continue;

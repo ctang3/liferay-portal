@@ -594,7 +594,7 @@ public class AssetPublisherWebHelper {
 			Element assetEntryElement = document.addElement("asset-entry");
 
 			Element assetEntryTypeElement = assetEntryElement.addElement(
-				"asset-entry-type");
+				"asset-type");
 
 			assetEntryTypeElement.addText(assetEntryType);
 

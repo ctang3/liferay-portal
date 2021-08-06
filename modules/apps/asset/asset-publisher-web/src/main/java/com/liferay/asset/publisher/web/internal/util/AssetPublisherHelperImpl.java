@@ -218,7 +218,7 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 
 			String assetEntryUuid = rootElement.elementText("asset-entry-uuid");
 
-			String assetEntryType = rootElement.elementText("asset-entry-type");
+			String assetEntryType = rootElement.elementText("asset-type");
 
 			AssetRendererFactory<?> assetRendererFactory =
 				AssetRendererFactoryRegistryUtil.
