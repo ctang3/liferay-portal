@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.settings.SettingsFactory;
+import com.liferay.portal.kernel.upgrade.CTModelUpgradeProcess;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeProcess;
 import com.liferay.portal.kernel.upgrade.MVCCVersionUpgradeProcess;
 import com.liferay.portal.kernel.uuid.PortalUUID;
@@ -222,6 +223,17 @@ public class CommerceProductUpgradeStepRegistrator
 				}
 
 			});
+
+		registry.register(
+			"3.5.0", "3.6.0",
+			new CTModelUpgradeProcess(
+				"CommerceCatalog", "CommerceChannel", "CommerceChannelRel",
+				"CPAttachmentFileEntry", "CPDefinition", "CPDefinitionLink",
+				"CPDefinitionOptionRel", "CPDefinitionOptionValueRel",
+				"CPDefinitionSpecificationOptionValue", "CPDisplayLayout",
+				"CPInstance", "CPInstanceOptionValueRel", "CPMeasurementUnit",
+				"CPOption", "CPOptionCategory", "CPOptionValue", "CProduct",
+				"CPSpecificationOption", "CPTaxCategory"));
 
 		if (_log.isInfoEnabled()) {
 			_log.info("Commerce product upgrade step registrator finished");
