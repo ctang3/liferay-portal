@@ -34,6 +34,7 @@ public class CommerceChannelRelSoap implements Serializable {
 		CommerceChannelRelSoap soapModel = new CommerceChannelRelSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setCommerceChannelRelId(model.getCommerceChannelRelId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
@@ -113,6 +114,14 @@ public class CommerceChannelRelSoap implements Serializable {
 		_mvccVersion = mvccVersion;
 	}
 
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
+	}
+
 	public long getCommerceChannelRelId() {
 		return _commerceChannelRelId;
 	}
@@ -186,6 +195,7 @@ public class CommerceChannelRelSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _commerceChannelRelId;
 	private long _companyId;
 	private long _userId;

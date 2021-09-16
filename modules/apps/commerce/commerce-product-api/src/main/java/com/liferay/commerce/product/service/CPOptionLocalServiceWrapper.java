@@ -14,7 +14,10 @@
 
 package com.liferay.commerce.product.service;
 
+import com.liferay.commerce.product.model.CPOption;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 /**
  * Provides a wrapper for {@link CPOptionLocalService}.
@@ -43,14 +46,12 @@ public class CPOptionLocalServiceWrapper
 	 * @return the cp option that was added
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption addCPOption(
-		com.liferay.commerce.product.model.CPOption cpOption) {
-
+	public CPOption addCPOption(CPOption cpOption) {
 		return _cpOptionLocalService.addCPOption(cpOption);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption addCPOption(
+	public CPOption addCPOption(
 			String externalReferenceCode, long userId,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -66,7 +67,7 @@ public class CPOptionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption addOrUpdateCPOption(
+	public CPOption addOrUpdateCPOption(
 			String externalReferenceCode, long userId,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -88,9 +89,7 @@ public class CPOptionLocalServiceWrapper
 	 * @return the new cp option
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption createCPOption(
-		long CPOptionId) {
-
+	public CPOption createCPOption(long CPOptionId) {
 		return _cpOptionLocalService.createCPOption(CPOptionId);
 	}
 
@@ -117,8 +116,7 @@ public class CPOptionLocalServiceWrapper
 	 * @throws PortalException
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption deleteCPOption(
-			com.liferay.commerce.product.model.CPOption cpOption)
+	public CPOption deleteCPOption(CPOption cpOption)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.deleteCPOption(cpOption);
@@ -136,8 +134,7 @@ public class CPOptionLocalServiceWrapper
 	 * @throws PortalException if a cp option with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption deleteCPOption(
-			long CPOptionId)
+	public CPOption deleteCPOption(long CPOptionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.deleteCPOption(CPOptionId);
@@ -264,24 +261,20 @@ public class CPOptionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-		fetchByExternalReferenceCode(
-			String externalReferenceCode, long companyId) {
+	public CPOption fetchByExternalReferenceCode(
+		String externalReferenceCode, long companyId) {
 
 		return _cpOptionLocalService.fetchByExternalReferenceCode(
 			externalReferenceCode, companyId);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption fetchCPOption(
-		long CPOptionId) {
-
+	public CPOption fetchCPOption(long CPOptionId) {
 		return _cpOptionLocalService.fetchCPOption(CPOptionId);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption fetchCPOption(
-			long companyId, String key)
+	public CPOption fetchCPOption(long companyId, String key)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.fetchCPOption(companyId, key);
@@ -295,9 +288,8 @@ public class CPOptionLocalServiceWrapper
 	 * @return the matching cp option, or <code>null</code> if a matching cp option could not be found
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-		fetchCPOptionByExternalReferenceCode(
-			long companyId, String externalReferenceCode) {
+	public CPOption fetchCPOptionByExternalReferenceCode(
+		long companyId, String externalReferenceCode) {
 
 		return _cpOptionLocalService.fetchCPOptionByExternalReferenceCode(
 			companyId, externalReferenceCode);
@@ -308,9 +300,8 @@ public class CPOptionLocalServiceWrapper
 	 */
 	@Deprecated
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-		fetchCPOptionByReferenceCode(
-			long companyId, String externalReferenceCode) {
+	public CPOption fetchCPOptionByReferenceCode(
+		long companyId, String externalReferenceCode) {
 
 		return _cpOptionLocalService.fetchCPOptionByReferenceCode(
 			companyId, externalReferenceCode);
@@ -324,20 +315,18 @@ public class CPOptionLocalServiceWrapper
 	 * @return the matching cp option, or <code>null</code> if a matching cp option could not be found
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-		fetchCPOptionByUuidAndCompanyId(String uuid, long companyId) {
+	public CPOption fetchCPOptionByUuidAndCompanyId(
+		String uuid, long companyId) {
 
 		return _cpOptionLocalService.fetchCPOptionByUuidAndCompanyId(
 			uuid, companyId);
 	}
 
 	@Override
-	public java.util.List<com.liferay.commerce.product.model.CPOption>
-		findCPOptionByCompanyId(
-			long companyId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.commerce.product.model.CPOption>
-					orderByComparator) {
+	public java.util.List<CPOption> findCPOptionByCompanyId(
+		long companyId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<CPOption>
+			orderByComparator) {
 
 		return _cpOptionLocalService.findCPOptionByCompanyId(
 			companyId, start, end, orderByComparator);
@@ -358,16 +347,14 @@ public class CPOptionLocalServiceWrapper
 	 * @throws PortalException if a cp option with the primary key could not be found
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption getCPOption(
-			long CPOptionId)
+	public CPOption getCPOption(long CPOptionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.getCPOption(CPOptionId);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption getCPOption(
-			long companyId, String key)
+	public CPOption getCPOption(long companyId, String key)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.getCPOption(companyId, key);
@@ -382,9 +369,8 @@ public class CPOptionLocalServiceWrapper
 	 * @throws PortalException if a matching cp option could not be found
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-			getCPOptionByExternalReferenceCode(
-				long companyId, String externalReferenceCode)
+	public CPOption getCPOptionByExternalReferenceCode(
+			long companyId, String externalReferenceCode)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.getCPOptionByExternalReferenceCode(
@@ -400,8 +386,7 @@ public class CPOptionLocalServiceWrapper
 	 * @throws PortalException if a matching cp option could not be found
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-			getCPOptionByUuidAndCompanyId(String uuid, long companyId)
+	public CPOption getCPOptionByUuidAndCompanyId(String uuid, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.getCPOptionByUuidAndCompanyId(
@@ -420,9 +405,7 @@ public class CPOptionLocalServiceWrapper
 	 * @return the range of cp options
 	 */
 	@Override
-	public java.util.List<com.liferay.commerce.product.model.CPOption>
-		getCPOptions(int start, int end) {
-
+	public java.util.List<CPOption> getCPOptions(int start, int end) {
 		return _cpOptionLocalService.getCPOptions(start, end);
 	}
 
@@ -480,11 +463,11 @@ public class CPOptionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.search.BaseModelSearchResult
-		<com.liferay.commerce.product.model.CPOption> searchCPOptions(
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<CPOption>
+			searchCPOptions(
 				long companyId, String keywords, int start, int end,
 				com.liferay.portal.kernel.search.Sort sort)
-			throws com.liferay.portal.kernel.exception.PortalException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.searchCPOptions(
 			companyId, keywords, start, end, sort);
@@ -501,14 +484,12 @@ public class CPOptionLocalServiceWrapper
 	 * @return the cp option that was updated
 	 */
 	@Override
-	public com.liferay.commerce.product.model.CPOption updateCPOption(
-		com.liferay.commerce.product.model.CPOption cpOption) {
-
+	public CPOption updateCPOption(CPOption cpOption) {
 		return _cpOptionLocalService.updateCPOption(cpOption);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption updateCPOption(
+	public CPOption updateCPOption(
 			long cpOptionId, java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			String ddmFormFieldTypeName, boolean facetable, boolean required,
@@ -522,13 +503,31 @@ public class CPOptionLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-			updateCPOptionExternalReferenceCode(
-				String externalReferenceCode, long cpOptionId)
+	public CPOption updateCPOptionExternalReferenceCode(
+			String externalReferenceCode, long cpOptionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.updateCPOptionExternalReferenceCode(
 			externalReferenceCode, cpOptionId);
+	}
+
+	@Override
+	public CTPersistence<CPOption> getCTPersistence() {
+		return _cpOptionLocalService.getCTPersistence();
+	}
+
+	@Override
+	public Class<CPOption> getModelClass() {
+		return _cpOptionLocalService.getModelClass();
+	}
+
+	@Override
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<CPOption>, R, E> updateUnsafeFunction)
+		throws E {
+
+		return _cpOptionLocalService.updateWithUnsafeFunction(
+			updateUnsafeFunction);
 	}
 
 	@Override

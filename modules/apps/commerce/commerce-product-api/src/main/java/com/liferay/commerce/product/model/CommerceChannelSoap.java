@@ -34,6 +34,7 @@ public class CommerceChannelSoap implements Serializable {
 		CommerceChannelSoap soapModel = new CommerceChannelSoap();
 
 		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setExternalReferenceCode(model.getExternalReferenceCode());
 		soapModel.setCommerceChannelId(model.getCommerceChannelId());
 		soapModel.setCompanyId(model.getCompanyId());
@@ -113,6 +114,14 @@ public class CommerceChannelSoap implements Serializable {
 
 	public void setMvccVersion(long mvccVersion) {
 		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getExternalReferenceCode() {
@@ -232,6 +241,7 @@ public class CommerceChannelSoap implements Serializable {
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _externalReferenceCode;
 	private long _commerceChannelId;
 	private long _companyId;
