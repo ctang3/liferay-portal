@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.product.service;
 
+import com.liferay.commerce.product.model.CPMeasurementUnit;
 import com.liferay.portal.kernel.service.ServiceWrapper;
 
 /**
@@ -34,11 +35,10 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPMeasurementUnit
-			addCPMeasurementUnit(
-				java.util.Map<java.util.Locale, String> nameMap, String key,
-				double rate, boolean primary, double priority, int type,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+	public CPMeasurementUnit addCPMeasurementUnit(
+			java.util.Map<java.util.Locale, String> nameMap, String key,
+			double rate, boolean primary, double priority, int type,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpMeasurementUnitService.addCPMeasurementUnit(
@@ -53,8 +53,8 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPMeasurementUnit
-			fetchPrimaryCPMeasurementUnit(long companyId, int type)
+	public CPMeasurementUnit fetchPrimaryCPMeasurementUnit(
+			long companyId, int type)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpMeasurementUnitService.fetchPrimaryCPMeasurementUnit(
@@ -62,8 +62,7 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPMeasurementUnit
-			getCPMeasurementUnit(long cpMeasurementUnitId)
+	public CPMeasurementUnit getCPMeasurementUnit(long cpMeasurementUnitId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpMeasurementUnitService.getCPMeasurementUnit(
@@ -71,12 +70,10 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public java.util.List<com.liferay.commerce.product.model.CPMeasurementUnit>
-			getCPMeasurementUnits(
-				long companyId, int type, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.commerce.product.model.CPMeasurementUnit>
-						orderByComparator)
+	public java.util.List<CPMeasurementUnit> getCPMeasurementUnits(
+			long companyId, int type, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<CPMeasurementUnit>
+				orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpMeasurementUnitService.getCPMeasurementUnits(
@@ -84,12 +81,10 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public java.util.List<com.liferay.commerce.product.model.CPMeasurementUnit>
-			getCPMeasurementUnits(
-				long companyId, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.commerce.product.model.CPMeasurementUnit>
-						orderByComparator)
+	public java.util.List<CPMeasurementUnit> getCPMeasurementUnits(
+			long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<CPMeasurementUnit>
+				orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpMeasurementUnitService.getCPMeasurementUnits(
@@ -122,7 +117,7 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPMeasurementUnit setPrimary(
+	public CPMeasurementUnit setPrimary(
 			long cpMeasurementUnitId, boolean primary)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -131,12 +126,11 @@ public class CPMeasurementUnitServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPMeasurementUnit
-			updateCPMeasurementUnit(
-				long cpMeasurementUnitId,
-				java.util.Map<java.util.Locale, String> nameMap, String key,
-				double rate, boolean primary, double priority, int type,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+	public CPMeasurementUnit updateCPMeasurementUnit(
+			long cpMeasurementUnitId,
+			java.util.Map<java.util.Locale, String> nameMap, String key,
+			double rate, boolean primary, double priority, int type,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpMeasurementUnitService.updateCPMeasurementUnit(
