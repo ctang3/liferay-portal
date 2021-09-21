@@ -36,6 +36,10 @@ public class CPDefinitionLinkTableReferenceDefinition
 	public void defineChildTableReferences(
 		ChildTableReferenceInfoBuilder<CPDefinitionLinkTable>
 			childTableReferenceInfoBuilder) {
+
+		childTableReferenceInfoBuilder.singleColumnReference(
+			CPDefinitionLinkTable.INSTANCE.CPDefinitionId,
+			CPDefinitionTable.INSTANCE.CPDefinitionId);
 	}
 
 	@Override
