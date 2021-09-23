@@ -18,9 +18,8 @@ import com.liferay.change.tracking.spi.reference.TableReferenceDefinition;
 import com.liferay.change.tracking.spi.reference.builder.ChildTableReferenceInfoBuilder;
 import com.liferay.change.tracking.spi.reference.builder.ParentTableReferenceInfoBuilder;
 import com.liferay.commerce.product.model.CPDefinitionOptionRelTable;
-import com.liferay.commerce.product.model.CPDefinitionTable;
-import com.liferay.commerce.product.model.CPOptionTable;
-import com.liferay.commerce.product.service.persistence.CPDefinitionOptionRelPersistence;
+import com.liferay.commerce.product.model.CPDefinitionOptionValueRelTable;
+import com.liferay.commerce.product.service.persistence.CPDefinitionOptionValueRelPersistence;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
 import org.osgi.service.component.annotations.Component;
@@ -30,47 +29,40 @@ import org.osgi.service.component.annotations.Reference;
  * @author Cheryl Tang
  */
 @Component(enabled = false, service = TableReferenceDefinition.class)
-public class CPDefinitionOptionRelTableReferenceDefinition
-	implements TableReferenceDefinition<CPDefinitionOptionRelTable> {
+public class CPDefinitionOptionValueRelTableReferenceDefinition
+	implements TableReferenceDefinition<CPDefinitionOptionValueRelTable> {
 
 	@Override
 	public void defineChildTableReferences(
-		ChildTableReferenceInfoBuilder<CPDefinitionOptionRelTable>
+		ChildTableReferenceInfoBuilder<CPDefinitionOptionValueRelTable>
 			childTableReferenceInfoBuilder) {
-
-		childTableReferenceInfoBuilder.singleColumnReference(
-			CPDefinitionOptionRelTable.INSTANCE.CPOptionId,
-			CPOptionTable.INSTANCE.CPOptionId
-		).singleColumnReference(
-			CPDefinitionOptionRelTable.INSTANCE.CPDefinitionId,
-			CPDefinitionTable.INSTANCE.CPDefinitionId
-		);
 	}
 
 	@Override
 	public void defineParentTableReferences(
-		ParentTableReferenceInfoBuilder<CPDefinitionOptionRelTable>
+		ParentTableReferenceInfoBuilder<CPDefinitionOptionValueRelTable>
 			parentTableReferenceInfoBuilder) {
 
 		parentTableReferenceInfoBuilder.groupedModel(
-			CPDefinitionOptionRelTable.INSTANCE
+			CPDefinitionOptionValueRelTable.INSTANCE
 		).singleColumnReference(
-			CPDefinitionOptionRelTable.INSTANCE.CPDefinitionId,
-			CPDefinitionTable.INSTANCE.CPDefinitionId
+			CPDefinitionOptionValueRelTable.INSTANCE.CPDefinitionOptionRelId,
+			CPDefinitionOptionRelTable.INSTANCE.CPDefinitionOptionRelId
 		);
 	}
 
 	@Override
 	public BasePersistence<?> getBasePersistence() {
-		return _cpDefinitionOptionRelPersistence;
+		return _cpDefinitionOptionValueRelPersistence;
 	}
 
 	@Override
-	public CPDefinitionOptionRelTable getTable() {
-		return CPDefinitionOptionRelTable.INSTANCE;
+	public CPDefinitionOptionValueRelTable getTable() {
+		return CPDefinitionOptionValueRelTable.INSTANCE;
 	}
 
 	@Reference
-	private CPDefinitionOptionRelPersistence _cpDefinitionOptionRelPersistence;
+	private CPDefinitionOptionValueRelPersistence
+		_cpDefinitionOptionValueRelPersistence;
 
 }
