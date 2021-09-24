@@ -17,10 +17,9 @@ package com.liferay.commerce.product.internal.change.tracking.spi.reference;
 import com.liferay.change.tracking.spi.reference.TableReferenceDefinition;
 import com.liferay.change.tracking.spi.reference.builder.ChildTableReferenceInfoBuilder;
 import com.liferay.change.tracking.spi.reference.builder.ParentTableReferenceInfoBuilder;
-import com.liferay.commerce.product.model.CPDefinitionTable;
 import com.liferay.commerce.product.model.CPInstanceOptionValueRelTable;
 import com.liferay.commerce.product.model.CPInstanceTable;
-import com.liferay.commerce.product.service.persistence.CPInstancePersistence;
+import com.liferay.commerce.product.service.persistence.CPInstanceOptionValueRelPersistence;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
 import org.osgi.service.component.annotations.Component;
@@ -30,43 +29,40 @@ import org.osgi.service.component.annotations.Reference;
  * @author Cheryl Tang
  */
 @Component(enabled = false, service = TableReferenceDefinition.class)
-public class CPInstanceTableReferenceDefinition
-	implements TableReferenceDefinition<CPInstanceTable> {
+public class CPInstanceOptionValueRelTableReferenceDefinition
+	implements TableReferenceDefinition<CPInstanceOptionValueRelTable> {
 
 	@Override
 	public void defineChildTableReferences(
-		ChildTableReferenceInfoBuilder<CPInstanceTable>
+		ChildTableReferenceInfoBuilder<CPInstanceOptionValueRelTable>
 			childTableReferenceInfoBuilder) {
-
-		childTableReferenceInfoBuilder.singleColumnReference(
-			CPInstanceTable.INSTANCE.CPInstanceId,
-			CPInstanceOptionValueRelTable.INSTANCE.CPInstanceId);
 	}
 
 	@Override
 	public void defineParentTableReferences(
-		ParentTableReferenceInfoBuilder<CPInstanceTable>
+		ParentTableReferenceInfoBuilder<CPInstanceOptionValueRelTable>
 			parentTableReferenceInfoBuilder) {
 
 		parentTableReferenceInfoBuilder.groupedModel(
-			CPInstanceTable.INSTANCE
+			CPInstanceOptionValueRelTable.INSTANCE
 		).singleColumnReference(
-			CPInstanceTable.INSTANCE.CPDefinitionId,
-			CPDefinitionTable.INSTANCE.CPDefinitionId
+			CPInstanceOptionValueRelTable.INSTANCE.CPInstanceId,
+			CPInstanceTable.INSTANCE.CPInstanceId
 		);
 	}
 
 	@Override
 	public BasePersistence<?> getBasePersistence() {
-		return _cpInstancePersistence;
+		return _cpInstanceOptionValueRelPersistence;
 	}
 
 	@Override
-	public CPInstanceTable getTable() {
-		return CPInstanceTable.INSTANCE;
+	public CPInstanceOptionValueRelTable getTable() {
+		return CPInstanceOptionValueRelTable.INSTANCE;
 	}
 
 	@Reference
-	private CPInstancePersistence _cpInstancePersistence;
+	private CPInstanceOptionValueRelPersistence
+		_cpInstanceOptionValueRelPersistence;
 
 }
