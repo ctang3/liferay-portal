@@ -17,10 +17,11 @@ package com.liferay.commerce.product.internal.change.tracking.spi.reference;
 import com.liferay.change.tracking.spi.reference.TableReferenceDefinition;
 import com.liferay.change.tracking.spi.reference.builder.ChildTableReferenceInfoBuilder;
 import com.liferay.change.tracking.spi.reference.builder.ParentTableReferenceInfoBuilder;
-import com.liferay.commerce.product.model.CPDefinitionSpecificationOptionValueTable;
-import com.liferay.commerce.product.model.CPDefinitionTable;
+import com.liferay.commerce.product.model.CPOptionCategoryTable;
+import com.liferay.commerce.product.model.CPSpecificationOption;
 import com.liferay.commerce.product.model.CPSpecificationOptionTable;
-import com.liferay.commerce.product.service.persistence.CPDefinitionSpecificationOptionValuePersistence;
+import com.liferay.commerce.product.service.persistence.CPSpecificationOptionPersistence;
+import com.liferay.portal.kernel.model.CompanyTable;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
 import org.osgi.service.component.annotations.Component;
@@ -30,47 +31,44 @@ import org.osgi.service.component.annotations.Reference;
  * @author Cheryl Tang
  */
 @Component(enabled = false, service = TableReferenceDefinition.class)
-public class CPDefinitionSpecificationOptionValueTableReferenceDefinition
-	implements TableReferenceDefinition
-		<CPDefinitionSpecificationOptionValueTable> {
+public class CPSpecificationOptionTableReferenceDefinition
+	implements TableReferenceDefinition<CPSpecificationOptionTable> {
 
 	@Override
 	public void defineChildTableReferences(
-		ChildTableReferenceInfoBuilder
-			<CPDefinitionSpecificationOptionValueTable>
-				childTableReferenceInfoBuilder) {
+		ChildTableReferenceInfoBuilder<CPSpecificationOptionTable>
+			childTableReferenceInfoBuilder) {
+
+		childTableReferenceInfoBuilder.resourcePermissionReference(
+			CPSpecificationOptionTable.INSTANCE.CPSpecificationOptionId,
+			CPSpecificationOption.class);
 	}
 
 	@Override
 	public void defineParentTableReferences(
-		ParentTableReferenceInfoBuilder
-			<CPDefinitionSpecificationOptionValueTable>
-				parentTableReferenceInfoBuilder) {
+		ParentTableReferenceInfoBuilder<CPSpecificationOptionTable>
+			parentTableReferenceInfoBuilder) {
 
-		parentTableReferenceInfoBuilder.groupedModel(
-			CPDefinitionSpecificationOptionValueTable.INSTANCE
+		parentTableReferenceInfoBuilder.singleColumnReference(
+			CPSpecificationOptionTable.INSTANCE.companyId,
+			CompanyTable.INSTANCE.companyId
 		).singleColumnReference(
-			CPDefinitionSpecificationOptionValueTable.INSTANCE.CPDefinitionId,
-			CPDefinitionTable.INSTANCE.CPDefinitionId
-		).singleColumnReference(
-			CPDefinitionSpecificationOptionValueTable.INSTANCE.
-				CPSpecificationOptionId,
-			CPSpecificationOptionTable.INSTANCE.CPSpecificationOptionId
+			CPSpecificationOptionTable.INSTANCE.CPOptionCategoryId,
+			CPOptionCategoryTable.INSTANCE.CPOptionCategoryId
 		);
 	}
 
 	@Override
 	public BasePersistence<?> getBasePersistence() {
-		return _cpDefinitionSpecificationOptionValuePersistence;
+		return _cpSpecificationOptionPersistence;
 	}
 
 	@Override
-	public CPDefinitionSpecificationOptionValueTable getTable() {
-		return CPDefinitionSpecificationOptionValueTable.INSTANCE;
+	public CPSpecificationOptionTable getTable() {
+		return CPSpecificationOptionTable.INSTANCE;
 	}
 
 	@Reference
-	private CPDefinitionSpecificationOptionValuePersistence
-		_cpDefinitionSpecificationOptionValuePersistence;
+	private CPSpecificationOptionPersistence _cpSpecificationOptionPersistence;
 
 }
