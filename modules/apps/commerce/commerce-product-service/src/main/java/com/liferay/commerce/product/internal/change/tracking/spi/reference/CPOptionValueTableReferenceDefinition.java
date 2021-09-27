@@ -18,8 +18,10 @@ import com.liferay.change.tracking.spi.reference.TableReferenceDefinition;
 import com.liferay.change.tracking.spi.reference.builder.ChildTableReferenceInfoBuilder;
 import com.liferay.change.tracking.spi.reference.builder.ParentTableReferenceInfoBuilder;
 import com.liferay.commerce.product.model.CPOptionTable;
+import com.liferay.commerce.product.model.CPOptionValue;
 import com.liferay.commerce.product.model.CPOptionValueTable;
 import com.liferay.commerce.product.service.persistence.CPOptionValuePersistence;
+import com.liferay.portal.kernel.model.CompanyTable;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
 import org.osgi.service.component.annotations.Component;
@@ -36,6 +38,13 @@ public class CPOptionValueTableReferenceDefinition
 	public void defineChildTableReferences(
 		ChildTableReferenceInfoBuilder<CPOptionValueTable>
 			childTableReferenceInfoBuilder) {
+
+		childTableReferenceInfoBuilder.resourcePermissionReference(
+			CPOptionValueTable.INSTANCE.CPOptionValueId, CPOptionValue.class
+		).singleColumnReference(
+			CPOptionValueTable.INSTANCE.CPOptionId,
+			CPOptionTable.INSTANCE.CPOptionId
+		);
 	}
 
 	@Override
@@ -44,8 +53,12 @@ public class CPOptionValueTableReferenceDefinition
 			parentTableReferenceInfoBuilder) {
 
 		parentTableReferenceInfoBuilder.singleColumnReference(
+			CPOptionValueTable.INSTANCE.companyId,
+			CompanyTable.INSTANCE.companyId
+		).singleColumnReference(
 			CPOptionValueTable.INSTANCE.CPOptionId,
-			CPOptionTable.INSTANCE.CPOptionId);
+			CPOptionTable.INSTANCE.CPOptionId
+		);
 	}
 
 	@Override
