@@ -14,13 +14,17 @@
 
 package com.liferay.commerce.price.list.internal.model.listener;
 
+import com.liferay.commerce.price.list.model.CommercePriceEntry;
 import com.liferay.commerce.price.list.service.CommercePriceEntryLocalService;
 import com.liferay.commerce.product.model.CPInstance;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+
+import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,10 +37,16 @@ public class CPInstanceModelListener extends BaseModelListener<CPInstance> {
 
 	@Override
 	public void onBeforeRemove(CPInstance cpInstance) {
+		List<CommercePriceEntry> commercePriceEntries =
+			_commercePriceEntryLocalService.getInstanceCommercePriceEntries(
+				cpInstance.getCPInstanceUuid(), QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS);
+
 		try {
-			_commercePriceEntryLocalService.
-				deleteCommercePriceEntriesByCPInstanceId(
-					cpInstance.getCPInstanceId());
+			for (CommercePriceEntry commercePriceEntry : commercePriceEntries) {
+				_commercePriceEntryLocalService.deleteCommercePriceEntry(
+					commercePriceEntry);
+			}
 		}
 		catch (PortalException portalException) {
 			if (_log.isWarnEnabled()) {
