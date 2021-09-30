@@ -88,6 +88,17 @@ import ${import};
 			},
 			service = ${entity.name}${sessionTypeName}Service.class
 		)
+	<#elseif stringUtil.equals(sessionTypeName, "Local") && entity.isChangeTrackingEnabled()>
+		@OSGiBeanProperties(
+			<#if entity.versionEntity??>
+				property = {
+					"json.web.service.context.name=${portletShortName?lower_case}",
+					"json.web.service.context.path=${entity.name}"
+				},
+			</#if>
+
+			service = {CTService.class, ${entity.name}${sessionTypeName}Service.class}
+		)
 	<#elseif stringUtil.equals(sessionTypeName, "Local") && entity.versionEntity??>
 		<#assign versionEntity = entity.versionEntity />
 
