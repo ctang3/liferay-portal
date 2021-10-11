@@ -19,6 +19,7 @@ import com.liferay.change.tracking.spi.reference.builder.ChildTableReferenceInfo
 import com.liferay.change.tracking.spi.reference.builder.ParentTableReferenceInfoBuilder;
 import com.liferay.commerce.product.model.CPDefinitionLinkTable;
 import com.liferay.commerce.product.model.CPDefinitionTable;
+import com.liferay.commerce.product.model.CProductTable;
 import com.liferay.commerce.product.service.persistence.CPDefinitionLinkPersistence;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
@@ -52,6 +53,9 @@ public class CPDefinitionLinkTableReferenceDefinition
 		).singleColumnReference(
 			CPDefinitionLinkTable.INSTANCE.CPDefinitionId,
 			CPDefinitionTable.INSTANCE.CPDefinitionId
+		).singleColumnReference(
+			CPDefinitionLinkTable.INSTANCE.CProductId,
+			CProductTable.INSTANCE.CProductId
 		);
 	}
 
