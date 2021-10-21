@@ -87,10 +87,11 @@ public class CORCommerceOrderValidatorTest {
 
 		_group = GroupTestUtil.addGroup();
 
-		_commerceChannel = CommerceTestUtil.addCommerceChannel(
-			_group.getGroupId(), _commerceCurrency.getCode());
 		_commerceCurrency = CommerceCurrencyTestUtil.addCommerceCurrency(
 			_group.getCompanyId());
+
+		_commerceChannel = CommerceTestUtil.addCommerceChannel(
+			_group.getGroupId(), _commerceCurrency.getCode());
 
 		Calendar calendar = Calendar.getInstance();
 

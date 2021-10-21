@@ -40,7 +40,7 @@ definition {
 	macro addAndViewAccountGroup {
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Account Groups");
 
 		AccountGroups.addCP(
@@ -55,7 +55,7 @@ definition {
 	macro addAndViewBusinessAccount {
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Accounts");
 
 		Accounts.addBusinessAccount(
@@ -63,10 +63,7 @@ definition {
 			accountName = "${accountName}",
 			accountTaxID = "${accountTaxID}");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.viewEntryName(rowEntry = "${accountName}");
 	}
@@ -662,7 +659,7 @@ definition {
 	macro addUserToBusinessAccount {
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Account Users");
 
 		AccountUsers.addUser(

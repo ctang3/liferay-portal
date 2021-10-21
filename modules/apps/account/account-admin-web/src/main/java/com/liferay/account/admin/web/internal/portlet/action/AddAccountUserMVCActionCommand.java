@@ -82,7 +82,7 @@ public class AddAccountUserMVCActionCommand extends BaseMVCActionCommand {
 		long suffixId = ParamUtil.getLong(actionRequest, "suffixId");
 
 		try {
-			AccountEntryUserRel accountEntryUserRel;
+			AccountEntryUserRel accountEntryUserRel = null;
 
 			AccountEntry accountEntry =
 				_accountEntryLocalService.fetchAccountEntry(accountEntryId);
@@ -120,7 +120,7 @@ public class AddAccountUserMVCActionCommand extends BaseMVCActionCommand {
 							PortletKeys.PREFS_OWNER_ID_DEFAULT,
 							PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
 							themeDisplay.getPlid(), portletId),
-						actionRequest, "enableAutomaticSiteMembership");
+						actionRequest, "enableAutomaticSiteMembership", true);
 
 				if (enableAutomaticSiteMembership) {
 					_userLocalService.addGroupUser(

@@ -76,6 +76,7 @@ public class CommerceCatalogModelImpl
 	public static final String TABLE_NAME = "CommerceCatalog";
 
 	public static final Object[][] TABLE_COLUMNS = {
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"externalReferenceCode", Types.VARCHAR},
 		{"commerceCatalogId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
@@ -88,6 +89,8 @@ public class CommerceCatalogModelImpl
 		new HashMap<String, Integer>();
 
 	static {
+		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("commerceCatalogId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
@@ -102,7 +105,7 @@ public class CommerceCatalogModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CommerceCatalog (externalReferenceCode VARCHAR(75) null,commerceCatalogId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name VARCHAR(75) null,commerceCurrencyCode VARCHAR(75) null,catalogDefaultLanguageId VARCHAR(75) null,system_ BOOLEAN)";
+		"create table CommerceCatalog (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,externalReferenceCode VARCHAR(75) null,commerceCatalogId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name VARCHAR(75) null,commerceCurrencyCode VARCHAR(75) null,catalogDefaultLanguageId VARCHAR(75) null,system_ BOOLEAN,primary key (commerceCatalogId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table CommerceCatalog";
 
@@ -176,6 +179,8 @@ public class CommerceCatalogModelImpl
 
 		CommerceCatalog model = new CommerceCatalogImpl();
 
+		model.setMvccVersion(soapModel.getMvccVersion());
+		model.setCtCollectionId(soapModel.getCtCollectionId());
 		model.setExternalReferenceCode(soapModel.getExternalReferenceCode());
 		model.setCommerceCatalogId(soapModel.getCommerceCatalogId());
 		model.setCompanyId(soapModel.getCompanyId());
@@ -347,6 +352,17 @@ public class CommerceCatalogModelImpl
 			new LinkedHashMap<String, BiConsumer<CommerceCatalog, ?>>();
 
 		attributeGetterFunctions.put(
+			"mvccVersion", CommerceCatalog::getMvccVersion);
+		attributeSetterBiConsumers.put(
+			"mvccVersion",
+			(BiConsumer<CommerceCatalog, Long>)CommerceCatalog::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CommerceCatalog::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CommerceCatalog, Long>)
+				CommerceCatalog::setCtCollectionId);
+		attributeGetterFunctions.put(
 			"externalReferenceCode", CommerceCatalog::getExternalReferenceCode);
 		attributeSetterBiConsumers.put(
 			"externalReferenceCode",
@@ -408,6 +424,36 @@ public class CommerceCatalogModelImpl
 			attributeGetterFunctions);
 		_attributeSetterBiConsumers = Collections.unmodifiableMap(
 			(Map)attributeSetterBiConsumers);
+	}
+
+	@JSON
+	@Override
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -713,6 +759,8 @@ public class CommerceCatalogModelImpl
 	public Object clone() {
 		CommerceCatalogImpl commerceCatalogImpl = new CommerceCatalogImpl();
 
+		commerceCatalogImpl.setMvccVersion(getMvccVersion());
+		commerceCatalogImpl.setCtCollectionId(getCtCollectionId());
 		commerceCatalogImpl.setExternalReferenceCode(
 			getExternalReferenceCode());
 		commerceCatalogImpl.setCommerceCatalogId(getCommerceCatalogId());
@@ -736,6 +784,10 @@ public class CommerceCatalogModelImpl
 	public CommerceCatalog cloneWithOriginalValues() {
 		CommerceCatalogImpl commerceCatalogImpl = new CommerceCatalogImpl();
 
+		commerceCatalogImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		commerceCatalogImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		commerceCatalogImpl.setExternalReferenceCode(
 			this.<String>getColumnOriginalValue("externalReferenceCode"));
 		commerceCatalogImpl.setCommerceCatalogId(
@@ -836,6 +888,10 @@ public class CommerceCatalogModelImpl
 	public CacheModel<CommerceCatalog> toCacheModel() {
 		CommerceCatalogCacheModel commerceCatalogCacheModel =
 			new CommerceCatalogCacheModel();
+
+		commerceCatalogCacheModel.mvccVersion = getMvccVersion();
+
+		commerceCatalogCacheModel.ctCollectionId = getCtCollectionId();
 
 		commerceCatalogCacheModel.externalReferenceCode =
 			getExternalReferenceCode();
@@ -1005,6 +1061,8 @@ public class CommerceCatalogModelImpl
 
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _externalReferenceCode;
 	private long _commerceCatalogId;
 	private long _companyId;
@@ -1047,6 +1105,8 @@ public class CommerceCatalogModelImpl
 	private void _setColumnOriginalValues() {
 		_columnOriginalValues = new HashMap<String, Object>();
 
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put(
 			"externalReferenceCode", _externalReferenceCode);
 		_columnOriginalValues.put("commerceCatalogId", _commerceCatalogId);
@@ -1084,27 +1144,31 @@ public class CommerceCatalogModelImpl
 	static {
 		Map<String, Long> columnBitmasks = new HashMap<>();
 
-		columnBitmasks.put("externalReferenceCode", 1L);
+		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("commerceCatalogId", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("companyId", 4L);
+		columnBitmasks.put("externalReferenceCode", 4L);
 
-		columnBitmasks.put("userId", 8L);
+		columnBitmasks.put("commerceCatalogId", 8L);
 
-		columnBitmasks.put("userName", 16L);
+		columnBitmasks.put("companyId", 16L);
 
-		columnBitmasks.put("createDate", 32L);
+		columnBitmasks.put("userId", 32L);
 
-		columnBitmasks.put("modifiedDate", 64L);
+		columnBitmasks.put("userName", 64L);
 
-		columnBitmasks.put("name", 128L);
+		columnBitmasks.put("createDate", 128L);
 
-		columnBitmasks.put("commerceCurrencyCode", 256L);
+		columnBitmasks.put("modifiedDate", 256L);
 
-		columnBitmasks.put("catalogDefaultLanguageId", 512L);
+		columnBitmasks.put("name", 512L);
 
-		columnBitmasks.put("system_", 1024L);
+		columnBitmasks.put("commerceCurrencyCode", 1024L);
+
+		columnBitmasks.put("catalogDefaultLanguageId", 2048L);
+
+		columnBitmasks.put("system_", 4096L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

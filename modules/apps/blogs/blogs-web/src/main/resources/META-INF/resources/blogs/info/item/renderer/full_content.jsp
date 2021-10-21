@@ -31,7 +31,12 @@ String entryTitle = BlogsEntryUtil.getDisplayTitle(resourceBundle, entry);
 			%>
 
 			<c:if test="<%= Validator.isNotNull(coverImageURL) %>">
-				<div class="aspect-ratio aspect-ratio-8-to-3 aspect-ratio-bg-cover cover-image" style="background-image: url(<%= coverImageURL %>);"></div>
+
+				<%
+				String coverImageCaption = HtmlUtil.escapeAttribute(HtmlUtil.stripHtml(entry.getCoverImageCaption()));
+				%>
+
+				<div <c:if test="<%= Validator.isNotNull(coverImageCaption) %>">aria-label="<%= coverImageCaption %>" role="img"</c:if> class="aspect-ratio aspect-ratio-8-to-3 aspect-ratio-bg-cover cover-image" style="background-image: url(<%= coverImageURL %>);"></div>
 			</c:if>
 
 			<%= entry.getContent() %>

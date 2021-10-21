@@ -33,6 +33,8 @@ public class CPOptionValueSoap implements Serializable {
 	public static CPOptionValueSoap toSoapModel(CPOptionValue model) {
 		CPOptionValueSoap soapModel = new CPOptionValueSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUuid(model.getUuid());
 		soapModel.setExternalReferenceCode(model.getExternalReferenceCode());
 		soapModel.setCPOptionValueId(model.getCPOptionValueId());
@@ -97,6 +99,22 @@ public class CPOptionValueSoap implements Serializable {
 
 	public void setPrimaryKey(long pk) {
 		setCPOptionValueId(pk);
+	}
+
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getUuid() {
@@ -203,6 +221,8 @@ public class CPOptionValueSoap implements Serializable {
 		_lastPublishDate = lastPublishDate;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private String _externalReferenceCode;
 	private long _CPOptionValueId;

@@ -35,6 +35,10 @@ public class CPInstanceTable extends BaseTable<CPInstanceTable> {
 
 	public static final CPInstanceTable INSTANCE = new CPInstanceTable();
 
+	public final Column<CPInstanceTable, Long> mvccVersion = createColumn(
+		"mvccVersion", Long.class, Types.BIGINT, Column.FLAG_NULLITY);
+	public final Column<CPInstanceTable, Long> ctCollectionId = createColumn(
+		"ctCollectionId", Long.class, Types.BIGINT, Column.FLAG_PRIMARY);
 	public final Column<CPInstanceTable, String> uuid = createColumn(
 		"uuid_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<CPInstanceTable, String> externalReferenceCode =

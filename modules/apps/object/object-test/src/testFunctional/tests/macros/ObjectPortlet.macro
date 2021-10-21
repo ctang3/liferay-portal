@@ -1,9 +1,27 @@
 definition {
 
+	macro assertDuplicatedEntryNotPresent {
+		AssertElementNotPresent(
+			key_entry = "${entry}",
+			locator1 = "ObjectPortlet#DUPLICATED_ENTRY_VALUE");
+	}
+
 	macro assertEntryColumnNotPresent {
 		AssertElementNotPresent(
 			key_column = "${column}",
 			locator1 = "ObjectPortlet#ENTRY_COLUMN");
+	}
+
+	macro assertEntryDetailsLabelPresent {
+		AssertElementPresent(
+			key_entryLabel = "${entryLabel}",
+			locator1 = "ObjectPortlet#VIEW_ENTRY_DETAILS_LABEL");
+	}
+
+	macro assertEntryDetailsValuePresent {
+		AssertElementPresent(
+			key_entryValue = "${entryValue}",
+			locator1 = "ObjectPortlet#VIEW_ENTRY_DETAILS_VALUE");
 	}
 
 	macro assertEntryNotPresent {
@@ -125,6 +143,14 @@ definition {
 		AssertElementPresent(
 			key_entry = "${entry}",
 			locator1 = "ObjectPortlet#ENTRY_VALUE");
+	}
+
+	macro viewEntryDetails {
+		Click(
+			key_entry = "${entry}",
+			locator1 = "ObjectPortlet#ENTRY_KEBAB_MENU");
+
+		Click(locator1 = "ObjectPortlet#VIEW_ENTRY_BUTTON");
 	}
 
 }

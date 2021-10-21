@@ -15,8 +15,19 @@
 package com.liferay.document.library.web.internal.portlet.action;
 
 import com.liferay.document.library.constants.DLPortletKeys;
-import com.liferay.document.library.web.internal.helper.DLTrashHelper;
+import com.liferay.document.library.kernel.exception.NoSuchFolderException;
+import com.liferay.document.library.web.internal.display.context.DLSelectFolderDisplayContext;
+import com.liferay.document.library.web.internal.display.context.logic.DLVisualizationHelper;
+import com.liferay.document.library.web.internal.display.context.util.DLRequestHelper;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.util.Portal;
+
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -36,19 +47,37 @@ import org.osgi.service.component.annotations.Reference;
 	},
 	service = MVCRenderCommand.class
 )
-public class SelectFolderMVCRenderCommand extends BaseFolderMVCRenderCommand {
+public class SelectFolderMVCRenderCommand implements MVCRenderCommand {
 
 	@Override
-	protected DLTrashHelper getDLTrashHelper() {
-		return _dlTrashHelper;
-	}
+	public String render(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws PortletException {
 
-	@Override
-	protected String getPath() {
-		return "/document_library/select_folder.jsp";
+		try {
+			renderRequest.setAttribute(
+				DLSelectFolderDisplayContext.class.getName(),
+				new DLSelectFolderDisplayContext(
+					new DLVisualizationHelper(
+						new DLRequestHelper(
+							_portal.getHttpServletRequest(renderRequest))),
+					ActionUtil.getFolder(renderRequest),
+					_portal.getHttpServletRequest(renderRequest),
+					_portal.getLiferayPortletResponse(renderResponse)));
+
+			return "/document_library/select_folder.jsp";
+		}
+		catch (NoSuchFolderException | PrincipalException exception) {
+			SessionErrors.add(renderRequest, exception.getClass());
+
+			return "/document_library/error.jsp";
+		}
+		catch (PortalException portalException) {
+			throw new PortletException(portalException);
+		}
 	}
 
 	@Reference
-	private DLTrashHelper _dlTrashHelper;
+	private Portal _portal;
 
 }

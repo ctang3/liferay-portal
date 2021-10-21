@@ -35,6 +35,8 @@ public class CPDefinitionOptionRelSoap implements Serializable {
 
 		CPDefinitionOptionRelSoap soapModel = new CPDefinitionOptionRelSoap();
 
+		soapModel.setMvccVersion(model.getMvccVersion());
+		soapModel.setCtCollectionId(model.getCtCollectionId());
 		soapModel.setUuid(model.getUuid());
 		soapModel.setCPDefinitionOptionRelId(
 			model.getCPDefinitionOptionRelId());
@@ -115,6 +117,22 @@ public class CPDefinitionOptionRelSoap implements Serializable {
 
 	public void setPrimaryKey(long pk) {
 		setCPDefinitionOptionRelId(pk);
+	}
+
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	public void setMvccVersion(long mvccVersion) {
+		_mvccVersion = mvccVersion;
+	}
+
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	public String getUuid() {
@@ -281,6 +299,8 @@ public class CPDefinitionOptionRelSoap implements Serializable {
 		_priceType = priceType;
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private long _CPDefinitionOptionRelId;
 	private long _groupId;

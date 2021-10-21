@@ -84,6 +84,7 @@ public class CPOptionModelImpl
 	public static final String TABLE_NAME = "CPOption";
 
 	public static final Object[][] TABLE_COLUMNS = {
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"uuid_", Types.VARCHAR}, {"externalReferenceCode", Types.VARCHAR},
 		{"CPOptionId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
@@ -98,6 +99,8 @@ public class CPOptionModelImpl
 		new HashMap<String, Integer>();
 
 	static {
+		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("CPOptionId", Types.BIGINT);
@@ -117,7 +120,7 @@ public class CPOptionModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CPOption (uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,CPOptionId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name STRING null,description STRING null,DDMFormFieldTypeName VARCHAR(75) null,facetable BOOLEAN,required BOOLEAN,skuContributor BOOLEAN,key_ VARCHAR(75) null,lastPublishDate DATE null)";
+		"create table CPOption (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,CPOptionId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name STRING null,description STRING null,DDMFormFieldTypeName VARCHAR(75) null,facetable BOOLEAN,required BOOLEAN,skuContributor BOOLEAN,key_ VARCHAR(75) null,lastPublishDate DATE null,primary key (CPOptionId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table CPOption";
 
@@ -195,6 +198,8 @@ public class CPOptionModelImpl
 
 		CPOption model = new CPOptionImpl();
 
+		model.setMvccVersion(soapModel.getMvccVersion());
+		model.setCtCollectionId(soapModel.getCtCollectionId());
 		model.setUuid(soapModel.getUuid());
 		model.setExternalReferenceCode(soapModel.getExternalReferenceCode());
 		model.setCPOptionId(soapModel.getCPOptionId());
@@ -364,6 +369,15 @@ public class CPOptionModelImpl
 		Map<String, BiConsumer<CPOption, ?>> attributeSetterBiConsumers =
 			new LinkedHashMap<String, BiConsumer<CPOption, ?>>();
 
+		attributeGetterFunctions.put("mvccVersion", CPOption::getMvccVersion);
+		attributeSetterBiConsumers.put(
+			"mvccVersion",
+			(BiConsumer<CPOption, Long>)CPOption::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CPOption::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CPOption, Long>)CPOption::setCtCollectionId);
 		attributeGetterFunctions.put("uuid", CPOption::getUuid);
 		attributeSetterBiConsumers.put(
 			"uuid", (BiConsumer<CPOption, String>)CPOption::setUuid);
@@ -427,6 +441,36 @@ public class CPOptionModelImpl
 			attributeGetterFunctions);
 		_attributeSetterBiConsumers = Collections.unmodifiableMap(
 			(Map)attributeSetterBiConsumers);
+	}
+
+	@JSON
+	@Override
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -1110,6 +1154,8 @@ public class CPOptionModelImpl
 	public Object clone() {
 		CPOptionImpl cpOptionImpl = new CPOptionImpl();
 
+		cpOptionImpl.setMvccVersion(getMvccVersion());
+		cpOptionImpl.setCtCollectionId(getCtCollectionId());
 		cpOptionImpl.setUuid(getUuid());
 		cpOptionImpl.setExternalReferenceCode(getExternalReferenceCode());
 		cpOptionImpl.setCPOptionId(getCPOptionId());
@@ -1136,6 +1182,10 @@ public class CPOptionModelImpl
 	public CPOption cloneWithOriginalValues() {
 		CPOptionImpl cpOptionImpl = new CPOptionImpl();
 
+		cpOptionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		cpOptionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		cpOptionImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
 		cpOptionImpl.setExternalReferenceCode(
 			this.<String>getColumnOriginalValue("externalReferenceCode"));
@@ -1238,6 +1288,10 @@ public class CPOptionModelImpl
 	@Override
 	public CacheModel<CPOption> toCacheModel() {
 		CPOptionCacheModel cpOptionCacheModel = new CPOptionCacheModel();
+
+		cpOptionCacheModel.mvccVersion = getMvccVersion();
+
+		cpOptionCacheModel.ctCollectionId = getCtCollectionId();
 
 		cpOptionCacheModel.uuid = getUuid();
 
@@ -1428,6 +1482,8 @@ public class CPOptionModelImpl
 
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private String _externalReferenceCode;
 	private long _CPOptionId;
@@ -1477,6 +1533,8 @@ public class CPOptionModelImpl
 	private void _setColumnOriginalValues() {
 		_columnOriginalValues = new HashMap<String, Object>();
 
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put("uuid_", _uuid);
 		_columnOriginalValues.put(
 			"externalReferenceCode", _externalReferenceCode);
@@ -1519,37 +1577,41 @@ public class CPOptionModelImpl
 	static {
 		Map<String, Long> columnBitmasks = new HashMap<>();
 
-		columnBitmasks.put("uuid_", 1L);
+		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("externalReferenceCode", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("CPOptionId", 4L);
+		columnBitmasks.put("uuid_", 4L);
 
-		columnBitmasks.put("companyId", 8L);
+		columnBitmasks.put("externalReferenceCode", 8L);
 
-		columnBitmasks.put("userId", 16L);
+		columnBitmasks.put("CPOptionId", 16L);
 
-		columnBitmasks.put("userName", 32L);
+		columnBitmasks.put("companyId", 32L);
 
-		columnBitmasks.put("createDate", 64L);
+		columnBitmasks.put("userId", 64L);
 
-		columnBitmasks.put("modifiedDate", 128L);
+		columnBitmasks.put("userName", 128L);
 
-		columnBitmasks.put("name", 256L);
+		columnBitmasks.put("createDate", 256L);
 
-		columnBitmasks.put("description", 512L);
+		columnBitmasks.put("modifiedDate", 512L);
 
-		columnBitmasks.put("DDMFormFieldTypeName", 1024L);
+		columnBitmasks.put("name", 1024L);
 
-		columnBitmasks.put("facetable", 2048L);
+		columnBitmasks.put("description", 2048L);
 
-		columnBitmasks.put("required", 4096L);
+		columnBitmasks.put("DDMFormFieldTypeName", 4096L);
 
-		columnBitmasks.put("skuContributor", 8192L);
+		columnBitmasks.put("facetable", 8192L);
 
-		columnBitmasks.put("key_", 16384L);
+		columnBitmasks.put("required", 16384L);
 
-		columnBitmasks.put("lastPublishDate", 32768L);
+		columnBitmasks.put("skuContributor", 32768L);
+
+		columnBitmasks.put("key_", 65536L);
+
+		columnBitmasks.put("lastPublishDate", 131072L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

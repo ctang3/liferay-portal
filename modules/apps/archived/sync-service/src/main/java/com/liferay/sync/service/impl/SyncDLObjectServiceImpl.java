@@ -1529,11 +1529,11 @@ public class SyncDLObjectServiceImpl extends SyncDLObjectServiceBaseImpl {
 			ServiceContext serviceContext, long groupId)
 		throws PortalException {
 
-		ServiceContext serviceContextThreadLocal =
+		ServiceContext currentServiceContext =
 			ServiceContextThreadLocal.getServiceContext();
 
 		HttpServletRequest httpServletRequest =
-			serviceContextThreadLocal.getRequest();
+			currentServiceContext.getRequest();
 
 		if (httpServletRequest == null) {
 			return;
@@ -1602,10 +1602,10 @@ public class SyncDLObjectServiceImpl extends SyncDLObjectServiceBaseImpl {
 
 		ServiceContext serviceContext = new ServiceContext();
 
-		ServiceContext serviceContextThreadLocal =
+		ServiceContext currentServiceContext =
 			ServiceContextThreadLocal.getServiceContext();
 
-		serviceContext.setRequest(serviceContextThreadLocal.getRequest());
+		serviceContext.setRequest(currentServiceContext.getRequest());
 
 		List<Map.Entry<String, Object>> innerParameters =
 			jsonWebServiceActionParametersMap.getInnerParameters(

@@ -371,12 +371,31 @@ definition {
 	}
 
 	@description = "LPS-135400 - Verify it is possible to delete a Relationship"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanDeleteRelationship {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
-		// TODO LPS-140591 CanDeleteRelationship pending implementation
+		ObjectAdmin.addObjectRelationshipViaAPI(
+			objectName_1 = "CustomObject",
+			objectName_2 = "CustomObject",
+			relationshipLabel = "Relationship",
+			relationshipName = "relationship",
+			relationshipType = "oneToMany");
 
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectAdmin.selectKebabMenuOption(kebabOption = "View");
+
+		ObjectAdmin.gotoRelationshipsTab();
+
+		ObjectAdmin.selectKebabMenuOption(kebabOption = "Delete");
+
+		AssertTextEquals(
+			locator1 = "Message#EMPTY_INFO",
+			value1 = "No items were found.");
 	}
 
 	@description = "LPS-135549 - Verify that it is not possible to create a Field with a duplicated Field Name"
@@ -431,22 +450,63 @@ definition {
 	}
 
 	@description = "LPS-135400 - Verify it is not possible to create duplicated Relationship name"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CannotCreateDuplicatedRelationshipName {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
-		// TODO LPS-140585 CannotCreateDuplicatedRelationshipName pending implementation
+		ObjectAdmin.addObjectRelationshipViaAPI(
+			objectName_1 = "CustomObject",
+			objectName_2 = "CustomObject",
+			relationshipLabel = "Relationship",
+			relationshipName = "relationship",
+			relationshipType = "oneToMany");
 
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectAdmin.selectKebabMenuOption(kebabOption = "View");
+
+		ObjectAdmin.gotoRelationshipsTab();
+
+		ObjectAdmin.addObjectRelationshipViaUI(label = "Relationship");
+
+		AssertTextEquals(
+			locator1 = "Message#ERROR",
+			value1 = "Duplicate name relationship");
 	}
 
 	@description = "LPS-135400 - Verify it is not possible to delete a Relationship when an Object is published"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CannotDeleteRelationshipWhenPublished {
 		property portal.acceptance = "true";
 
-		// TODO LPS-140592 CannotDeleteRelationshipWhenPublished pending implementation
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
+		ObjectAdmin.addObjectRelationshipViaAPI(
+			objectName_1 = "CustomObject",
+			objectName_2 = "CustomObject",
+			relationshipLabel = "Relationship",
+			relationshipName = "relationship",
+			relationshipType = "oneToMany");
+
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectPortlet.selectCustomObject(label = "Custom Object");
+
+		ObjectAdmin.gotoRelationshipsTab();
+
+		AssertElementNotPresent(locator1 = "ObjectAdmin#KEBAB_MENU");
+
+		AssertElementNotPresent(
+			key_kebabOption = "Delete",
+			locator1 = "ObjectAdmin#KEBAB_MENU_OPTION");
 	}
 
 	@description = "LPS-135549 - Verify it is not possible to leave the Field Name field blank"
@@ -589,12 +649,26 @@ definition {
 	}
 
 	@description = "LPS-135400 - Verify it is not possible to leave the Relationship Type blank"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CannotLeaveRelationshipTypeBlank {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
-		// TODO LPS-140583 CannotLeaveRelationshipTypeBlank pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectAdmin.selectKebabMenuOption(kebabOption = "View");
+
+		ObjectAdmin.gotoRelationshipsTab();
+
+		ObjectAdmin.addObjectRelationshipViaUI(
+			label = "Relationship",
+			object = "CustomObject");
+
+		AssertTextEquals(
+			locator1 = "Message#ERROR",
+			value1 = "Invalid type null");
 	}
 
 	@description = "LPS-135549 - Verify it is not possible to leave the Type field blank"
@@ -1417,12 +1491,30 @@ definition {
 	}
 
 	@description = "LPS-135400 - There is an explanation about each Relationship type"
-	@ignore = "Test Stub"
 	@priority = "3"
 	test CanViewExplanationRelationshipTypes {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
-		// TODO LPS-140581 CanViewExplanationRelationshipTypes pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectAdmin.selectKebabMenuOption(kebabOption = "View");
+
+		ObjectAdmin.gotoRelationshipsTab();
+
+		LexiconEntry.gotoAdd();
+
+		Click(locator1 = "ObjectAdmin#RELATIONSHIPS_TYPE_FORM");
+
+		ObjectAdmin.assertRelationshipsTypeDescription(
+			description = "One object's entry interacts with many others object's entries.",
+			type = "One to Many");
+
+		ObjectAdmin.assertRelationshipsTypeDescription(
+			description = "Multiple object's entries can interact with many others object's entries.",
+			type = "Many to Many");
 	}
 
 	@description = "LPS-135549 - Verify it is possible to view the Details of a Field by clicking on the eye icon"

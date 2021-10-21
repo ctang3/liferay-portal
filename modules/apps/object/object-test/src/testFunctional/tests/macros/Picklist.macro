@@ -84,6 +84,12 @@ definition {
 		AssertElementNotPresent(locator1 = "Picklist#VIEW_PICKLIST_ITEM");
 	}
 
+	macro assertPicklistMessage {
+		var key_picklistMessage = "${picklistMessage}";
+
+		AssertElementPresent(locator1 = "Picklist#PICKLIST_MESSAGE");
+	}
+
 	macro assertPicklistNotPresent {
 		var key_picklistName = "${picklistName}";
 
@@ -161,6 +167,10 @@ definition {
 		Click.javaScriptClick(locator1 = "Picklist#PICKLIST_ITEM_KEBAB_MENU");
 
 		Click.javaScriptClick(locator1 = "Picklist#PICKLIST_ITEM_KEBAB_MENU_OPTION");
+	}
+
+	macro selectPickilistModalFrame {
+		SelectFrame(locator1 = "Picklist#IFRAME_PICKLIST_MODAL");
 	}
 
 	macro updatePicklistName {

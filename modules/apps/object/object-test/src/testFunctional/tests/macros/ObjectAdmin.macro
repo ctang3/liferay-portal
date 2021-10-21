@@ -31,6 +31,18 @@ definition {
 		Button.clickSave();
 	}
 
+	macro addObjectDoubleFieldEntryViaUI {
+		LexiconEntry.gotoAdd();
+
+		Type(
+			locator1 = "ObjectAdmin#ENTRY_DOUBLE_VALUE_FIELD",
+			value1 = "${entryValue}");
+
+		Button.clickSave();
+
+		WaitForPageLoad();
+	}
+
 	macro addObjectFieldViaAPI {
 		JSONObject.addObjectField(
 			fieldLabelName = "${fieldLabelName}",
@@ -228,6 +240,13 @@ definition {
 		AssertElementPresent(
 			key_status = "${status}",
 			locator1 = "ObjectAdmin#OBJECT_STATUS");
+	}
+
+	macro assertRelationshipsTypeDescription {
+		AssertTextEquals(
+			key_type = "${type}",
+			locator1 = "ObjectAdmin#RELATIONSHIPS_TYPE_DESCRIPTION",
+			value1 = "${description}");
 	}
 
 	macro assertTypeFieldRequired {

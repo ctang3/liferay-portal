@@ -56,6 +56,11 @@
 		<td></td>
 	</tr>
 	<tr>
+		<td>ENTRY_DOUBLE_VALUE_FIELD</td>
+		<td>xpath=(//input[contains(@name,'_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_')])[7]</td>
+		<td></td>
+	</tr>
+	<tr>
 		<td>ENTRY_STRING_VALUE_FIELD</td>
 		<td>//input[contains(@class,'form-control ddm-field-text')]</td>
 		<td></td>
@@ -138,6 +143,11 @@
 	<tr>
 		<td>OBJECT_FIELDS_TYPE</td>
 		<td>//select[contains(@id,'objectFieldType')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>RELATIONSHIPS_TYPE_DESCRIPTION</td>
+		<td>//div[text() = '${key_type}']/..//span[@class = 'text-small']</td>
 		<td></td>
 	</tr>
 	<tr>

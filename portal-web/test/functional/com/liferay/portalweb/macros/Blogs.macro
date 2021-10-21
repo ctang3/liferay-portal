@@ -669,6 +669,12 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
+	macro viewContentAbstractDescription {
+		AssertTextEquals.assertPartialText(
+			locator1 = "BlogsEntry#CONTENT_ABSTRACT_AP",
+			value1 = "${descriptionValue}");
+	}
+
 	macro viewControlsPG {
 		var key_text = "New Entry";
 

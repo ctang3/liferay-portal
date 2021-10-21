@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -45,6 +47,8 @@ public class CPInstanceWrapper
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("uuid", getUuid());
 		attributes.put("externalReferenceCode", getExternalReferenceCode());
 		attributes.put("CPInstanceId", getCPInstanceId());
@@ -102,6 +106,18 @@ public class CPInstanceWrapper
 
 	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
+		Long mvccVersion = (Long)attributes.get("mvccVersion");
+
+		if (mvccVersion != null) {
+			setMvccVersion(mvccVersion);
+		}
+
+		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
+
+		if (ctCollectionId != null) {
+			setCtCollectionId(ctCollectionId);
+		}
+
 		String uuid = (String)attributes.get("uuid");
 
 		if (uuid != null) {
@@ -455,6 +471,16 @@ public class CPInstanceWrapper
 	}
 
 	/**
+	 * Returns the ct collection ID of this cp instance.
+	 *
+	 * @return the ct collection ID of this cp instance
+	 */
+	@Override
+	public long getCtCollectionId() {
+		return model.getCtCollectionId();
+	}
+
+	/**
 	 * Returns the delivery max subscription cycles of this cp instance.
 	 *
 	 * @return the delivery max subscription cycles of this cp instance
@@ -619,6 +645,16 @@ public class CPInstanceWrapper
 	@Override
 	public Date getModifiedDate() {
 		return model.getModifiedDate();
+	}
+
+	/**
+	 * Returns the mvcc version of this cp instance.
+	 *
+	 * @return the mvcc version of this cp instance
+	 */
+	@Override
+	public long getMvccVersion() {
+		return model.getMvccVersion();
 	}
 
 	/**
@@ -1054,6 +1090,16 @@ public class CPInstanceWrapper
 	}
 
 	/**
+	 * Sets the ct collection ID of this cp instance.
+	 *
+	 * @param ctCollectionId the ct collection ID of this cp instance
+	 */
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		model.setCtCollectionId(ctCollectionId);
+	}
+
+	/**
 	 * Sets the delivery max subscription cycles of this cp instance.
 	 *
 	 * @param deliveryMaxSubscriptionCycles the delivery max subscription cycles of this cp instance
@@ -1227,6 +1273,16 @@ public class CPInstanceWrapper
 	@Override
 	public void setModifiedDate(Date modifiedDate) {
 		model.setModifiedDate(modifiedDate);
+	}
+
+	/**
+	 * Sets the mvcc version of this cp instance.
+	 *
+	 * @param mvccVersion the mvcc version of this cp instance
+	 */
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		model.setMvccVersion(mvccVersion);
 	}
 
 	/**
@@ -1466,6 +1522,20 @@ public class CPInstanceWrapper
 	@Override
 	public void setWidth(double width) {
 		model.setWidth(width);
+	}
+
+	@Override
+	public Map<String, Function<CPInstance, Object>>
+		getAttributeGetterFunctions() {
+
+		return model.getAttributeGetterFunctions();
+	}
+
+	@Override
+	public Map<String, BiConsumer<CPInstance, Object>>
+		getAttributeSetterBiConsumers() {
+
+		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

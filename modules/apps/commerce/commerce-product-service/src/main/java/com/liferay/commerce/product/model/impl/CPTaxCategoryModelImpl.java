@@ -83,6 +83,7 @@ public class CPTaxCategoryModelImpl
 	public static final String TABLE_NAME = "CPTaxCategory";
 
 	public static final Object[][] TABLE_COLUMNS = {
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"externalReferenceCode", Types.VARCHAR},
 		{"CPTaxCategoryId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
@@ -94,6 +95,8 @@ public class CPTaxCategoryModelImpl
 		new HashMap<String, Integer>();
 
 	static {
+		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("CPTaxCategoryId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
@@ -106,7 +109,7 @@ public class CPTaxCategoryModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CPTaxCategory (externalReferenceCode VARCHAR(75) null,CPTaxCategoryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name STRING null,description STRING null)";
+		"create table CPTaxCategory (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,externalReferenceCode VARCHAR(75) null,CPTaxCategoryId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name STRING null,description STRING null,primary key (CPTaxCategoryId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table CPTaxCategory";
 
@@ -174,6 +177,8 @@ public class CPTaxCategoryModelImpl
 
 		CPTaxCategory model = new CPTaxCategoryImpl();
 
+		model.setMvccVersion(soapModel.getMvccVersion());
+		model.setCtCollectionId(soapModel.getCtCollectionId());
 		model.setExternalReferenceCode(soapModel.getExternalReferenceCode());
 		model.setCPTaxCategoryId(soapModel.getCPTaxCategoryId());
 		model.setCompanyId(soapModel.getCompanyId());
@@ -339,6 +344,16 @@ public class CPTaxCategoryModelImpl
 			new LinkedHashMap<String, BiConsumer<CPTaxCategory, ?>>();
 
 		attributeGetterFunctions.put(
+			"mvccVersion", CPTaxCategory::getMvccVersion);
+		attributeSetterBiConsumers.put(
+			"mvccVersion",
+			(BiConsumer<CPTaxCategory, Long>)CPTaxCategory::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CPTaxCategory::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CPTaxCategory, Long>)CPTaxCategory::setCtCollectionId);
+		attributeGetterFunctions.put(
 			"externalReferenceCode", CPTaxCategory::getExternalReferenceCode);
 		attributeSetterBiConsumers.put(
 			"externalReferenceCode",
@@ -384,6 +399,36 @@ public class CPTaxCategoryModelImpl
 			attributeGetterFunctions);
 		_attributeSetterBiConsumers = Collections.unmodifiableMap(
 			(Map)attributeSetterBiConsumers);
+	}
+
+	@JSON
+	@Override
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -905,6 +950,8 @@ public class CPTaxCategoryModelImpl
 	public Object clone() {
 		CPTaxCategoryImpl cpTaxCategoryImpl = new CPTaxCategoryImpl();
 
+		cpTaxCategoryImpl.setMvccVersion(getMvccVersion());
+		cpTaxCategoryImpl.setCtCollectionId(getCtCollectionId());
 		cpTaxCategoryImpl.setExternalReferenceCode(getExternalReferenceCode());
 		cpTaxCategoryImpl.setCPTaxCategoryId(getCPTaxCategoryId());
 		cpTaxCategoryImpl.setCompanyId(getCompanyId());
@@ -924,6 +971,10 @@ public class CPTaxCategoryModelImpl
 	public CPTaxCategory cloneWithOriginalValues() {
 		CPTaxCategoryImpl cpTaxCategoryImpl = new CPTaxCategoryImpl();
 
+		cpTaxCategoryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		cpTaxCategoryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		cpTaxCategoryImpl.setExternalReferenceCode(
 			this.<String>getColumnOriginalValue("externalReferenceCode"));
 		cpTaxCategoryImpl.setCPTaxCategoryId(
@@ -1019,6 +1070,10 @@ public class CPTaxCategoryModelImpl
 	public CacheModel<CPTaxCategory> toCacheModel() {
 		CPTaxCategoryCacheModel cpTaxCategoryCacheModel =
 			new CPTaxCategoryCacheModel();
+
+		cpTaxCategoryCacheModel.mvccVersion = getMvccVersion();
+
+		cpTaxCategoryCacheModel.ctCollectionId = getCtCollectionId();
 
 		cpTaxCategoryCacheModel.externalReferenceCode =
 			getExternalReferenceCode();
@@ -1170,6 +1225,8 @@ public class CPTaxCategoryModelImpl
 
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _externalReferenceCode;
 	private long _CPTaxCategoryId;
 	private long _companyId;
@@ -1210,6 +1267,8 @@ public class CPTaxCategoryModelImpl
 	private void _setColumnOriginalValues() {
 		_columnOriginalValues = new HashMap<String, Object>();
 
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put(
 			"externalReferenceCode", _externalReferenceCode);
 		_columnOriginalValues.put("CPTaxCategoryId", _CPTaxCategoryId);
@@ -1233,23 +1292,27 @@ public class CPTaxCategoryModelImpl
 	static {
 		Map<String, Long> columnBitmasks = new HashMap<>();
 
-		columnBitmasks.put("externalReferenceCode", 1L);
+		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("CPTaxCategoryId", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("companyId", 4L);
+		columnBitmasks.put("externalReferenceCode", 4L);
 
-		columnBitmasks.put("userId", 8L);
+		columnBitmasks.put("CPTaxCategoryId", 8L);
 
-		columnBitmasks.put("userName", 16L);
+		columnBitmasks.put("companyId", 16L);
 
-		columnBitmasks.put("createDate", 32L);
+		columnBitmasks.put("userId", 32L);
 
-		columnBitmasks.put("modifiedDate", 64L);
+		columnBitmasks.put("userName", 64L);
 
-		columnBitmasks.put("name", 128L);
+		columnBitmasks.put("createDate", 128L);
 
-		columnBitmasks.put("description", 256L);
+		columnBitmasks.put("modifiedDate", 256L);
+
+		columnBitmasks.put("name", 512L);
+
+		columnBitmasks.put("description", 1024L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

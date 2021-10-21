@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.product.service;
 
+import com.liferay.commerce.product.model.CPOption;
 import com.liferay.portal.kernel.service.ServiceWrapper;
 
 /**
@@ -31,7 +32,7 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption addCPOption(
+	public CPOption addCPOption(
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			String ddmFormFieldTypeName, boolean facetable, boolean required,
@@ -45,7 +46,7 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption addOrUpdateCPOption(
+	public CPOption addOrUpdateCPOption(
 			String externalReferenceCode,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
@@ -68,9 +69,8 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-			fetchByExternalReferenceCode(
-				String externalReferenceCode, long companyId)
+	public CPOption fetchByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.fetchByExternalReferenceCode(
@@ -78,28 +78,24 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption fetchCPOption(
-			long cpOptionId)
+	public CPOption fetchCPOption(long cpOptionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.fetchCPOption(cpOptionId);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption fetchCPOption(
-			long companyId, String key)
+	public CPOption fetchCPOption(long companyId, String key)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.fetchCPOption(companyId, key);
 	}
 
 	@Override
-	public java.util.List<com.liferay.commerce.product.model.CPOption>
-			findCPOptionByCompanyId(
-				long companyId, int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.commerce.product.model.CPOption>
-						orderByComparator)
+	public java.util.List<CPOption> findCPOptionByCompanyId(
+			long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<CPOption>
+				orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.findCPOptionByCompanyId(
@@ -107,8 +103,7 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption getCPOption(
-			long cpOptionId)
+	public CPOption getCPOption(long cpOptionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.getCPOption(cpOptionId);
@@ -125,18 +120,18 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.kernel.search.BaseModelSearchResult
-		<com.liferay.commerce.product.model.CPOption> searchCPOptions(
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<CPOption>
+			searchCPOptions(
 				long companyId, String keywords, int start, int end,
 				com.liferay.portal.kernel.search.Sort sort)
-			throws com.liferay.portal.kernel.exception.PortalException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.searchCPOptions(
 			companyId, keywords, start, end, sort);
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption updateCPOption(
+	public CPOption updateCPOption(
 			long cpOptionId, java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			String ddmFormFieldTypeName, boolean facetable, boolean required,
@@ -150,9 +145,8 @@ public class CPOptionServiceWrapper
 	}
 
 	@Override
-	public com.liferay.commerce.product.model.CPOption
-			updateCPOptionExternalReferenceCode(
-				String externalReferenceCode, long cpOptionId)
+	public CPOption updateCPOptionExternalReferenceCode(
+			String externalReferenceCode, long cpOptionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionService.updateCPOptionExternalReferenceCode(
