@@ -171,11 +171,8 @@ public class BlogsStatsUserLocalServiceImpl
 			).from(
 				BlogsEntryTable.INSTANCE
 			).innerJoinON(
-				UserTable.INSTANCE,
-				UserTable.INSTANCE.userId.eq(BlogsEntryTable.INSTANCE.userId)
-			).innerJoinON(
 				Users_OrgsTable.INSTANCE,
-				Users_OrgsTable.INSTANCE.userId.eq(UserTable.INSTANCE.userId)
+				Users_OrgsTable.INSTANCE.userId.eq(BlogsEntryTable.INSTANCE.userId)
 			).leftJoinOn(
 				RatingsEntryTable.INSTANCE,
 				RatingsEntryTable.INSTANCE.classNameId.eq(
