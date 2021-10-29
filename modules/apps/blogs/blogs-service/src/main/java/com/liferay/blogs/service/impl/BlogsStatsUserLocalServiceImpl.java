@@ -33,10 +33,8 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.ratings.kernel.model.RatingsEntryTable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.LongStream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -164,14 +162,6 @@ public class BlogsStatsUserLocalServiceImpl
 	public List<BlogsStatsUser> getOrganizationStatsUsers(
 		long organizationId, int start, int end) {
 
-		LongStream longStream = Arrays.stream(
-			_userLocalService.getOrganizationUserIds(organizationId));
-
-		Long[] organizationUserIds = longStream.boxed(
-		).toArray(
-			Long[]::new
-		);
-
 		List<Object[]> results = _blogsEntryPersistence.dslQuery(
 			DSLQueryFactoryUtil.select(
 				BlogsEntryTable.INSTANCE.groupId,
@@ -196,7 +186,7 @@ public class BlogsStatsUserLocalServiceImpl
 						BlogsEntryTable.INSTANCE.entryId)
 				)
 			).where(
-				Users_OrgsTable.INSTANCE.organizationId.in(organizationUserIds)
+				Users_OrgsTable.INSTANCE.organizationId.eq(organizationId)
 			).groupBy(
 				BlogsEntryTable.INSTANCE.userId
 			).orderBy(
