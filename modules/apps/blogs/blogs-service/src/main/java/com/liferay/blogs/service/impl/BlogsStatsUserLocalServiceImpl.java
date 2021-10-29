@@ -14,6 +14,7 @@
 
 package com.liferay.blogs.service.impl;
 
+import com.liferay.blogs.exception.NoSuchStatsUserException;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.model.BlogsEntryTable;
 import com.liferay.blogs.model.BlogsStatsUser;
@@ -23,6 +24,7 @@ import com.liferay.blogs.service.persistence.BlogsEntryPersistence;
 import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.sql.dsl.expression.Expression;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Users_OrgsTable;
@@ -192,6 +194,13 @@ public class BlogsStatsUserLocalServiceImpl
 
 		List<BlogsStatsUser> blogsStatsUsers = _getBlogsStatsUsersList(
 			groupId, results);
+
+		if (blogsStatsUsers.isEmpty()) {
+			throw new NoSuchStatsUserException(
+				StringBundler.concat(
+					"No BlogsStatsUser exists with the key {groupId=", groupId,
+					", userId=", userId, "}"));
+		}
 
 		return blogsStatsUsers.get(0);
 	}
