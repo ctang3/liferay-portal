@@ -65,18 +65,18 @@ public class BlogsStatsUserLocalServiceImpl
 				BlogsEntryTable.INSTANCE
 			).leftJoinOn(
 				RatingsEntryTable.INSTANCE,
-				BlogsEntryTable.INSTANCE.entryId.eq(
-					RatingsEntryTable.INSTANCE.classPK
+				RatingsEntryTable.INSTANCE.classNameId.eq(
+					_classNameLocalService.getClassNameId(
+						BlogsEntry.class.getName())
 				).and(
-					RatingsEntryTable.INSTANCE.classNameId.eq(
-						_classNameLocalService.getClassNameId(
-							BlogsEntry.class.getName()))
+					RatingsEntryTable.INSTANCE.classPK.eq(
+						BlogsEntryTable.INSTANCE.entryId)
 				)
 			).where(
-				BlogsEntryTable.INSTANCE.groupId.eq(
-					groupId
+				BlogsEntryTable.INSTANCE.companyId.eq(
+					companyId
 				).and(
-					BlogsEntryTable.INSTANCE.companyId.eq(companyId)
+					BlogsEntryTable.INSTANCE.groupId.eq(groupId)
 				)
 			).groupBy(
 				BlogsEntryTable.INSTANCE.userId
@@ -119,12 +119,12 @@ public class BlogsStatsUserLocalServiceImpl
 				BlogsEntryTable.INSTANCE
 			).leftJoinOn(
 				RatingsEntryTable.INSTANCE,
-				BlogsEntryTable.INSTANCE.entryId.eq(
-					RatingsEntryTable.INSTANCE.classPK
+				RatingsEntryTable.INSTANCE.classNameId.eq(
+					_classNameLocalService.getClassNameId(
+						BlogsEntry.class.getName())
 				).and(
-					RatingsEntryTable.INSTANCE.classNameId.eq(
-						_classNameLocalService.getClassNameId(
-							BlogsEntry.class.getName()))
+					RatingsEntryTable.INSTANCE.classPK.eq(
+						BlogsEntryTable.INSTANCE.entryId)
 				)
 			).where(
 				BlogsEntryTable.INSTANCE.groupId.eq(
@@ -188,12 +188,12 @@ public class BlogsStatsUserLocalServiceImpl
 				Users_OrgsTable.INSTANCE.userId.eq(UserTable.INSTANCE.userId)
 			).leftJoinOn(
 				RatingsEntryTable.INSTANCE,
-				BlogsEntryTable.INSTANCE.entryId.eq(
-					RatingsEntryTable.INSTANCE.classPK
+				RatingsEntryTable.INSTANCE.classNameId.eq(
+					_classNameLocalService.getClassNameId(
+						BlogsEntry.class.getName())
 				).and(
-					RatingsEntryTable.INSTANCE.classNameId.eq(
-						_classNameLocalService.getClassNameId(
-							BlogsEntry.class.getName()))
+					RatingsEntryTable.INSTANCE.classPK.eq(
+						BlogsEntryTable.INSTANCE.entryId)
 				)
 			).where(
 				Users_OrgsTable.INSTANCE.organizationId.in(organizationUserIds)
@@ -239,12 +239,12 @@ public class BlogsStatsUserLocalServiceImpl
 				BlogsEntryTable.INSTANCE
 			).leftJoinOn(
 				RatingsEntryTable.INSTANCE,
-				BlogsEntryTable.INSTANCE.entryId.eq(
-					RatingsEntryTable.INSTANCE.classPK
+				RatingsEntryTable.INSTANCE.classNameId.eq(
+					_classNameLocalService.getClassNameId(
+						BlogsEntry.class.getName())
 				).and(
-					RatingsEntryTable.INSTANCE.classNameId.eq(
-						_classNameLocalService.getClassNameId(
-							BlogsEntry.class.getName()))
+					RatingsEntryTable.INSTANCE.classPK.eq(
+						BlogsEntryTable.INSTANCE.entryId)
 				)
 			).where(
 				BlogsEntryTable.INSTANCE.groupId.eq(
