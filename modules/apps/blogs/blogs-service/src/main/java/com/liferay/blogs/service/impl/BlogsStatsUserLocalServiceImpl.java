@@ -85,7 +85,7 @@ public class BlogsStatsUserLocalServiceImpl
 				start, end
 			));
 
-		return _getBlogsStatsUsersList(results);
+		return _toBlogsStatsUsers(results);
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class BlogsStatsUserLocalServiceImpl
 				start, end
 			));
 
-		return _getBlogsStatsUsersList(results);
+		return _toBlogsStatsUsers(results);
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class BlogsStatsUserLocalServiceImpl
 				start, end
 			));
 
-		return _getBlogsStatsUsersList(results);
+		return _toBlogsStatsUsers(results);
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public class BlogsStatsUserLocalServiceImpl
 				BlogsEntryTable.INSTANCE.userId
 			));
 
-		List<BlogsStatsUser> blogsStatsUsers = _getBlogsStatsUsersList(results);
+		List<BlogsStatsUser> blogsStatsUsers = _toBlogsStatsUsers(results);
 
 		if (blogsStatsUsers.isEmpty()) {
 			throw new NoSuchStatsUserException(
@@ -207,9 +207,7 @@ public class BlogsStatsUserLocalServiceImpl
 		return blogsStatsUsers.get(0);
 	}
 
-	private List<BlogsStatsUser> _getBlogsStatsUsersList(
-		List<Object[]> results) {
-
+	private List<BlogsStatsUser> _toBlogsStatsUsers(List<Object[]> results) {
 		List<BlogsStatsUser> blogsStatsUsers = new ArrayList<>(results.size());
 
 		for (Object[] columns : results) {
