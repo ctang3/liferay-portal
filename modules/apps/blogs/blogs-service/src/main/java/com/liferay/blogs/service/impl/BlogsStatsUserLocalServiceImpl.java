@@ -175,20 +175,14 @@ public class BlogsStatsUserLocalServiceImpl
 		List<BlogsStatsUser> blogsStatsUsers = new ArrayList<>(results.size());
 
 		for (Object[] columns : results) {
-			Long groupId = (Long)columns[0];
-			Long userId = (Long)columns[1];
-			Long entryCount = (Long)columns[2];
-			Date lastPostDate = (Date)columns[3];
-			Integer ratingsTotalEntries = (Integer)columns[4];
-			Double ratingsAverageScore = (Double)columns[5];
-			Double ratingsTotalScore = (Double)columns[6];
-
 			blogsStatsUsers.add(
 				new BlogsStatsUserImpl(
-					groupId, userId, lastPostDate, entryCount,
-					GetterUtil.get(ratingsTotalEntries, 0L),
-					GetterUtil.get(ratingsAverageScore, 0D),
-					GetterUtil.get(ratingsTotalScore, 0D)));
+					GetterUtil.getLong(columns[0]),
+					GetterUtil.getLong(columns[1]), (Date)columns[2],
+					GetterUtil.getInteger(columns[3]),
+					GetterUtil.getLong(columns[4]),
+					GetterUtil.getDouble(columns[5]),
+					GetterUtil.getDouble(columns[6])));
 		}
 
 		return blogsStatsUsers;
