@@ -12,19 +12,25 @@
  * details.
  */
 
-package com.liferay.change.tracking.constants;
+package com.liferay.change.tracking.model.impl;
+
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 
 /**
- * @author Preston Crary
+ * @author Brian Wing Shun Chan
  */
-public class CTActionKeys {
+public class CTCollectionTemplateImpl extends CTCollectionTemplateBaseImpl {
 
-	public static final String ADD_PUBLICATION = "ADD_PUBLICATION";
+	public String getUserName() {
+		User user = UserLocalServiceUtil.fetchUser(getUserId());
 
-	public static final String ADD_TEMPLATE = "ADD_TEMPLATE";
+		if (user == null) {
+			return StringPool.BLANK;
+		}
 
-	public static final String PUBLISH = "PUBLISH";
-
-	public static final String WORK_ON_PRODUCTION = "WORK_ON_PRODUCTION";
+		return user.getFullName();
+	}
 
 }
