@@ -55,7 +55,7 @@ public class CTStoreCTEventListener implements CTEventListener {
 
 		List<CTEntry> deletedCTEnties = new ArrayList<>();
 
-		List<CTEntry> addOrModifiedCTEntries = new ArrayList<>();
+		List<CTEntry> modifiedCTEntries = new ArrayList<>();
 
 		for (CTEntry ctEntry : ctEntries) {
 			if (ctEntry.getChangeType() ==
@@ -63,9 +63,15 @@ public class CTStoreCTEventListener implements CTEventListener {
 
 				deletedCTEnties.add(ctEntry);
 			}
-			else {
-				addOrModifiedCTEntries.add(ctEntry);
+			else if (ctEntry.getChangeType() ==
+					 CTConstants.CT_CHANGE_TYPE_MODIFICATION){
+
+				modifiedCTEntries.add(ctEntry);
 			}
+		}
+
+		if (deletedCTEnties.isEmpty() && modifiedCTEntries.isEmpty()) {
+			return;
 		}
 
 		// Deleted CTEntries need to read CTSContent from CTCollection
@@ -96,14 +102,14 @@ public class CTStoreCTEventListener implements CTEventListener {
 			}
 		}
 
-		// Add or modifed CTEntries need to read CTSContent from production
+		// Modified CTEntries need to read CTSContent from production
 
-		if (!addOrModifiedCTEntries.isEmpty()) {
+		if (!modifiedCTEntries.isEmpty()) {
 			try (SafeCloseable safeCloseable =
 					CTCollectionThreadLocal.
 						setProductionModeWithSafeCloseable()) {
 
-				for (CTEntry ctEntry : addOrModifiedCTEntries) {
+				for (CTEntry ctEntry : modifiedCTEntries) {
 					CTSContent ctsContent =
 						_ctsContentLocalService.getCTSContent(
 							ctEntry.getModelClassPK());

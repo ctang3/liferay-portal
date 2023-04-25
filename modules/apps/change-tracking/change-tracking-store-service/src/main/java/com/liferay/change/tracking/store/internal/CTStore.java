@@ -59,17 +59,19 @@ public class CTStore implements Store {
 			String versionLabel, InputStream inputStream)
 		throws PortalException {
 
-		if (CTCollectionThreadLocal.isProductionMode()) {
-			_store.addFile(
-				companyId, repositoryId, fileName, versionLabel, inputStream);
-		}
-		else {
+		String[] fileVersions = _store.getFileVersions(companyId, repositoryId, fileName);
+
+		if (!CTCollectionThreadLocal.isProductionMode() && fileVersions.length > 0) {
 			_ensureCTSContentIsLoaded(
 				companyId, repositoryId, fileName, versionLabel);
 
 			_ctsContentLocalService.addCTSContent(
 				companyId, repositoryId, fileName, versionLabel, _storeType,
 				inputStream);
+		}
+		else {
+			_store.addFile(
+				companyId, repositoryId, fileName, versionLabel, inputStream);
 		}
 	}
 
@@ -107,7 +109,11 @@ public class CTStore implements Store {
 		long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
-		if (CTCollectionThreadLocal.isProductionMode()) {
+		if (CTCollectionThreadLocal.isProductionMode() ||
+			(!_isCTSContentLoaded(
+				companyId, repositoryId, fileName, versionLabel) &&
+			 _store.hasFile(companyId, repositoryId, fileName, versionLabel))) {
+
 			_store.deleteFile(companyId, repositoryId, fileName, versionLabel);
 		}
 		else {
