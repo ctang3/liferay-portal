@@ -136,7 +136,6 @@ export default function ChangeTrackingRenderView({
 	handleShowHideable,
 	initialDataURL,
 	moveChangesURL,
-	namespace,
 	parentEntries,
 	showDropdown,
 	showHeader = true,
@@ -1490,7 +1489,7 @@ export default function ChangeTrackingRenderView({
 				newDataURL =
 					initialDataURL +
 					'&' +
-					namespace +
+					'_com_liferay_change_tracking_web_portlet_PublicationsPortlet_' +
 					'segmentsExperienceId=' +
 					encodeURIComponent(segmentsExperienceId);
 			}
