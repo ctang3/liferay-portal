@@ -9,6 +9,7 @@ import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.LayoutSetBranchNameException;
 import com.liferay.portal.kernel.exception.NoSuchLayoutSetBranchException;
@@ -358,6 +359,7 @@ public class LayoutSetBranchLocalServiceImpl
 		deleteLayoutSetBranches(groupId, privateLayout, false);
 	}
 
+	@CTAware
 	@Override
 	public void deleteLayoutSetBranches(
 			long groupId, boolean privateLayout, boolean includeMaster)

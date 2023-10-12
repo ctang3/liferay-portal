@@ -8,6 +8,7 @@ package com.liferay.exportimport.internal.service;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceWrapper;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
@@ -25,6 +26,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(service = ServiceWrapper.class)
+@CTAware
 public class TrashEntryExportImportConfigurationLocalServiceWrapper
 	extends ExportImportConfigurationLocalServiceWrapper {
 

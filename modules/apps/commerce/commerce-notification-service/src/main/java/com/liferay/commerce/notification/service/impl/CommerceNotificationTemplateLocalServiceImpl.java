@@ -16,6 +16,7 @@ import com.liferay.commerce.notification.type.CommerceNotificationType;
 import com.liferay.commerce.notification.type.CommerceNotificationTypeRegistry;
 import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -41,6 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 	property = "model.class.name=com.liferay.commerce.notification.model.CommerceNotificationTemplate",
 	service = AopService.class
 )
+@CTAware
 public class CommerceNotificationTemplateLocalServiceImpl
 	extends CommerceNotificationTemplateLocalServiceBaseImpl {
 

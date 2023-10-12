@@ -7,6 +7,7 @@ package com.liferay.trash.service.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -65,6 +66,7 @@ import org.osgi.service.component.annotations.Reference;
 	property = "model.class.name=com.liferay.trash.model.TrashEntry",
 	service = AopService.class
 )
+@CTAware
 public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 
 	/**

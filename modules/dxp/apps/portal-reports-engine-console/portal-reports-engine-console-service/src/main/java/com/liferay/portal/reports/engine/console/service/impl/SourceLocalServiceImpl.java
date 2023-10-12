@@ -7,6 +7,7 @@ package com.liferay.portal.reports.engine.console.service.impl;
 
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -40,6 +41,7 @@ import org.osgi.service.component.annotations.Reference;
 	property = "model.class.name=com.liferay.portal.reports.engine.console.model.Source",
 	service = AopService.class
 )
+@CTAware
 public class SourceLocalServiceImpl extends SourceLocalServiceBaseImpl {
 
 	@Override
