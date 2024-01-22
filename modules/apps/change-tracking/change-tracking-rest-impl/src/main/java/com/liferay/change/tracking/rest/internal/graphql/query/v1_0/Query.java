@@ -116,7 +116,7 @@ public class Query {
 			_ctCollectionResourceComponentServiceObjects,
 			this::_populateResourceContext,
 			ctCollectionResource -> new CTCollectionPage(
-				ctCollectionResource.getCtCollectionsPageByClass(
+				ctCollectionResource.getCtCollectionsByClassPage(
 					classNameId, classPK)));
 	}
 

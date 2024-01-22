@@ -73,11 +73,11 @@ public interface CTCollectionResource {
 			CTCollection ctCollection, String callbackURL, Object object)
 		throws Exception;
 
-	public Page<CTCollection> getCtCollectionsPageByClass(
+	public Page<CTCollection> getCtCollectionsByClassPage(
 			Integer classNameId, Integer classPK)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse getCtCollectionsPageByClassHttpResponse(
+	public HttpInvoker.HttpResponse getCtCollectionsByClassPageHttpResponse(
 			Integer classNameId, Integer classPK)
 		throws Exception;
 
@@ -771,12 +771,12 @@ public interface CTCollectionResource {
 			return httpInvoker.invoke();
 		}
 
-		public Page<CTCollection> getCtCollectionsPageByClass(
+		public Page<CTCollection> getCtCollectionsByClassPage(
 				Integer classNameId, Integer classPK)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				getCtCollectionsPageByClassHttpResponse(classNameId, classPK);
+				getCtCollectionsByClassPageHttpResponse(classNameId, classPK);
 
 			String content = httpResponse.getContent();
 
@@ -837,7 +837,7 @@ public interface CTCollectionResource {
 			}
 		}
 
-		public HttpInvoker.HttpResponse getCtCollectionsPageByClassHttpResponse(
+		public HttpInvoker.HttpResponse getCtCollectionsByClassPageHttpResponse(
 				Integer classNameId, Integer classPK)
 			throws Exception {
 

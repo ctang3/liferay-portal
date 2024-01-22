@@ -218,7 +218,7 @@ public class ServletDataImpl implements ServletData {
 						"query#ctCollectionsByClass",
 						new ObjectValuePair<>(
 							CTCollectionResourceImpl.class,
-							"getCtCollectionsPageByClass"));
+							"getCtCollectionsByClassPage"));
 					put(
 						"query#cTCollectionByExternalReferenceCode",
 						new ObjectValuePair<>(

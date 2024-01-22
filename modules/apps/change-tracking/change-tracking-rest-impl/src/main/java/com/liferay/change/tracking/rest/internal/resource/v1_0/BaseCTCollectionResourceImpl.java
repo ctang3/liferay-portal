@@ -291,7 +291,7 @@ public abstract class BaseCTCollectionResourceImpl
 	@javax.ws.rs.Path("/ct-collections-by-class")
 	@javax.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
-	public Page<CTCollection> getCtCollectionsPageByClass(
+	public Page<CTCollection> getCtCollectionsByClassPage(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("classNameId")
 			Integer classNameId,

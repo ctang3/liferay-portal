@@ -66,7 +66,7 @@ public interface CTCollectionResource {
 			CTCollection ctCollection, String callbackURL, Object object)
 		throws Exception;
 
-	public Page<CTCollection> getCtCollectionsPageByClass(
+	public Page<CTCollection> getCtCollectionsByClassPage(
 			Integer classNameId, Integer classPK)
 		throws Exception;
 
