@@ -121,6 +121,38 @@ public class CTCollectionResourceImpl extends BaseCTCollectionResourceImpl {
 	}
 
 	@Override
+	public Page<CTCollection> getCtCollectionsByClassPage(
+			Integer classNameId, Integer classPK)
+		throws Exception {
+
+		CTCollectionHistoryProvider<?> ctCollectionHistoryProvider =
+			_ctCollectionHistoryProviderServiceTrackerMap.getService(
+				Long.valueOf(classNameId));
+
+		List<com.liferay.change.tracking.model.CTCollection> ctCollections;
+
+		if (ctCollectionHistoryProvider == null) {
+			ctCollections =
+				_ctCollectionLocalService.getExclusivePublishedCTCollections(
+					classNameId, classPK);
+		}
+		else {
+			ctCollections = ctCollectionHistoryProvider.getCTCollections(
+				classNameId, classPK);
+		}
+
+		List<CTCollection> dtoCTCollections = new ArrayList<>();
+
+		for (com.liferay.change.tracking.model.CTCollection ctCollection :
+				ctCollections) {
+
+			dtoCTCollections.add(_toCTCollection(ctCollection));
+		}
+
+		return Page.of(dtoCTCollections);
+	}
+
+	@Override
 	public String getCTCollectionShareLink(Long ctCollectionId)
 		throws Exception {
 
@@ -151,29 +183,6 @@ public class CTCollectionResourceImpl extends BaseCTCollectionResourceImpl {
 			sorts,
 			document -> _toCTCollection(
 				GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK))));
-	}
-
-	@Override
-	public Page<CTCollection> getCtCollectionsPageByClass(
-			Integer classNameId, Integer classPK)
-		throws Exception {
-
-		CTCollectionHistoryProvider<?> ctCollectionHistoryProvider =
-			_ctCollectionHistoryProviderServiceTrackerMap.getService(
-				Long.valueOf(classNameId));
-
-		List<com.liferay.change.tracking.model.CTCollection> ctCollections =
-			ctCollectionHistoryProvider.getCTCollections(classNameId, classPK);
-
-		List<CTCollection> dtoCTCollections = new ArrayList<>();
-
-		for (com.liferay.change.tracking.model.CTCollection ctCollection :
-				ctCollections) {
-
-			dtoCTCollections.add(_toCTCollection(ctCollection));
-		}
-
-		return Page.of(dtoCTCollections);
 	}
 
 	@Override
