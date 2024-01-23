@@ -693,6 +693,8 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 
 			data.put("timelineIconClass", "change-tracking-timeline-icon");
 			data.put("timelineIconName", "time");
+
+			//API endpoint to retrieve ctCollection history, to be called by fetch in ChangeTrackingIndicator.js
 			data.put(
 				"timelineItemsURL",
 				StringBundler.concat(

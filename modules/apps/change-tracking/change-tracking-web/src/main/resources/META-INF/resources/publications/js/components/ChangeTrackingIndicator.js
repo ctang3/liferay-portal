@@ -486,6 +486,9 @@ export default function ChangeTrackingIndicator({
 						</ClayButton>
 					}
 				>
+
+          {/* TODO: extract necessary props from response (XML format) to pass into below. Maybe split timelineItems into individual props to pass in? */}
+					{/*If we were to use FDS, I assume this call to <PublicationTimeline ... /> is what we'd replace with the FDS component, and the fetch in this renderTimeline() func will be removed? */}
 					<PublicationTimeline timelineItems={timelineItems} />
 				</ClayDropDown>
 			);
