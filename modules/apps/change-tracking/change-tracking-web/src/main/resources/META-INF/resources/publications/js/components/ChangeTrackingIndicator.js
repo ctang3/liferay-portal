@@ -13,6 +13,7 @@ import ClayPopover from '@clayui/popover';
 import ClaySticker from '@clayui/sticker';
 import {
 	createPortletURL,
+	fetch,
 	navigate as navigateUtil,
 	openConfirmModal,
 } from 'frontend-js-web';
@@ -40,6 +41,7 @@ export default function ChangeTrackingIndicator({
 	timelineIconClass,
 	timelineIconName,
 	timelineItems,
+	timelineItemsURL,
 	title,
 	warningBody,
 	warningButton,
@@ -466,7 +468,9 @@ export default function ChangeTrackingIndicator({
 	);
 
 	const renderTimeline = () => {
-		if (timelineItems) {
+		fetch(timelineItemsURL).then((response) => {
+			response.json();
+
 			return (
 				<ClayDropDown
 					alignmentPosition={Align.BottomCenter}
@@ -485,7 +489,7 @@ export default function ChangeTrackingIndicator({
 					<PublicationTimeline timelineItems={timelineItems} />
 				</ClayDropDown>
 			);
-		}
+		});
 	};
 
 	return (
