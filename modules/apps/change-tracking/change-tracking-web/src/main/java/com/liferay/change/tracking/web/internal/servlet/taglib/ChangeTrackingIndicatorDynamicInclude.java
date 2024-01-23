@@ -25,7 +25,6 @@ import com.liferay.change.tracking.spi.history.CTCollectionHistoryProvider;
 import com.liferay.change.tracking.web.internal.configuration.CTConfiguration;
 import com.liferay.change.tracking.web.internal.configuration.helper.CTSettingsConfigurationHelper;
 import com.liferay.change.tracking.web.internal.security.permission.resource.CTPermission;
-import com.liferay.change.tracking.web.internal.timeline.CTCollectionHistoryDataProvider;
 import com.liferay.change.tracking.web.internal.timeline.DefaultCTCollectionHistoryProvider;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
@@ -64,7 +63,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.template.react.renderer.ComponentDescriptor;
 import com.liferay.portal.template.react.renderer.ReactRenderer;
 import com.liferay.taglib.util.HtmlTopTag;
@@ -72,9 +70,6 @@ import com.liferay.taglib.util.HtmlTopTag;
 import java.io.IOException;
 import java.io.Writer;
 
-import java.text.Format;
-
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -696,71 +691,14 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 					_defaultCTCollectionHistoryProvider;
 			}
 
-			List<CTCollection> ctCollections =
-				ctCollectionHistoryProvider.getCTCollections(
-					classNameId, classPK);
-
-			CTCollection possibleConflictCollection = null;
-
-			JSONArray jsonArray = _jsonFactory.createJSONArray();
-
-			Format format = _fastDateFormatFactory.getDate(
-				themeDisplay.getLocale(), themeDisplay.getTimeZone());
-
-			for (CTCollection ctCollection : ctCollections) {
-				if ((currentCTCollection != null) &&
-					((ctCollection.getStatus() ==
-						WorkflowConstants.STATUS_PENDING) ||
-					 ((ctCollection.getStatus() ==
-						 WorkflowConstants.STATUS_DRAFT) &&
-					  (ctCollection.getCtCollectionId() !=
-						  currentCTCollection.getCtCollectionId())))) {
-
-					possibleConflictCollection = ctCollection;
-				}
-
-				CTCollectionHistoryDataProvider
-					ctCollectionHistoryDataProvider =
-						new CTCollectionHistoryDataProvider(
-							ctCollection, httpServletRequest);
-
-				jsonArray.put(
-					JSONUtil.put(
-						"date",
-						() -> {
-							Date date = ctCollection.getStatusDate();
-
-							if (date == null) {
-								date = ctCollection.getModifiedDate();
-							}
-
-							return format.format(date);
-						}
-					).put(
-						"description", ctCollection.getDescription()
-					).put(
-						"dropdownMenu",
-						ctCollectionHistoryDataProvider.
-							getTimelineDropdownMenuData(themeDisplay)
-					).put(
-						"id", ctCollection.getCtCollectionId()
-					).put(
-						"name", ctCollection.getName()
-					).put(
-						"status", ctCollection.getStatus()
-					).put(
-						"statusMessage",
-						ctCollectionHistoryDataProvider.getStatusMessage()
-					));
-			}
-
-			_getConflictIconData(
-				classNameId, classPK, currentCTCollection, data,
-				possibleConflictCollection, themeDisplay);
-
 			data.put("timelineIconClass", "change-tracking-timeline-icon");
 			data.put("timelineIconName", "time");
-			data.put("timelineItems", jsonArray);
+			data.put(
+				"timelineItemsURL",
+				StringBundler.concat(
+					_portal.getPortalURL(themeDisplay),
+					"/o/change-tracking-rest/v1.0/ct-collections-by-class?classNameId=",
+					classNameId, "&classPK=", classPK));
 
 			CTDisplayRenderer<?> ctDisplayRenderer =
 				_ctDisplayRendererRegistry.getCTDisplayRenderer(classNameId);
@@ -768,6 +706,87 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 			data.put(
 				"timelineType",
 				ctDisplayRenderer.getTypeName(themeDisplay.getLocale()));
+
+			// 			List<CTCollection> ctCollections =
+
+			//				ctCollectionHistoryProvider.getCTCollections(
+			//					classNameId, classPK);
+			//
+			//			CTCollection possibleConflictCollection = null;
+			//
+			//			JSONArray jsonArray = _jsonFactory.createJSONArray();
+			//
+			//			Format format = _fastDateFormatFactory.getDate(
+			//				themeDisplay.getLocale(), themeDisplay.getTimeZone());
+			//
+			//			for (CTCollection ctCollection : ctCollections) {
+			//				if ((currentCTCollection != null) &&
+			//					((ctCollection.getStatus() ==
+			//						WorkflowConstants.STATUS_PENDING) ||
+			//					 ((ctCollection.getStatus() ==
+			//						 WorkflowConstants.STATUS_DRAFT) &&
+			//					  (ctCollection.getCtCollectionId() !=
+			//						  currentCTCollection.getCtCollectionId())))) {
+			//
+			//					possibleConflictCollection = ctCollection;
+			//				}
+			//
+
+			// 				CTCollectionHistoryDataProvider
+			// 					ctCollectionHistoryDataProvider =
+
+			//						new CTCollectionHistoryDataProvider(
+			//							ctCollection, httpServletRequest);
+			//
+			//				jsonArray.put(
+			//					JSONUtil.put(
+			//						"date",
+			//						() -> {
+			//							Date date = ctCollection.getStatusDate();
+			//
+			//							if (date == null) {
+			//								date = ctCollection.getModifiedDate();
+			//							}
+			//
+			//							return format.format(date);
+			//						}
+			//					).put(
+			//						"description", ctCollection.getDescription()
+			//					).put(
+			//						"dropdownMenu",
+
+			// 						ctCollectionHistoryDataProvider.
+			// 							getTimelineDropdownMenuData(themeDisplay)
+
+			//					).put(
+			//						"id", ctCollection.getCtCollectionId()
+			//					).put(
+			//						"name", ctCollection.getName()
+			//					).put(
+			//						"status", ctCollection.getStatus()
+			//					).put(
+			//						"statusMessage",
+			//						ctCollectionHistoryDataProvider.getStatusMessage()
+			//					));
+			//			}
+			//
+			//			_getConflictIconData(
+			//				classNameId, classPK, currentCTCollection, data,
+			//				possibleConflictCollection, themeDisplay);
+			//
+			//			data.put("timelineIconClass", "change-tracking-timeline-icon");
+			//			data.put("timelineIconName", "time");
+			//			data.put("timelineItems", jsonArray);
+			//
+
+			// 			CTDisplayRenderer<?> ctDisplayRenderer =
+
+			//				_ctDisplayRendererRegistry.getCTDisplayRenderer(classNameId);
+
+			//
+			//			data.put(
+			//				"timelineType",
+			//				ctDisplayRenderer.getTypeName(themeDisplay.getLocale()));
 		}
 	}
 
