@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR
  * LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
@@ -10,10 +10,17 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.change.tracking.internal.test.GroupServiceUserSitesGroupsCTTest;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
+import com.liferay.journal.constants.JournalFolderConstants;
+import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.model.JournalArticleResource;
+import com.liferay.journal.service.JournalArticleResourceLocalService;
+import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -54,18 +61,29 @@ public class PerformanceResearchTest {
 	}
 
 	@Test
-	public void testCreateTestData() throws Exception {
-		// TODO: Test all
-	}
+	public void testCreateImageData() throws Exception {
+		long startImageTimer = System.currentTimeMillis();
 
-	/**
-	 * Web Content with 2 paragraphs and 1 image
-	 *
-	 * @throws Exception
-	 */
-	@Test
-	public void testCreateWebContentData() throws Exception {
+		int count = 1000;
 
+		for (int i = 0; i < count; i++) {
+			TempFileEntryUtil.addTempFileEntry(
+				_group.getGroupId(), TestPropsValues.getUserId(),
+				CTCollection.class.getName(),
+				TempFileEntryUtil.getTempFileName("image.jpg"),
+				_getInputStream(), ContentTypes.IMAGE_JPEG);
+		}
+
+		long endImageTimer = System.currentTimeMillis();
+
+		long deltaImageCreation = endImageTimer - startImageTimer;
+
+		System.out.println(
+			"Created " + count + " times in " + deltaImageCreation + " ms");
+
+		Assert.assertTrue(
+			deltaImageCreation <
+				(_CI_MULTIPLIER * testCreateTestDataExpectedTime()));
 	}
 
 	/**
@@ -75,30 +93,13 @@ public class PerformanceResearchTest {
 	 */
 	@Test
 	public void testCreatePageData() throws Exception {
-
 	}
 
 	@Test
-	public void testCreateImageData() throws Exception {
-		long startImageTimer = System.currentTimeMillis();
+	public void testCreateTestData() throws Exception {
 
-		int count = 1000;
+		// TODO: Test all
 
-		for (int i = 0; i < count; i++) {
-			TempFileEntryUtil.addTempFileEntry(
-				_group.getGroupId(), TestPropsValues.getUserId(),
-				CTCollection.class.getName(), "image.jpg", _getInputStream(),
-				ContentTypes.IMAGE_JPEG);
-		}
-
-		long endImageTimer = System.currentTimeMillis();
-
-		long deltaImageCreation = endImageTimer - startImageTimer;
-
-		System.out.println(
-			"Created "+ count + " times in " + deltaImageCreation + " ms");
-
-		Assert.assertTrue(deltaImageCreation < (_CI_MULTIPLIER * testCreateTestDataExpectedTime()));
 	}
 
 	@Test
@@ -116,9 +117,59 @@ public class PerformanceResearchTest {
 		long deltaUserCreation = endUserTimer - startUserTimer;
 
 		System.out.println(
-			"Created "+ count + " times in " + deltaUserCreation + " ms");
+			"Created " + count + " times in " + deltaUserCreation + " ms");
 
-		Assert.assertTrue(deltaUserCreation < (_CI_MULTIPLIER * testCreateTestDataExpectedTime()));
+		Assert.assertTrue(
+			deltaUserCreation <
+				(_CI_MULTIPLIER * testCreateTestDataExpectedTime()));
+	}
+
+	/**
+	 * Web Content with 2 paragraphs and 1 image
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreateWebContentData() throws Exception {
+		long startWebContentTimer = System.currentTimeMillis();
+
+		int count = 1000;
+
+		for (int i = 0; i < count; i++) {
+			JournalArticle journalArticle = JournalTestUtil.addArticle(
+				_group.getGroupId(),
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				RandomTestUtil.randomString() + " Article",
+				RandomTestUtil.randomString(780));
+
+			FileEntry image = TempFileEntryUtil.addTempFileEntry(
+				_group.getGroupId(), TestPropsValues.getUserId(),
+				CTCollection.class.getName(),
+				RandomTestUtil.randomString() + ".jpg",
+				_getInputStream(), ContentTypes.IMAGE_JPEG);
+
+			JournalArticleResource articleResource =
+				_journalArticleResourceLocalService.createJournalArticleResource(
+					image.getPrimaryKey());
+
+			articleResource.setArticleId(journalArticle.getArticleId());
+
+			_journalArticleResourceLocalService.updateJournalArticleResource(
+				articleResource);
+		}
+
+		long endWebContentTimer = System.currentTimeMillis();
+
+		long deltaWebContentCreation =
+			endWebContentTimer - startWebContentTimer;
+
+		System.out.println(
+			"Created WebContent with 2 paragraphs and 1 image " + count + " times in " +
+				deltaWebContentCreation + " ms");
+
+		Assert.assertTrue(
+			deltaWebContentCreation <
+				(_CI_MULTIPLIER * testCreateTestDataExpectedTime()));
 	}
 
 	/**
@@ -146,5 +197,9 @@ public class PerformanceResearchTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	@Inject
+	private JournalArticleResourceLocalService
+		_journalArticleResourceLocalService;
 
 }
