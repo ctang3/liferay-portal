@@ -118,14 +118,14 @@ definition {
 			resourceName = 90,
 			roleTitle = "Regrole Name");
 
-		for (var resourceActionIndex : list "ACCESS_IN_CONTROL_PANEL,VIEW") {
+		for (var resourceActionIndex : list "VIEW,PREFERENCES,PERMISSIONS,CONFIGURATION,ADD_TO_PAGE,ACCESS_IN_CONTROL_PANEL") {
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = ${resourceActionIndex},
 				resourceName = "com_liferay_journal_web_portlet_JournalPortlet",
 				roleTitle = "Regrole Name");
 		}
 
-		for (var resourceActionIndex : list "ADD_ARTICLE,VIEW") {
+		for (var resourceActionIndex : list "ADD_ARTICLE,ADD_FEED,ADD_FOLDER,ADD_STRUCTURE,ADD_TEMPLATE,PERMISSIONS,SUBSCRIBE,UPDATE,VIEW,VIEW") {
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = ${resourceActionIndex},
 				resourceName = "com.liferay.journal",
