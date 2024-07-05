@@ -230,6 +230,10 @@ definition {
 				panel = "Applications",
 				portlet = "Publications");
 
+			WaitForSPARefresh();
+
+			WaitForPageLoad();
+
 			Check.checkToggleSwitch(locator1 = "Publications#ENABLE_PUBLICATIONS_TOGGLE_SWITCH");
 
 			if (${enableSandboxOnly} == "true") {
