@@ -653,6 +653,10 @@ definition {
 		var key_publicationName = ${sandboxedPublicationName};
 
 		if (${sandboxedUser} == "true") {
+			WaitForSPARefresh();
+
+			WaitForPageLoad();
+
 			AssertTextEquals.assertPartialText(
 				locator1 = "Publications#PUBLICATIONS_INDICATOR_TITLE",
 				value1 = ${sandboxedPublicationName});
