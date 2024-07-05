@@ -2048,6 +2048,7 @@ definition {
 			// Workaround for LXC not supporting JSON call currently
 
 			JSONUser.agreeToTermsAndAnswerReminderQuery(
+				creatorEmailAddress = ${creatorEmailAddress},
 				password = ${password},
 				portalURL = ${portalURL},
 				userEmailAddress = ${userEmailAddress});
