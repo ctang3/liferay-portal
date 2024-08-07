@@ -5,7 +5,6 @@
 
 package com.liferay.portal.internal.increment;
 
-import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.increment.BufferedIncrementThreadLocal;
 import com.liferay.portal.kernel.increment.Increment;
 import com.liferay.portal.kernel.util.NamedThreadFactory;
@@ -58,9 +57,7 @@ public class BufferedIncrementProcessor {
 				_bufferedIncrementConfiguration, _batchablePipe,
 				_queueLengthTracker, Thread.currentThread());
 
-			if (!CTCollectionThreadLocal.isProductionMode() ||
-				BufferedIncrementThreadLocal.isForceSync()) {
-
+			if (BufferedIncrementThreadLocal.isForceSync()) {
 				runnable.run();
 			}
 			else {
