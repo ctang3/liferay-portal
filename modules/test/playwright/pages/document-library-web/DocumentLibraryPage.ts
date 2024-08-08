@@ -139,4 +139,32 @@ export class DocumentLibraryPage {
 			.and(this.page.locator('[aria-haspopup]'))
 			.click();
 	}
+
+	async selectFileEntry(entryTitle: string) {
+		const fileEntryCheckbox = this.page
+			.locator(`.card:has-text('${entryTitle}')`)
+			.getByRole('checkbox');
+
+		if (await fileEntryCheckbox.isHidden()) {
+			await this.searchFor(entryTitle);
+
+			await expect(fileEntryCheckbox).toBeVisible();
+		}
+
+		await fileEntryCheckbox.check();
+	}
+
+	async searchFor(entryTitle: string) {
+		const dlPortlet = this.page.locator('.portlet-document-library');
+
+		await dlPortlet.getByPlaceholder('Search for').first().fill(entryTitle);
+		await dlPortlet.getByPlaceholder('Search for').first().press('Enter');
+	}
+
+	async downloadSelectedFileEntries() {
+		await this.page
+			.locator('.management-bar')
+			.getByRole('button', {name: 'Download'})
+			.click();
+	}
 }
