@@ -654,6 +654,7 @@ export default function ChangeTrackingIndicator({
 			return (
 				<ClayDropDown
 					alignmentPosition={Align.BottomCenter}
+					menuElementAttrs={{style: {maxWidth: '303px'}}}
 					renderMenuOnClick
 					trigger={
 						<ClayButton
