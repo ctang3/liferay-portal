@@ -60,10 +60,11 @@ test.beforeEach(
 
 			if (i !== publicationCount - 1) {
 				await journalPage.goto();
-				const webContentHeader = page.getByRole('heading', {
-					name: 'Web Content',
-				});
-				await expect(webContentHeader).toBeVisible();
+				await page
+					.getByRole('heading', {
+						name: 'Web Content',
+					})
+					.waitFor();
 				await journalPage.goToJournalArticleAction(
 					'Delete',
 					articleTitle
@@ -87,7 +88,7 @@ test.afterEach(async ({apiHelpers, changeTrackingPage, journalPage, page}) => {
 	await changeTrackingPage.workOnProduction();
 
 	await journalPage.goto();
-	await page.getByRole('heading', {name: 'Web Content'}).isVisible();
+	await page.getByRole('heading', {name: 'Web Content'}).waitFor();
 	await journalPage.goToJournalArticleAction('Delete', articleTitle);
 });
 
@@ -96,7 +97,7 @@ test('LPD-22759 Allow users to view the entire history of an entity in a popup m
 	page,
 }) => {
 	await journalPage.goto();
-	await page.getByRole('heading', {name: 'Web Content'}).isVisible();
+	await page.getByRole('heading', {name: 'Web Content'}).waitFor();
 	await journalPage.goToJournalArticleAction('Edit', articleTitle);
 	await page.getByRole('tab', {name: 'Properties'}).waitFor();
 
@@ -105,7 +106,7 @@ test('LPD-22759 Allow users to view the entire history of an entity in a popup m
 		.locator('.publication-timeline')
 		.getByText('Modified')
 		.first()
-		.isVisible();
+		.waitFor();
 	await page
 		.locator('.publication-timeline')
 		.getByRole('button', {name: 'View More'})
@@ -113,7 +114,7 @@ test('LPD-22759 Allow users to view the entire history of an entity in a popup m
 	await page
 		.locator('.entity-history-modal')
 		.getByRole('heading', {name: 'View All History'})
-		.isVisible();
+		.waitFor();
 
 	for (let i = 0; i < ctCollections.length; i++) {
 		if (i !== ctCollections.length - 1) {
