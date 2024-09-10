@@ -84,19 +84,22 @@ test('LPD-22759 Allow users to view the entire history of an entity in a popup m
 	await journalEditArticlePage.editArticle(articleTitle);
 
 	await page.locator('.change-tracking-timeline-button').click();
+
 	await page
 		.locator('.publication-timeline')
 		.getByText('Modified')
 		.first()
-		.isVisible();
+		.waitFor();
+
 	await page
 		.locator('.publication-timeline')
 		.getByRole('button', {name: 'View More'})
 		.click();
+
 	await page
 		.locator('.entity-history-modal')
 		.getByRole('heading', {name: 'View All History'})
-		.isVisible();
+		.waitFor();
 
 	for (let i = 0; i < ctCollections.length; i++) {
 		if (i !== ctCollections.length - 1) {
