@@ -78,12 +78,10 @@ test.afterEach(async ({apiHelpers, changeTrackingPage, journalPage, page}) => {
 });
 
 test('LPD-22759 Allow users to view the entire history of an entity in a popup modal', async ({
-	journalPage,
+	journalEditArticlePage,
 	page,
 }) => {
-	await journalPage.goto();
-	await page.getByRole('heading', {name: 'Web Content'}).isVisible();
-	await journalPage.goToJournalArticleAction('Edit', articleTitle);
+	await journalEditArticlePage.editArticle(articleTitle);
 
 	await page.locator('.change-tracking-timeline-button').click();
 	await page
