@@ -10,6 +10,7 @@ import path from 'path';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {documentLibraryPagesTest} from '../../fixtures/documentLibraryPages.fixtures';
+import {loginTest} from '../../fixtures/loginTest';
 import {clickAndExpectToBeVisible} from '../../utils/clickAndExpectToBeVisible';
 import {getRandomInt} from '../../utils/getRandomInt';
 import getRandomString from '../../utils/getRandomString';
@@ -22,7 +23,8 @@ export const test = mergeTests(
 	apiHelpersTest,
 	changeTrackingPagesTest,
 	documentLibraryPagesTest,
-	journalPagesTest
+	journalPagesTest,
+	loginTest()
 );
 
 test.afterEach(async ({apiHelpers, ctCollection}) => {

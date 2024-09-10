@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
+import {loginTest} from '../../fixtures/loginTest';
 import getRandomString from '../../utils/getRandomString';
 import performLogin, {performLogout} from '../../utils/performLogin';
 import {waitForSuccessAlert} from '../../utils/waitForSuccessAlert';
@@ -17,7 +18,8 @@ export const test = mergeTests(
 	changeTrackingPagesTest,
 	apiHelpersTest,
 	isolatedSiteTest,
-	journalPagesTest
+	journalPagesTest,
+	loginTest()
 );
 
 const dataFields = [

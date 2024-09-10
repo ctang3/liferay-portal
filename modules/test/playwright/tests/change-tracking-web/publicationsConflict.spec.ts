@@ -7,6 +7,7 @@ import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
+import {loginTest} from '../../fixtures/loginTest';
 import {productMenuPageTest} from '../../fixtures/productMenuPageTest';
 import getRandomString from '../../utils/getRandomString';
 import {waitForSuccessAlert} from '../../utils/waitForSuccessAlert';
@@ -18,7 +19,8 @@ export const test = mergeTests(
 	blogsPagesTest,
 	changeTrackingPagesTest,
 	journalPagesTest,
-	productMenuPageTest
+	productMenuPageTest,
+	loginTest()
 );
 
 test('Resolve deletion modification conflict publications by discarding', async ({

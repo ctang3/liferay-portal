@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {mergeTests, test} from '@playwright/test';
+import {mergeTests} from '@playwright/test';
 
 import {ApiHelpers} from '../helpers/ApiHelpers';
 import {ChangeTrackingInstanceSettingsPage} from '../pages/change-tracking-web/ChangeTrackingInstanceSettingsPage';
 import {ChangeTrackingPage} from '../pages/change-tracking-web/ChangeTrackingPage';
 import getRandomString from '../utils/getRandomString';
-import {loginTest} from './loginTest';
+import {backendPageTest} from './backendPageTest';
 
-const changeTrackingPages = test.extend<{
+const test = mergeTests(backendPageTest);
+
+const changeTrackingPagesTest = test.extend<{
 	ChangeTrackingInstanceSettingsPage: ChangeTrackingInstanceSettingsPage;
 	changeTrackingPage: ChangeTrackingPage;
 	ctCollection;
@@ -23,10 +25,10 @@ const changeTrackingPages = test.extend<{
 		await use(new ChangeTrackingPage(page));
 	},
 	ctCollection: [
-		async ({page}, use) => {
-			await page.goto('/');
+		async ({backendPage}, use) => {
+			await backendPage.goto('/');
 
-			const apiHelpers = new ApiHelpers(page);
+			const apiHelpers = new ApiHelpers(backendPage);
 
 			let ctCollection;
 
@@ -62,7 +64,5 @@ const changeTrackingPages = test.extend<{
 		{auto: true},
 	],
 });
-
-const changeTrackingPagesTest = mergeTests(loginTest(), changeTrackingPages);
 
 export {changeTrackingPagesTest};

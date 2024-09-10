@@ -8,13 +8,15 @@ import {expect, mergeTests} from '@playwright/test';
 import {applicationsMenuPageTest} from '../../fixtures/applicationsMenuPageTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
+import {loginTest} from '../../fixtures/loginTest';
 
 export const test = mergeTests(
 	featureFlagsTest({
 		'COMMERCE-8087': true,
 	}),
 	changeTrackingPagesTest,
-	applicationsMenuPageTest
+	applicationsMenuPageTest,
+	loginTest()
 );
 
 test('LPD-24076 Popover is displayed on Data Migration Center page', async ({

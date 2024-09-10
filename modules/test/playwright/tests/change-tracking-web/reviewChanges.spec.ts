@@ -10,13 +10,15 @@ import path from 'path';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {dataApiHelpersTest} from '../../fixtures/dataApiHelpersTest';
+import {loginTest} from '../../fixtures/loginTest';
 import getRandomString from '../../utils/getRandomString';
 import {PORTLET_URLS} from '../../utils/portletUrls';
 
 export const test = mergeTests(
 	apiHelpersTest,
 	changeTrackingPagesTest,
-	dataApiHelpersTest
+	dataApiHelpersTest,
+	loginTest()
 );
 
 test('LPD-28276 Assert tag data persists in parent tab', async ({

@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
+import {loginTest} from '../../fixtures/loginTest';
 import getRandomString from '../../utils/getRandomString';
 import getBasicWebContentStructureId from '../../utils/structured-content/getBasicWebContentStructureId';
 import {waitForSuccessAlert} from '../../utils/waitForSuccessAlert';
@@ -19,7 +20,8 @@ export const test = mergeTests(
 	apiHelpersTest,
 	blogsPagesTest,
 	changeTrackingPagesTest,
-	journalPagesTest
+	journalPagesTest,
+	loginTest()
 );
 
 test('Cannot publish empty ctCollection', async ({

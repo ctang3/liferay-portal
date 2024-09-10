@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
+import {loginTest} from '../../fixtures/loginTest';
 import {productMenuPageTest} from '../../fixtures/productMenuPageTest';
 import getRandomString from '../../utils/getRandomString';
 import performLogin, {performLogout} from '../../utils/performLogin';
@@ -19,7 +20,8 @@ export const test = mergeTests(
 	changeTrackingPagesTest,
 	isolatedSiteTest,
 	journalPagesTest,
-	productMenuPageTest
+	productMenuPageTest,
+	loginTest()
 );
 
 test('LPD-30098 Invite user as admin', async ({

@@ -10,6 +10,7 @@ import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {documentLibraryPagesTest} from '../../fixtures/documentLibraryPages.fixtures';
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
+import {loginTest} from '../../fixtures/loginTest';
 import {getRandomInt} from '../../utils/getRandomInt';
 import getRandomString from '../../utils/getRandomString';
 import performLogin, {performLogout, userData} from '../../utils/performLogin';
@@ -23,7 +24,8 @@ export const test = mergeTests(
 		'LPD-20556': true,
 		'LPS-171364': true,
 	}),
-	changeTrackingPagesTest
+	changeTrackingPagesTest,
+	loginTest()
 );
 
 let title1;

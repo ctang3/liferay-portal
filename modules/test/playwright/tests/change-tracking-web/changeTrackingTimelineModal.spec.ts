@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
+import {loginTest} from '../../fixtures/loginTest';
 import {getRandomInt} from '../../utils/getRandomInt';
 import getRandomString from '../../utils/getRandomString';
 import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
@@ -18,7 +19,8 @@ export const test = mergeTests(
 	featureFlagsTest({
 		'LPD-20556': true,
 	}),
-	journalPagesTest
+	journalPagesTest,
+	loginTest()
 );
 
 const publicationCount = 8;
