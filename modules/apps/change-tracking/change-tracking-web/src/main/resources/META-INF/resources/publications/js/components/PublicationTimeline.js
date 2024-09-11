@@ -78,6 +78,25 @@ const PublicationTimeline = ({
 		);
 	};
 
+	const TimelineDropdownMenuWrapper = (timelineItem) => {
+		return (
+			<TimelineDropdownMenu
+				namespace={namespace}
+				navigate={navigate}
+				timelineClassNameId={timelineClassNameId}
+				timelineClassPK={timelineClassPK}
+				timelineEditURL={timelineEditURL}
+				timelineItem={timelineItem}
+			/>
+		);
+	};
+
+	const customTimelineDropdownMenuRenderer = {
+		component: TimelineDropdownMenuWrapper,
+		name: 'customTimelineDropdownMenuRenderer',
+		type: 'internal',
+	};
+
 	const renderModal = () => {
 		if (!showModal) {
 			return '';
@@ -101,6 +120,9 @@ const PublicationTimeline = ({
 				>
 					<FrontendDataSet
 						creationMenu={null}
+						customRenderers={{
+							tableCell: [customTimelineDropdownMenuRenderer],
+						}}
 						id="PublicationTimelineEntityHistoryTable"
 						items={timelineItems}
 						itemsPerPage={10}
@@ -154,6 +176,10 @@ const PublicationTimeline = ({
 												'last-modified'
 											),
 											sortable: true,
+										},
+										{
+											contentRenderer:
+												'customTimelineDropdownMenuRenderer',
 										},
 									],
 								},
