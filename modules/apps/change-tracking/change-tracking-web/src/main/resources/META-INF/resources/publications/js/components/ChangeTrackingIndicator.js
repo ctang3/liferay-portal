@@ -59,6 +59,7 @@ export default function ChangeTrackingIndicator({
 	timelineEditURL,
 	timelineIconClass,
 	timelineIconName,
+	timelineItemsNewURL,
 	timelineItemsURL,
 	title,
 	warningBody,
@@ -667,7 +668,7 @@ export default function ChangeTrackingIndicator({
 	);
 
 	const renderTimeline = () => {
-		if (timelineItemsURL !== null) {
+		if (timelineItemsNewURL !== null && timelineItemsURL !== null) {
 			return (
 				<ClayDropDown
 					alignmentPosition={Align.BottomCenter}
@@ -693,6 +694,7 @@ export default function ChangeTrackingIndicator({
 						timelineClassNameId={timelineClassNameId}
 						timelineClassPK={timelineClassPK}
 						timelineEditURL={timelineEditURL}
+						timelineItemsNewURL={timelineItemsNewURL}
 						timelineItemsURL={timelineItemsURL}
 					/>
 				</ClayDropDown>

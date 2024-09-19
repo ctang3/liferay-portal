@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactory;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
@@ -665,6 +666,26 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 					"/change_tracking/checkout_ct_collection"
 				).setRedirect(
 					_portal.getCurrentURL(httpServletRequest)
+				).buildString());
+			data.put(
+				"timelineItemsNewURL",
+				PortletURLBuilder.create(
+					_portal.getControlPanelPortletURL(
+						httpServletRequest, themeDisplay.getScopeGroup(),
+						CTPortletKeys.PUBLICATIONS, 0, 0,
+						PortletRequest.RENDER_PHASE)
+				).setMVCPath(
+					"/change_tracking/view_timeline_history.jsp"
+				).setRedirect(
+					_portal.getCurrentURL(httpServletRequest)
+				).setParameter(
+					"ctCollectionId", "{ctCollectionId}"
+				).setParameter(
+					"modelClassNameId", "{modelClassNameId}"
+				).setParameter(
+					"modelClassPK", "{modelClassPK}"
+				).setWindowState(
+					LiferayWindowState.POP_UP
 				).buildString());
 			data.put("timelineIconClass", "change-tracking-timeline-icon");
 			data.put("timelineIconName", "time");
