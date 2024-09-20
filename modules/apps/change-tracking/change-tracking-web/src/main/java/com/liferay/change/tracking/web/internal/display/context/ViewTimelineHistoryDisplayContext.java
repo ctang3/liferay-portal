@@ -7,6 +7,7 @@
 package com.liferay.change.tracking.web.internal.display.context;
 
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -27,18 +28,32 @@ public class ViewTimelineHistoryDisplayContext {
 
 	public ViewTimelineHistoryDisplayContext(
 		HttpServletRequest httpServletRequest, Language language,
-		RenderRequest renderRequest, RenderResponse renderResponse) {
+		RenderRequest renderRequest, RenderResponse renderResponse,
+		long classNameId, long classPK) {
 
 		_httpServletRequest = httpServletRequest;
 		_language = language;
 		_renderResponse = renderResponse;
+		_classNameId = classNameId;
+		_classPK = classPK;
 
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
 	public String getAPIURL() {
-		return "/o/change-tracking-rest/v1.0/ct-entries/history";
+		StringBundler queryParamsSB = new StringBundler(4);
+
+		queryParamsSB.append("?classNameId=");
+		queryParamsSB.append(_classNameId);
+
+		if (_classPK != 0) {
+			queryParamsSB.append("&classPK=");
+			queryParamsSB.append(_classPK);
+		}
+
+		return "/o/change-tracking-rest/v1.0/ct-entries/history" +
+			queryParamsSB;
 	}
 
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
@@ -117,6 +132,8 @@ public class ViewTimelineHistoryDisplayContext {
 			viewDropdownItem);
 	}
 
+	private final long _classNameId;
+	private final long _classPK;
 	private final HttpServletRequest _httpServletRequest;
 	private final Language _language;
 	private final RenderResponse _renderResponse;

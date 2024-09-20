@@ -674,16 +674,14 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 						httpServletRequest, themeDisplay.getScopeGroup(),
 						CTPortletKeys.PUBLICATIONS, 0, 0,
 						PortletRequest.RENDER_PHASE)
-				).setMVCPath(
-					"/change_tracking/view_timeline_history.jsp"
+				).setMVCRenderCommandName(
+					"/change_tracking/view_timeline_history"
 				).setRedirect(
 					_portal.getCurrentURL(httpServletRequest)
 				).setParameter(
-					"ctCollectionId", "{ctCollectionId}"
+					"classNameId", classNameId
 				).setParameter(
-					"modelClassNameId", "{modelClassNameId}"
-				).setParameter(
-					"modelClassPK", "{modelClassPK}"
+					"classPK", classPK
 				).setWindowState(
 					LiferayWindowState.POP_UP
 				).buildString());

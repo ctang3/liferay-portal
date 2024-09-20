@@ -11,6 +11,7 @@ import com.liferay.change.tracking.web.internal.constants.CTWebKeys;
 import com.liferay.change.tracking.web.internal.display.context.ViewTimelineHistoryDisplayContext;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 
 import javax.portlet.RenderRequest;
@@ -35,10 +36,13 @@ public class ViewTimelineHistoryMVCRenderCommand implements MVCRenderCommand {
 	public String render(
 		RenderRequest renderRequest, RenderResponse renderResponse) {
 
+		long classNameId = ParamUtil.getLong(renderRequest, "classNameId");
+		long classPK = ParamUtil.getLong(renderRequest, "classPK");
+
 		ViewTimelineHistoryDisplayContext viewTimelineHistoryDisplayContext =
 			new ViewTimelineHistoryDisplayContext(
 				_portal.getHttpServletRequest(renderRequest), _language,
-				renderRequest, renderResponse);
+				renderRequest, renderResponse, classNameId, classPK);
 
 		renderRequest.setAttribute(
 			CTWebKeys.VIEW_TIMELINE_HISTORY_DISPLAY_CONTEXT,
