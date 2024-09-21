@@ -4,7 +4,6 @@
  */
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
-import {Modal} from '@clayui/core';
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
@@ -125,15 +124,12 @@ const PublicationTimeline = ({
 		}
 
 		return (
-			<Modal
-				className="entity-history-modal"
-				id={`${namespace}publication-timeline-history-modal`}
-				observer={observer}
-				size="full-screen"
-				spritemap={spritemap}
-				title="test modal title"
-				url={timelineItemsNewURL}
-			/>
+			Liferay.Util.openModal({
+				id: `${namespace}publication-timeline-history-modal`,
+				size: 'full-screen',
+				title: Liferay.Language.get('view-entity-modification-history'),
+				url: timelineItemsNewURL
+			})
 		);
 
 		// return (
