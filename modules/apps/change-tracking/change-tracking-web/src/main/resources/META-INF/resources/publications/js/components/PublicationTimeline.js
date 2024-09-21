@@ -8,20 +8,10 @@ import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {useModal} from '@clayui/modal';
-import {
-	createPortletURL,
-	fetch,
-	getPortletId,
-	navigate as basicNavigate,
-} from 'frontend-js-web';
+import {createPortletURL, fetch, getPortletId} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
-import TimelineDropdownMenu, {
-	createDiscardURL,
-	createEditURL,
-	createMoveURL,
-	createViewURL,
-} from './TimelineDropdownMenu';
+import TimelineDropdownMenu from './TimelineDropdownMenu';
 import {
 	WORKFLOW_STATUS_APPROVED,
 	WORKFLOW_STATUS_DRAFT,
@@ -87,188 +77,16 @@ const PublicationTimeline = ({
 		);
 	};
 
-	const onActionDropdownItemClick = ({action, itemData}) => {
-		if (action.data.id === 'discard') {
-			basicNavigate(
-				createDiscardURL(
-					itemData.id,
-					namespace,
-					timelineClassNameId,
-					timelineClassPK
-				)
-			);
-		}
-		else if (action.data.id === 'edit') {
-			basicNavigate(createEditURL(itemData.id, timelineEditURL));
-		}
-		else if (action.data.id === 'move') {
-			basicNavigate(
-				createMoveURL(
-					itemData.id,
-					namespace,
-					timelineClassNameId,
-					timelineClassPK
-				)
-			);
-		}
-		else if (action.data.id === 'view') {
-			basicNavigate(
-				createViewURL(itemData.id, namespace, itemData.ctEntryId)
-			);
-		}
-	};
-
 	const renderModal = () => {
 		if (!showModal) {
 			return '';
 		}
 
-		return (
-			Liferay.Util.openModal({
-				id: `${namespace}publication-timeline-history-modal`,
-				size: 'full-screen',
-				title: Liferay.Language.get('view-entity-modification-history'),
-				url: timelineItemsNewURL
-			})
-		);
-
-		// return (
-		// 	<ClayModal
-		// 		className="entity-history-modal"
-		// 		observer={observer}
-		// 		size="full-screen"
-		// 		spritemap={spritemap}
-		// 	>
-		// 		<ClayModal.Header>
-		// 			<div className="autofit-row">
-		// 				{Liferay.Language.get('view-all-history')}
-		// 			</div>
-		// 		</ClayModal.Header>
-		//
-		// 		<ClayModal.Body
-		// 			style={{borderTop: 0, marginTop: 0, paddingTop: 0}}
-		// 		>
-		// 			<FrontendDataSet
-		// 				creationMenu={null}
-		// 				id="PublicationTimelineEntityHistoryTable"
-		// 				items={timelineItems}
-		// 				itemsActions={[
-		// 					{
-		// 						data: {
-		// 							id: 'discard',
-		// 							permissionKey: 'get',
-		// 						},
-		// 						icon: 'times-circle',
-		// 						label: Liferay.Language.get('discard'),
-		// 					},
-		// 					{
-		// 						data: {
-		// 							id: 'edit',
-		// 							permissionKey: 'get',
-		// 						},
-		// 						icon: 'pencil',
-		// 						label: sub(
-		// 							Liferay.Language.get('edit-in-x'),
-		// 							Liferay.Language.get('publication')
-		// 						),
-		// 					},
-		// 					{
-		// 						data: {
-		// 							id: 'move',
-		// 							permissionKey: 'get',
-		// 						},
-		// 						icon: 'move-folder',
-		// 						label: Liferay.Language.get('move-changes'),
-		// 					},
-		// 					{
-		// 						data: {
-		// 							id: 'view',
-		// 							permissionKey: 'get',
-		// 						},
-		// 						icon: 'list-ul',
-		// 						label: Liferay.Language.get('review-change'),
-		// 					},
-		// 				]}
-		// 				itemsPerPage={10}
-		// 				namespace={namespace}
-		// 				onActionDropdownItemClick={onActionDropdownItemClick}
-		// 				selectedItemsKey="id"
-		// 				showManagementBar={false}
-		// 				showPagination={true}
-		// 				showSearch={false}
-		// 				views={[
-		// 					{
-		// 						contentRenderer: 'table',
-		// 						label: 'Table',
-		// 						name: 'table',
-		// 						schema: {
-		// 							fields: [
-		// 								{
-		// 									actionId: 'view',
-		// 									contentRenderer: 'actionLink',
-		// 									fieldName: 'name',
-		// 									label: Liferay.Language.get(
-		// 										'publication'
-		// 									),
-		// 									localizeLabel: true,
-		// 									sortable: true,
-		// 								},
-		// 								{
-		// 									contentRenderer: 'status',
-		// 									fieldName: 'status',
-		// 									label: Liferay.Language.get(
-		// 										'status'
-		// 									),
-		// 									localizeLabel: true,
-		// 									sortable: true,
-		// 								},
-		// 								{
-		// 									fieldName: 'ctEntryUser',
-		// 									label: Liferay.Language.get('user'),
-		// 									localizeLabel: true,
-		// 									sortable: true,
-		// 								},
-		// 								{
-		// 									fieldName: 'ctEntryChangeType',
-		// 									label: Liferay.Language.get(
-		// 										'changed'
-		// 									),
-		// 									localizeLabel: true,
-		// 									sortable: true,
-		// 								},
-		// 								{
-		// 									contentRenderer: 'dateTime',
-		// 									fieldName: 'ctEntryDateModified',
-		// 									label: Liferay.Language.get(
-		// 										'last-modified'
-		// 									),
-		// 									localizeLabel: true,
-		// 									sortable: true,
-		// 								},
-		// 							],
-		// 						},
-		// 						thumbnail: 'table',
-		// 					},
-		// 				]}
-		// 			/>
-		// 		</ClayModal.Body>
-		//
-		// 		<ClayModal.Footer
-		// 			last={
-		// 				<ClayButton
-		// 					aria-label={Liferay.Language.get('done')}
-		// 					displayType="primary"
-		// 					onClick={() => {
-		// 						onClose();
-		// 					}}
-		// 				>
-		// 					{Liferay.Language.get('done')}
-		// 				</ClayButton>
-		// 			}
-		// 		/>
-		// 	</ClayModal>
-		// );
-
+		return Liferay.Util.openModal({
+			id: `${namespace}publication-timeline-history-modal`,
+			title: Liferay.Language.get('view-entity-modification-history'),
+			url: timelineItemsNewURL,
+		});
 	};
 
 	const renderTimelineItemRow = (timelineItem) => {
