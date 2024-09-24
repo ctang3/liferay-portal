@@ -84,6 +84,8 @@ const PublicationTimeline = ({
 
 		return Liferay.Util.openModal({
 			id: `${namespace}publication-timeline-history-modal`,
+			iframeBodyCssClass: 'entity-history-modal',
+			size: 'full-screen',
 			title: Liferay.Language.get('view-entity-modification-history'),
 			url: timelineItemsNewURL,
 		});
