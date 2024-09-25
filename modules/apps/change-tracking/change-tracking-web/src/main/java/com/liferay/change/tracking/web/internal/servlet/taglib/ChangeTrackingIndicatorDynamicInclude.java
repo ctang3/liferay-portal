@@ -667,8 +667,24 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 				).setRedirect(
 					_portal.getCurrentURL(httpServletRequest)
 				).buildString());
+			data.put("timelineIconClass", "change-tracking-timeline-icon");
+			data.put("timelineIconName", "time");
 			data.put(
-				"timelineItemsNewURL",
+				"timelineItemsURL",
+				StringBundler.concat(
+					_portal.getPortalURL(themeDisplay),
+					"/o/change-tracking-rest/v1.0/ct-collections/history?",
+					"classNameId=", classNameId, "&classPK=", classPK));
+
+			CTDisplayRenderer<?> ctDisplayRenderer =
+				_ctDisplayRendererRegistry.getCTDisplayRenderer(classNameId);
+
+			data.put(
+				"timelineType",
+				ctDisplayRenderer.getTypeName(themeDisplay.getLocale()));
+
+			data.put(
+				"viewTimelineHistoryURL",
 				PortletURLBuilder.create(
 					_portal.getControlPanelPortletURL(
 						httpServletRequest, themeDisplay.getScopeGroup(),
@@ -685,21 +701,6 @@ public class ChangeTrackingIndicatorDynamicInclude extends BaseDynamicInclude {
 				).setWindowState(
 					LiferayWindowState.POP_UP
 				).buildString());
-			data.put("timelineIconClass", "change-tracking-timeline-icon");
-			data.put("timelineIconName", "time");
-			data.put(
-				"timelineItemsURL",
-				StringBundler.concat(
-					_portal.getPortalURL(themeDisplay),
-					"/o/change-tracking-rest/v1.0/ct-collections/history?",
-					"classNameId=", classNameId, "&classPK=", classPK));
-
-			CTDisplayRenderer<?> ctDisplayRenderer =
-				_ctDisplayRendererRegistry.getCTDisplayRenderer(classNameId);
-
-			data.put(
-				"timelineType",
-				ctDisplayRenderer.getTypeName(themeDisplay.getLocale()));
 		}
 	}
 

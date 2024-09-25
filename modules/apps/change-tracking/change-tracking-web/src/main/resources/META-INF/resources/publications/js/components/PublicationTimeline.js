@@ -25,8 +25,8 @@ const PublicationTimeline = ({
 	timelineClassNameId,
 	timelineClassPK,
 	timelineEditURL,
-	timelineItemsNewURL,
 	timelineItemsURL,
+	viewTimelineHistoryURL,
 }) => {
 	const MAX_DROPDOWN_ITEMS_SHOWN = 6;
 	const [timelineItems, setTimelineItems] = useState([]);
@@ -229,7 +229,7 @@ const PublicationTimeline = ({
 										title: Liferay.Language.get(
 											'view-entity-modification-history'
 										),
-										url: timelineItemsNewURL,
+										url: viewTimelineHistoryURL,
 									});
 								}}
 							>
