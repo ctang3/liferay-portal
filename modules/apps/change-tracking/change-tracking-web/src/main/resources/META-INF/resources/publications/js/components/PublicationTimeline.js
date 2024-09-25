@@ -83,6 +83,16 @@ const PublicationTimeline = ({
 		}
 
 		return Liferay.Util.openModal({
+			buttons: [
+				{
+					label: Liferay.Language.get('done'),
+					onClick: ({processClose}) => {
+						processClose();
+
+						setShowModal(false);
+					},
+				},
+			],
 			id: `${namespace}publication-timeline-history-modal`,
 			iframeBodyCssClass: 'entity-history-modal',
 			size: 'full-screen',
