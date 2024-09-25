@@ -7,7 +7,6 @@ import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import {useModal} from '@clayui/modal';
 import {createPortletURL, fetch, getPortletId} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
@@ -32,12 +31,6 @@ const PublicationTimeline = ({
 	const MAX_DROPDOWN_ITEMS_SHOWN = 6;
 	const [timelineItems, setTimelineItems] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [showModal, setShowModal] = useState(false);
-
-	/* eslint-disable no-unused-vars */
-	const {observer, onClose} = useModal({
-		onClose: () => setShowModal(false),
-	});
 
 	const createMVCRenderCommandURL = (
 		ctCollectionId,
@@ -75,30 +68,6 @@ const PublicationTimeline = ({
 			ctCollectionId,
 			'/change_tracking/view_changes'
 		);
-	};
-
-	const renderModal = () => {
-		if (!showModal) {
-			return '';
-		}
-
-		return Liferay.Util.openModal({
-			buttons: [
-				{
-					label: Liferay.Language.get('done'),
-					onClick: ({processClose}) => {
-						processClose();
-
-						setShowModal(false);
-					},
-				},
-			],
-			id: `${namespace}publication-timeline-history-modal`,
-			iframeBodyCssClass: 'entity-history-modal',
-			size: 'full-screen',
-			title: Liferay.Language.get('view-entity-modification-history'),
-			url: timelineItemsNewURL,
-		});
 	};
 
 	const renderTimelineItemRow = (timelineItem) => {
@@ -221,8 +190,6 @@ const PublicationTimeline = ({
 	if (timelineItems && !!timelineItems.length) {
 		return (
 			<>
-				{renderModal()}
-
 				<div className="publication-timeline">
 					<ClayDropDown.ItemList className="c-mb-0">
 						{Liferay.FeatureFlags['LPD-20556']
@@ -244,7 +211,26 @@ const PublicationTimeline = ({
 								className="btn-block"
 								displayType="secondary"
 								onClick={() => {
-									setShowModal(true);
+									Liferay.Util.openModal({
+										buttons: [
+											{
+												label: Liferay.Language.get(
+													'done'
+												),
+												onClick: ({processClose}) => {
+													processClose();
+												},
+											},
+										],
+										id: `${namespace}publication-timeline-history-modal`,
+										iframeBodyCssClass:
+											'entity-history-modal',
+										size: 'full-screen',
+										title: Liferay.Language.get(
+											'view-entity-modification-history'
+										),
+										url: timelineItemsNewURL,
+									});
 								}}
 							>
 								{Liferay.Language.get('view-more')}
