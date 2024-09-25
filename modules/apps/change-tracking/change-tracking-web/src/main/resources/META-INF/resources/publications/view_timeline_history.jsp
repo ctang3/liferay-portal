@@ -7,15 +7,13 @@
 
 <%@ include file="/publications/init.jsp" %>
 
-<liferay-util:html-top>
-	<link href="<%= PortalUtil.getStaticResourceURL(request, PortalUtil.getPathModule() + "/change-tracking-web/publications/css/ChangeTrackingIndicator.css") %>" rel="stylesheet" />
-</liferay-util:html-top>
-
 <%
 ViewTimelineHistoryDisplayContext viewTimelineHistoryDisplayContext = (ViewTimelineHistoryDisplayContext)request.getAttribute(CTWebKeys.VIEW_TIMELINE_HISTORY_DISPLAY_CONTEXT);
 %>
 
-<clay:container-fluid>
+<clay:container-fluid
+	id="publication-timeline-history-table"
+>
 	<frontend-data-set:headless-display
 		apiURL="<%= viewTimelineHistoryDisplayContext.getAPIURL() %>"
 		fdsActionDropdownItems="<%= viewTimelineHistoryDisplayContext.getFDSActionDropdownItems() %>"
