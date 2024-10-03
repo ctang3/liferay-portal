@@ -18,6 +18,8 @@ import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.link.model.AssetLink;
 import com.liferay.asset.link.service.AssetLinkLocalService;
+import com.liferay.change.tracking.model.CTCollection;
+import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.data.engine.rest.test.util.DataDefinitionTestUtil;
@@ -57,8 +59,10 @@ import com.liferay.journal.util.JournalConverter;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.NoSuchImageException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -1578,6 +1582,28 @@ public class JournalArticleLocalServiceTest {
 	}
 
 	@Test
+	public void testShouldMoveArticleToTrashInPublication() throws Exception {
+		JournalArticle article = JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, "/test", "test");
+
+		CTCollection ctCollection = _ctCollectionLocalService.addCTCollection(
+			null, _group.getCompanyId(), TestPropsValues.getUserId(), 0,
+			RandomTestUtil.randomString(), null);
+
+		try (SafeCloseable safeCloseable =
+				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
+					ctCollection.getCtCollectionId())) {
+
+			article = JournalTestUtil.updateArticle(
+				article, RandomTestUtil.randomString());
+
+			_journalArticleLocalService.moveArticleToTrash(
+				TestPropsValues.getUserId(), article);
+		}
+	}
+
+	@Test
 	public void testTrashArticleExternalReferenceCode() throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
@@ -2107,6 +2133,9 @@ public class JournalArticleLocalServiceTest {
 			}
 		}
 	}
+
+	@Inject
+	private static CTCollectionLocalService _ctCollectionLocalService;
 
 	@Inject(
 		filter = "model.class.name=com.liferay.journal.model.JournalArticle"
