@@ -4150,9 +4150,13 @@ public class JournalArticleLocalServiceImpl
 			article = journalArticlePersistence.update(article);
 		}
 
+//		article = journalArticleLocalService.fetchJournalArticle(article.getId());
+
 		article = updateStatus(
 			userId, article.getId(), WorkflowConstants.STATUS_IN_TRASH,
 			new HashMap<>(), new ServiceContext());
+
+		article = journalArticleLocalService.fetchJournalArticle(article.getId());
 
 		List<JournalArticle> articleVersions =
 			journalArticlePersistence.findByG_A(
@@ -4190,12 +4194,14 @@ public class JournalArticleLocalServiceImpl
 			articleVersion.setArticleId(trashArticleId);
 			articleVersion.setStatus(WorkflowConstants.STATUS_IN_TRASH);
 
-			journalArticlePersistence.update(articleVersion);
+			journalArticlePersistence.update(articleVersion); // maybe this causes it? not sure how to fix
 		}
 
 		articleResource.setArticleId(trashArticleId);
 
 		_journalArticleResourcePersistence.update(articleResource);
+
+//		article = journalArticleLocalService.fetchJournalArticle(article.getId()); // uncommenting makes error less informative. does this just move the error elsewhere?
 
 		article.setArticleId(trashArticleId);
 
@@ -5698,6 +5704,8 @@ public class JournalArticleLocalServiceImpl
 
 		article = journalArticlePersistence.update(article);
 
+		article = journalArticleLocalService.fetchJournalArticle(article.getId());
+
 		if (isExpireAllArticleVersions(article.getCompanyId()) &&
 			(expirationDate != null) && expirationDate.before(date)) {
 
@@ -5712,6 +5720,8 @@ public class JournalArticleLocalServiceImpl
 				updateUrlTitles(
 					article.getGroupId(), article.getArticleId(),
 					article.getUrlTitle());
+
+				article = journalArticleLocalService.fetchJournalArticle(article.getId());
 
 				// Asset
 
@@ -6651,7 +6661,9 @@ public class JournalArticleLocalServiceImpl
 	protected boolean hasModifiedLatestApprovedVersion(
 		long groupId, String articleId, double version) {
 
-		JournalArticle article = fetchLatestArticle(
+		// the article returned from this has ctCollectionId=0 instead of the current publication that edited the article
+		// probably the line where the issue is revealed?
+		JournalArticle article = journalArticleLocalService.fetchLatestArticle(
 			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
 
 		if ((article == null) || (article.getVersion() <= version)) {
