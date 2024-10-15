@@ -168,6 +168,9 @@ public class JournalArticleLocalServiceTest {
 		_journalFolderFixture = new JournalFolderFixture(
 			_journalFolderLocalService);
 		_themeDisplay = _getThemeDisplay();
+		_article = JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, "/test", "test");
 	}
 
 	@Test(expected = DuplicateArticleExternalReferenceCodeException.class)
@@ -1583,10 +1586,6 @@ public class JournalArticleLocalServiceTest {
 
 	@Test
 	public void testShouldMoveArticleToTrashInPublication() throws Exception {
-		JournalArticle article = JournalTestUtil.addArticle(
-			_group.getGroupId(),
-			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, "/test", "test");
-
 		CTCollection ctCollection = _ctCollectionLocalService.addCTCollection(
 			null, _group.getCompanyId(), TestPropsValues.getUserId(), 0,
 			RandomTestUtil.randomString(), null);
@@ -1595,11 +1594,11 @@ public class JournalArticleLocalServiceTest {
 				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
 					ctCollection.getCtCollectionId())) {
 
-			article = JournalTestUtil.updateArticle(
-				article, RandomTestUtil.randomString());
+			_article = JournalTestUtil.updateArticle(
+				_article, RandomTestUtil.randomString());
 
 			_journalArticleLocalService.moveArticleToTrash(
-				TestPropsValues.getUserId(), article);
+				TestPropsValues.getUserId(), _article);
 		}
 	}
 
@@ -2142,6 +2141,8 @@ public class JournalArticleLocalServiceTest {
 	)
 	private static ModelResourcePermission<JournalArticle>
 		_journalArticleModelResourcePermission;
+
+	private JournalArticle _article;
 
 	@Inject
 	private AssetCategoryLocalService _assetCategoryLocalService;
