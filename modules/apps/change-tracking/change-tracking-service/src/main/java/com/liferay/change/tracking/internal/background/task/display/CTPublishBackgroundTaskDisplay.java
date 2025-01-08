@@ -8,6 +8,7 @@ package com.liferay.change.tracking.internal.background.task.display;
 import com.liferay.portal.background.task.display.BaseBackgroundTaskDisplay;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.template.TemplateResource;
+import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,7 +24,11 @@ public class CTPublishBackgroundTaskDisplay extends BaseBackgroundTaskDisplay {
 
 	@Override
 	public int getPercentage() {
-		return 0;
+		double percentage = GetterUtil.getDouble(
+			backgroundTaskStatus.getAttribute("currentPercentage"));
+
+		return GetterUtil.getInteger(
+			Math.max(Math.round(percentage * 100), PERCENTAGE_MIN));
 	}
 
 	@Override
