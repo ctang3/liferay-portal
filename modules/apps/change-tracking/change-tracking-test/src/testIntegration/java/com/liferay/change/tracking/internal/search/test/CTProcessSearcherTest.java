@@ -20,6 +20,8 @@ import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
+import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplay;
+import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplayFactory;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Field;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -169,6 +172,16 @@ public class CTProcessSearcherTest {
 		CTProcess ctProcess = _ctProcessLocalService.addCTProcess(
 			user.getUserId(), ctCollection.getCtCollectionId());
 
+		BackgroundTask backgroundTask =
+			_backgroundTaskLocalService.getBackgroundTask(
+				ctProcess.getBackgroundTaskId());
+
+		BackgroundTaskDisplay backgroundTaskDisplay =
+			_backgroundTaskDisplayFactory.getBackgroundTaskDisplay(
+				backgroundTask.getBackgroundTaskId());
+
+		Assert.assertEquals(100, backgroundTaskDisplay.getPercentage());
+
 		_assertHits(
 			_getUIDs(ctProcess), _byAttribute("userId", user.getUserId()));
 	}
@@ -271,6 +284,9 @@ public class CTProcessSearcherTest {
 
 		return Arrays.asList(uids);
 	}
+
+	@Inject
+	private static BackgroundTaskDisplayFactory _backgroundTaskDisplayFactory;
 
 	@Inject
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
