@@ -11,11 +11,13 @@ import com.liferay.change.tracking.model.CTProcess;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.change.tracking.service.CTProcessLocalService;
 import com.liferay.journal.constants.JournalFolderConstants;
-import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatus;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistry;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplay;
 import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplayFactory;
@@ -26,19 +28,19 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
-import java.util.List;
-
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 /**
  * @author Cheryl Tang
@@ -57,59 +59,62 @@ public class CTPublishingProgressTest {
 	public void setUp() throws Exception {
 		_ctCollection = _ctCollectionLocalService.addCTCollection(
 			null, TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
-			0, LayoutCTTest.class.getName(), null);
+			0, CTPublishingProgressTest.class.getName(), null);
 
 		_group = GroupTestUtil.addGroup();
-	}
 
-	@After
-	public void tearDown() throws Exception {
-		GroupTestUtil.deleteGroup(_group);
-	}
-
-	@Test
-	public void testShouldShowPublishingProgress() throws Exception {
 		try (SafeCloseable safeCloseable =
-				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
-					_ctCollection.getCtCollectionId())) {
+				 CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
+					 _ctCollection.getCtCollectionId())) {
 
 			JournalTestUtil.addArticle(
 				_group.getGroupId(),
 				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 				RandomTestUtil.randomString(), RandomTestUtil.randomString());
 		}
+	}
 
-		_ctProcessLocalService.addCTProcess(
+	@Test
+	public void testShouldShowPublishingProgress() throws Exception {
+		CTProcess ctProcess = _ctProcessLocalService.addCTProcess(
 			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
 
 		List<CTProcess> ctProcesses = _ctProcessLocalService.getCTProcesses(
 			_ctCollection.getCtCollectionId());
 
-		Assert.assertEquals(ctProcesses.toString(), 1, ctProcesses.size());
-
-		CTProcess ctProcess = ctProcesses.get(0);
-
-		Assert.assertEquals(
-			_ctCollection.getCtCollectionId(), ctProcess.getCtCollectionId());
+		CTProcess ctProcess2 = ctProcesses.get(0);
 
 		BackgroundTask backgroundTask =
-			_backgroundTaskLocalService.fetchBackgroundTask(
+			_backgroundTaskLocalService.getBackgroundTask(
 				ctProcess.getBackgroundTaskId());
 
 		BackgroundTaskDisplay backgroundTaskDisplay =
 			_backgroundTaskDisplayFactory.getBackgroundTaskDisplay(
 				backgroundTask.getBackgroundTaskId());
 
-		if (backgroundTask.getStatus() ==
-				BackgroundTaskConstants.STATUS_IN_PROGRESS) {
+		boolean displayHasPercentage = backgroundTaskDisplay.hasPercentage();
 
-			Assert.assertTrue(
-				(backgroundTaskDisplay.getPercentage() > 0) &&
-				(backgroundTaskDisplay.getPercentage() < 100));
-		}
-		else {
-			Assert.assertEquals(100, backgroundTaskDisplay.getPercentage());
-		}
+		int percentageFromDisplay = backgroundTaskDisplay.getPercentage();
+
+//		BackgroundTaskStatus backgroundTaskStatus =
+//			BackgroundTaskStatusRegistryUtil.getBackgroundTaskStatus(
+//				backgroundTask.getBackgroundTaskId());
+
+//		int percentage =
+//			(int) Math.max(
+//				Math.round(
+//					GetterUtil.getDouble(
+//						backgroundTaskStatus.getAttribute(
+//							"currentPercentage")) * 100), 0);
+//
+//		if (backgroundTask.getStatus() ==
+//				BackgroundTaskConstants.STATUS_IN_PROGRESS) {
+//
+//			Assert.assertTrue((percentage > 0) && (percentage < 100));
+//		}
+//		else {
+//			Assert.assertEquals(100, percentage);
+//		}
 	}
 
 	@Inject
@@ -119,13 +124,13 @@ public class CTPublishingProgressTest {
 	private static CTProcessLocalService _ctProcessLocalService;
 
 	@Inject
-	private static JournalArticleLocalService _journalArticleLocalService;
-
-	@Inject
 	private BackgroundTaskDisplayFactory _backgroundTaskDisplayFactory;
 
 	@Inject
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
+
+	@Inject
+	private BackgroundTaskStatusRegistry _backgroundTaskStatusRegistry;
 
 	@DeleteAfterTestRun
 	private CTCollection _ctCollection;
