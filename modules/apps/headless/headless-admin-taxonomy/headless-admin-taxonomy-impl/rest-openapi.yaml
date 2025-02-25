@@ -12,10 +12,20 @@ components:
                     description:
                         The asset's subtype.
                     type: string
+                subtypeClassTypeId:
+                    description:
+                        The classTypeId of the asset's subtype.
+                    format: int64
+                    type: integer
                 type:
                     description:
                         The asset's type (e.g., `BlogPosting`, `Document`, etc.).
                     type: string
+                typeClassNameId:
+                    description:
+                        The classNameId of the asset's type.
+                    format: int64
+                    type: integer
             type: object
         Creator:
             description:
@@ -323,9 +333,13 @@ components:
                         type: object
                     readOnly: true
                     type: object
-                assetLibraryKey:
+                assetLibraryKeys:
+                    description:
+                        A list of asset libraries (spaces) that this vocabulary is associated with.
+                    items:
+                        type: string
                     readOnly: true
-                    type: string
+                    type: array
                 assetTypes:
                     description:
                         A list of asset types that can be associated with this vocabulary.
@@ -374,6 +388,10 @@ components:
                     format: int64
                     readOnly: true
                     type: integer
+                multiValued:
+                    description:
+                        Whether multiple categories can be associated with this vocabulary.
+                    type: boolean
                 name:
                     description:
                         The vocabulary's name.
@@ -408,6 +426,11 @@ components:
                     enum: [Anyone, Members, Owner]
                     type: string
                     writeOnly: true
+                visibilityType:
+                    description:
+                        The vocabulary's visibility type.
+                    enum: [PUBLIC, INTERNAL]
+                    type: string
             required:
                 - name
             type: object
@@ -422,6 +445,51 @@ info:
     version: v1.0
 openapi: 3.0.1
 paths:
+    "/asset-libraries/taxonomy-vocabularies/by-spaces":
+        post:
+            description:
+                Creates the asset library's taxonomy vocabulary in the given spaces.
+            operationId: postAssetLibraryTaxonomyVocabularyBySpace
+            parameters:
+                - in: query
+                  name: allowMultipleCategories
+                  required: true
+                  schema:
+                      type: boolean
+                - in: query
+                  name: assetLibraryIds
+                  required: true
+                  schema:
+                      items:
+                          format: int64
+                          type: integer
+                      type: array
+                - in: query
+                  name: visibilityType
+                  required: true
+                  schema:
+                      enum: [PUBLIC, INTERNAL]
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/TaxonomyVocabulary"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/TaxonomyVocabulary"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TaxonomyVocabulary"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/TaxonomyVocabulary"
+                    description:
+                        successful operation
+            tags: ["TaxonomyVocabulary"]
     "/asset-libraries/{assetLibraryId}/keywords":
         get:
             operationId: getAssetLibraryKeywordsPage
