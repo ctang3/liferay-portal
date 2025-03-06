@@ -574,6 +574,28 @@ public class Mutation {
 						taxonomyCategory));
 	}
 
+	@GraphQLField(
+		description = "Creates the asset library's taxonomy vocabulary in the given spaces."
+	)
+	public TaxonomyVocabulary createAssetLibraryTaxonomyVocabularyBySpace(
+			@GraphQLName("allowMultipleCategories") Boolean
+				allowMultipleCategories,
+			@GraphQLName("assetLibraryIds") Long[] assetLibraryIds,
+			@GraphQLName("visibilityType") String visibilityType,
+			@GraphQLName("taxonomyVocabulary") TaxonomyVocabulary
+				taxonomyVocabulary)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_taxonomyVocabularyResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			taxonomyVocabularyResource ->
+				taxonomyVocabularyResource.
+					postAssetLibraryTaxonomyVocabularyBySpace(
+						allowMultipleCategories, assetLibraryIds,
+						visibilityType, taxonomyVocabulary));
+	}
+
 	@GraphQLField
 	public Response createAssetLibraryTaxonomyVocabulariesPageExportBatch(
 			@GraphQLName("assetLibraryId") @NotEmpty String assetLibraryId,

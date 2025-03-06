@@ -231,6 +231,11 @@ public class ServletDataImpl implements ServletData {
 							TaxonomyCategoryResourceImpl.class,
 							"putTaxonomyVocabularyTaxonomyCategoryByExternalReferenceCode"));
 					put(
+						"mutation#createAssetLibraryTaxonomyVocabularyBySpace",
+						new ObjectValuePair<>(
+							TaxonomyVocabularyResourceImpl.class,
+							"postAssetLibraryTaxonomyVocabularyBySpace"));
+					put(
 						"mutation#createAssetLibraryTaxonomyVocabulariesPageExportBatch",
 						new ObjectValuePair<>(
 							TaxonomyVocabularyResourceImpl.class,
