@@ -14,6 +14,8 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 
+import java.util.List;
+
 /**
  * @author Javier Gamarra
  */
@@ -25,6 +27,29 @@ public class GroupUtil {
 		}
 
 		return null;
+	}
+
+	public static String[] getAssetLibraryKeys(
+			List<AssetVocabularyDepotEntryRel> assetVocabularyDepotEntryRels,
+			DepotEntryLocalService depotEntryLocalService)
+		throws PortalException {
+
+		String[] assetLibraryKeys =
+			new String[assetVocabularyDepotEntryRels.size()];
+
+		for (int i = 0; i < assetVocabularyDepotEntryRels.size(); i++) {
+			AssetVocabularyDepotEntryRel assetVocabularyDepotEntryRel =
+				assetVocabularyDepotEntryRels.get(i);
+
+			DepotEntry depotEntry = depotEntryLocalService.getDepotEntry(
+				assetVocabularyDepotEntryRel.getDepotEntryId());
+
+			Group group = depotEntry.getGroup();
+
+			assetLibraryKeys[i] = group.getGroupKey();
+		}
+
+		return assetLibraryKeys;
 	}
 
 	public static Long getDepotGroupId(

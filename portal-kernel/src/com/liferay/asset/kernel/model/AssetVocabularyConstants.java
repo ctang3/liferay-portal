@@ -18,4 +18,13 @@ public class AssetVocabularyConstants {
 		VISIBILITY_TYPE_INTERNAL, VISIBILITY_TYPE_PUBLIC
 	};
 
+	public static int fromString(String visibilityType) {
+		return switch (visibilityType.toUpperCase()) {
+			case "INTERNAL" -> VISIBILITY_TYPE_INTERNAL;
+			case "PUBLIC" -> VISIBILITY_TYPE_PUBLIC;
+			default -> throw new IllegalArgumentException(
+				"Invalid visibility type: " + visibilityType
+			);
+		};
+	}
 }

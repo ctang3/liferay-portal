@@ -15,6 +15,7 @@ import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.depot.util.SiteConnectedGroupGroupProviderUtil;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetType;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyVocabulary;
@@ -24,6 +25,7 @@ import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResou
 import com.liferay.headless.common.spi.service.context.ServiceContextBuilder;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
@@ -295,6 +297,19 @@ public class TaxonomyVocabularyResourceImpl
 	}
 
 	@Override
+	protected TaxonomyVocabulary doPostAssetLibraryTaxonomyVocabularyBySpaces(
+			Boolean allowMultipleCategories, Long[] assetLibraryIds,
+			TaxonomyVocabulary taxonomyVocabulary, String visibilityType)
+		throws Exception {
+
+		return _toTaxonomyVocabulary(
+			_addAssetVocabulary(
+				allowMultipleCategories,
+				taxonomyVocabulary.getExternalReferenceCode(), assetLibraryIds,
+				taxonomyVocabulary, visibilityType));
+	}
+
+	@Override
 	protected TaxonomyVocabulary doPostSiteTaxonomyVocabulary(
 			Long siteId, TaxonomyVocabulary taxonomyVocabulary)
 		throws Exception {
@@ -382,6 +397,52 @@ public class TaxonomyVocabularyResourceImpl
 	private static void _map(String assetType, String className) {
 		_assetTypeTypeToClassNames.put(assetType, className);
 		_classNameToAssetTypeTypes.put(className, assetType);
+	}
+
+	private AssetVocabulary _addAssetVocabulary(
+			Boolean allowMultipleCategories, String externalReferenceCode,
+			Long[] siteIds, TaxonomyVocabulary taxonomyVocabulary,
+			String visibilityType)
+		throws Exception {
+
+		// TODO: adapt after Pei's API updates?
+
+		Map<Locale, String> titleMap = LocalizedMapUtil.getLocalizedMap(
+			contextAcceptLanguage.getPreferredLocale(),
+			taxonomyVocabulary.getName(), taxonomyVocabulary.getName_i18n());
+		Map<Locale, String> descriptionMap = LocalizedMapUtil.getLocalizedMap(
+			contextAcceptLanguage.getPreferredLocale(),
+			taxonomyVocabulary.getDescription(),
+			taxonomyVocabulary.getDescription_i18n());
+
+		LocalizedMapUtil.validateI18n(
+			true, LocaleUtil.getSiteDefault(), "Taxonomy vocabulary", titleMap,
+			new HashSet<>(descriptionMap.keySet()));
+
+		AssetVocabularySettingsHelper assetVocabularySettingsHelper =
+			new AssetVocabularySettingsHelper(
+				_getSettings(
+					taxonomyVocabulary.getAssetTypes(),
+					GroupConstants.DEFAULT_LIVE_GROUP_ID));
+
+		assetVocabularySettingsHelper.setMultiValued(allowMultipleCategories);
+
+		AssetVocabulary assetVocabulary = _assetVocabularyService.addVocabulary(
+			externalReferenceCode, GroupConstants.DEFAULT_LIVE_GROUP_ID,
+			titleMap.get(LocaleUtil.getSiteDefault()), null, titleMap,
+			descriptionMap, assetVocabularySettingsHelper.toString(),
+			AssetVocabularyConstants.fromString(visibilityType),
+			ServiceContextBuilder.create(
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, contextHttpServletRequest,
+				taxonomyVocabulary.getViewableByAsString()
+			).build());
+
+		for (long siteId : siteIds) {
+			_assetVocabularyDepotEntryRelLocalService.
+				addAssetVocabularyDepotEntryRel(assetVocabulary, siteId);
+		}
+
+		return assetVocabulary;
 	}
 
 	private AssetVocabulary _addAssetVocabulary(
@@ -679,6 +740,11 @@ public class TaxonomyVocabularyResourceImpl
 		Group group = groupLocalService.fetchGroup(
 			assetVocabulary.getGroupId());
 
+		List<AssetVocabularyDepotEntryRel> assetVocabularyDepotEntryRels =
+			_assetVocabularyDepotEntryRelLocalService.
+				getAssetVocabularyDepotEntryRelsByAssetVocabularyId(
+					assetVocabulary.getVocabularyId());
+
 		return new TaxonomyVocabulary() {
 			{
 				setActions(
@@ -686,7 +752,10 @@ public class TaxonomyVocabularyResourceImpl
 						assetVocabulary.getGroupId(),
 						assetVocabulary.getVocabularyId(), contextUriInfo,
 						contextUser.getUserId()));
-				setAssetLibraryKey(() -> GroupUtil.getAssetLibraryKey(group));
+				setAssetLibraryKeys(
+					() -> GroupUtil.getAssetLibraryKeys(
+						assetVocabularyDepotEntryRels,
+						_depotEntryLocalService));
 				setAssetTypes(
 					() -> _getAssetTypes(
 						new AssetVocabularySettingsHelper(
@@ -788,10 +857,17 @@ public class TaxonomyVocabularyResourceImpl
 	}
 
 	@Reference
+	private AssetVocabularyDepotEntryRelLocalService
+		_assetVocabularyDepotEntryRelLocalService;
+
+	@Reference
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
 
 	@Reference
 	private AssetVocabularyService _assetVocabularyService;
+
+	@Reference
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference(
 		target = "(dto.class.name=com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyVocabulary)"
