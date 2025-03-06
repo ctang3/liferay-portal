@@ -2867,8 +2867,6 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		com.liferay.portal.kernel.model.Group group = testDepotEntry.getGroup();
 
 		if (!Objects.equals(
-				taxonomyVocabulary.getAssetLibraryKey(), group.getGroupKey()) &&
-			!Objects.equals(
 				taxonomyVocabulary.getSiteId(), testGroup.getGroupId())) {
 
 			valid = false;
