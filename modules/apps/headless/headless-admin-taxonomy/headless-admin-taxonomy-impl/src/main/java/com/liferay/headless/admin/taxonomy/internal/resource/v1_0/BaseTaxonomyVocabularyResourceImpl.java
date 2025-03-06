@@ -87,6 +87,11 @@ public abstract class BaseTaxonomyVocabularyResourceImpl
 			   VulcanBatchEngineTaskItemDelegate<TaxonomyVocabulary>,
 			   VulcanCRUDItemDelegate<TaxonomyVocabulary> {
 
+	protected abstract TaxonomyVocabulary doPostAssetLibraryTaxonomyVocabularyBySpaces(
+		Boolean allowMultipleCategories, Long[] assetLibraryIds,
+		TaxonomyVocabulary taxonomyVocabulary, String visibilityType)
+		throws Exception;
+
 	/**
 	 * Invoke this method with the command line:
 	 *
@@ -137,7 +142,31 @@ public abstract class BaseTaxonomyVocabularyResourceImpl
 			TaxonomyVocabulary taxonomyVocabulary)
 		throws Exception {
 
-		return new TaxonomyVocabulary();
+		Permission[] permissions = taxonomyVocabulary.getPermissions();
+
+		TaxonomyVocabulary postTaxonomyVocabulary =
+			doPostAssetLibraryTaxonomyVocabularyBySpaces(
+				allowMultipleCategories, assetLibraryIds,
+				taxonomyVocabulary, visibilityType);
+
+		if (permissions != null) {
+			Page<Permission> permissionPage =
+				putTaxonomyVocabularyPermissionsPage(
+					postTaxonomyVocabulary.getId(), permissions);
+
+			postTaxonomyVocabulary.setPermissions(
+				() -> NestedFieldsSupplier.supply(
+					"permissions",
+					nestedField -> {
+						Collection<Permission> collection =
+							permissionPage.getItems();
+
+						return collection.toArray(
+							new Permission[collection.size()]);
+					}));
+		}
+
+		return postTaxonomyVocabulary;
 	}
 
 	protected abstract Page<TaxonomyVocabulary>

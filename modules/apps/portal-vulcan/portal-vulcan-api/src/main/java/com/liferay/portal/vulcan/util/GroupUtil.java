@@ -5,6 +5,7 @@
 
 package com.liferay.portal.vulcan.util;
 
+import com.liferay.asset.kernel.model.AssetVocabularyGroupRel;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -13,6 +14,8 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
+
+import java.util.List;
 
 /**
  * @author Javier Gamarra
@@ -25,6 +28,26 @@ public class GroupUtil {
 		}
 
 		return null;
+	}
+
+	public static String[] getAssetLibraryKeys(
+			List<AssetVocabularyGroupRel> assetVocabularyGroupRels,
+			GroupLocalService groupLocalService)
+		throws PortalException {
+
+		String[] assetLibraryKeys = new String[assetVocabularyGroupRels.size()];
+
+		for (int i = 0; i < assetVocabularyGroupRels.size(); i++) {
+			AssetVocabularyGroupRel assetVocabularyGroupRel =
+				assetVocabularyGroupRels.get(i);
+
+			Group group = groupLocalService.getGroup(
+				assetVocabularyGroupRel.getGroupId());
+
+			assetLibraryKeys[i] = group.getGroupKey();
+		}
+
+		return assetLibraryKeys;
 	}
 
 	public static Long getDepotGroupId(
