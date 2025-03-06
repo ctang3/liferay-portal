@@ -8,6 +8,7 @@ package com.liferay.headless.admin.taxonomy.internal.odata.entity.v1_0;
 import com.liferay.headless.common.spi.odata.entity.EntityFieldsMapFactory;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.odata.entity.CollectionEntityField;
 import com.liferay.portal.odata.entity.DateTimeEntityField;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -22,6 +23,12 @@ public class VocabularyEntityModel implements EntityModel {
 
 	public VocabularyEntityModel() {
 		_entityFieldsMap = EntityFieldsMapFactory.create(
+			new CollectionEntityField(
+				new StringEntityField(
+					"assetLibraries", null, locale -> "groupIds")),
+			new CollectionEntityField(
+				new StringEntityField(
+					"assetTypes", null, locale -> "typeClassNameIds")),
 			new DateTimeEntityField(
 				"dateCreated",
 				locale -> Field.getSortableFieldName(Field.CREATE_DATE),
