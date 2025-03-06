@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalServiceUtil;
+import com.liferay.headless.admin.taxonomy.client.dto.v1_0.AssetType;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.TaxonomyVocabulary;
 import com.liferay.headless.admin.taxonomy.client.http.HttpInvoker;
 import com.liferay.headless.admin.taxonomy.client.pagination.Page;
@@ -46,6 +47,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.odata.entity.CollectionEntityField;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.search.test.rule.SearchTestRule;
@@ -344,6 +346,82 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		expectedActions.put("createBatch", createBatchAction);
 
 		return expectedActions;
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithFilterAssetTypes() throws Exception {
+		List<EntityField> entityFields = getEntityFields(
+			EntityField.Type.COLLECTION);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+
+		TaxonomyVocabulary taxonomyVocabulary1 = randomTaxonomyVocabulary();
+
+		taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, taxonomyVocabulary1);
+
+		for (EntityField entityField : entityFields) {
+			if (EntityField.Type.COLLECTION.equals(entityField.getType())) {
+				CollectionEntityField collectionEntityField =
+					(CollectionEntityField)entityField;
+
+				EntityField entityFieldFromCollection = collectionEntityField.getEntityField();
+
+				Page<TaxonomyVocabulary> page =
+					taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+						assetLibraryId, null, null, getFilterString(
+							entityFieldFromCollection, "between", taxonomyVocabulary1),
+						Pagination.of(1, 2), null);
+
+				assertEquals(
+					Collections.singletonList(taxonomyVocabulary1),
+					(List<TaxonomyVocabulary>)page.getItems());
+			}
+		}
+	}
+
+	@Test
+	public void testGetAssetLibraryTaxonomyVocabulariesPageWithFilterAssetLibraryKeys() throws Exception {
+		List<EntityField> entityFields = getEntityFields(
+			EntityField.Type.COLLECTION);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryTaxonomyVocabulariesPage_getAssetLibraryId();
+
+		TaxonomyVocabulary taxonomyVocabulary1 = randomTaxonomyVocabulary();
+
+		taxonomyVocabulary1 =
+			testGetAssetLibraryTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				assetLibraryId, taxonomyVocabulary1);
+
+		for (EntityField entityField : entityFields) {
+			if (EntityField.Type.COLLECTION.equals(entityField.getType())) {
+				CollectionEntityField collectionEntityField =
+					(CollectionEntityField)entityField;
+
+				EntityField entityFieldFromCollection = collectionEntityField.getEntityField();
+
+				Page<TaxonomyVocabulary> page =
+					taxonomyVocabularyResource.getAssetLibraryTaxonomyVocabulariesPage(
+						assetLibraryId, null, null, getFilterString(
+							entityFieldFromCollection, "between", taxonomyVocabulary1),
+						Pagination.of(1, 2), null);
+
+				assertEquals(
+					Collections.singletonList(taxonomyVocabulary1),
+					(List<TaxonomyVocabulary>)page.getItems());
+			}
+		}
 	}
 
 	@Test
@@ -3810,6 +3888,16 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 	protected TaxonomyVocabulary randomTaxonomyVocabulary() throws Exception {
 		return new TaxonomyVocabulary() {
 			{
+				assetLibraryKeys = RandomTestUtil.randomStrings(5);
+				assetTypes = new AssetType[] {
+					new AssetType() {
+						{
+							required = RandomTestUtil.randomBoolean();
+							subtype = "AllAssetSubtypes";
+							type = "AllAssetTypes";
+						}
+					}
+				};
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				description = StringUtil.toLowerCase(
