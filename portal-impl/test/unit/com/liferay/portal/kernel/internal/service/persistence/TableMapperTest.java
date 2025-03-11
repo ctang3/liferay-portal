@@ -1742,6 +1742,93 @@ public class TableMapperTest {
 				ctRightBasePersistence);
 
 		Assert.assertTrue(ctTableMapper instanceof CTTableMapper);
+
+		TableMapperFactory.removeTableMapper(_TABLE_NAME);
+
+		Set<Class<? extends BaseModel<?>>> ctTableMapperExclusions =
+			ReflectionTestUtil.getAndSetFieldValue(
+				TableMapperFactory.class, "_ctTableMapperExclusions",
+				new HashSet<Class<? extends BaseModel<?>>>() {
+
+					@Override
+					public boolean contains(Object object) {
+						if (CTExcludeLeft.class.isAssignableFrom(
+								(Class<?>)object) ||
+							CTExcludeRight.class.isAssignableFrom(
+								(Class<?>)object)) {
+
+							return true;
+						}
+
+						return false;
+					}
+
+				});
+
+		try {
+			MockBasePersistence<CTExcludeLeft> ctExcludeLeftBasePersistence =
+				new MockBasePersistence<>(CTExcludeLeft.class);
+
+			ctExcludeLeftBasePersistence.setDataSource(_dataSource);
+
+			MockBasePersistence<CTExcludeRight> ctExcludeRightBasePersistence =
+				new MockBasePersistence<>(CTExcludeRight.class);
+
+			ctExcludeRightBasePersistence.setDataSource(_dataSource);
+
+			// CTLeft, CTRight -> CTTableMapper
+
+			TableMapper<CTLeft, CTRight> tableMapperExcluded1 =
+				TableMapperFactory.getTableMapper(
+					_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+					_RIGHT_COLUMN_NAME, ctLeftBasePersistence,
+					ctRightBasePersistence);
+
+			Assert.assertTrue(tableMapperExcluded1 instanceof CTTableMapper);
+
+			TableMapperFactory.removeTableMapper(_TABLE_NAME);
+
+			// CTExcludeLeft, CTRight -> TableMapperImpl
+
+			TableMapper<CTExcludeLeft, CTRight> tableMapperExcluded2 =
+				TableMapperFactory.getTableMapper(
+					_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+					_RIGHT_COLUMN_NAME, ctExcludeLeftBasePersistence,
+					ctRightBasePersistence);
+
+			Assert.assertTrue(tableMapperExcluded2 instanceof TableMapperImpl);
+
+			TableMapperFactory.removeTableMapper(_TABLE_NAME);
+
+			// CTLeft, CTExcludeRight -> TableMapperImpl
+
+			TableMapper<CTLeft, CTExcludeRight> tableMapperExcluded3 =
+				TableMapperFactory.getTableMapper(
+					_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+					_RIGHT_COLUMN_NAME, ctLeftBasePersistence,
+					ctExcludeRightBasePersistence);
+
+			Assert.assertTrue(tableMapperExcluded3 instanceof TableMapperImpl);
+
+			TableMapperFactory.removeTableMapper(_TABLE_NAME);
+
+			// CTExcludeLeft, CTExcludeRight -> TableMapperImpl
+
+			TableMapper<CTExcludeLeft, CTExcludeRight> tableMapperExcluded4 =
+				TableMapperFactory.getTableMapper(
+					_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+					_RIGHT_COLUMN_NAME, ctExcludeLeftBasePersistence,
+					ctExcludeRightBasePersistence);
+
+			Assert.assertTrue(tableMapperExcluded4 instanceof TableMapperImpl);
+
+			TableMapperFactory.removeTableMapper(_TABLE_NAME);
+		}
+		finally {
+			ReflectionTestUtil.setFieldValue(
+				TableMapperFactory.class, "_ctTableMapperExclusions",
+				ctTableMapperExclusions);
+		}
 	}
 
 	protected void testDestroy(TableMapper<?, ?> tableMapper) {
@@ -2101,6 +2188,20 @@ public class TableMapperTest {
 
 	private static class RightRecorderModelListener
 		extends RecorderModelListener<Right> {
+	}
+
+	private interface CTExcludeLeft extends CTExcludeLeftModel {
+	}
+
+	private interface CTExcludeLeftModel
+		extends BaseModel<CTExcludeLeft>, CTModel<CTExcludeLeft> {
+	}
+
+	private interface CTExcludeRight extends CTExcludeRightModel {
+	}
+
+	private interface CTExcludeRightModel
+		extends BaseModel<CTExcludeRight>, CTModel<CTExcludeRight> {
 	}
 
 	private interface CTLeft extends CTLeftModel {
