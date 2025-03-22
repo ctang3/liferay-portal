@@ -46,6 +46,11 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface TaxonomyVocabularyResource {
 
+	public TaxonomyVocabulary postAssetLibraryTaxonomyVocabularyBySpace(
+			Boolean allowMultipleCategories, Long[] assetLibraryIds,
+			String visibilityType, TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception;
+
 	public Page<TaxonomyVocabulary> getAssetLibraryTaxonomyVocabulariesPage(
 			Long assetLibraryId, String search,
 			com.liferay.portal.vulcan.aggregation.Aggregation aggregation,

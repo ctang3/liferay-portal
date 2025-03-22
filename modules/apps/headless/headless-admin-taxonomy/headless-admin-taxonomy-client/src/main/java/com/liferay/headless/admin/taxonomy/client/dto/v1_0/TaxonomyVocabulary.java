@@ -49,26 +49,26 @@ public class TaxonomyVocabulary implements Cloneable, Serializable {
 
 	protected Map<String, Map<String, String>> actions;
 
-	public String getAssetLibraryKey() {
-		return assetLibraryKey;
+	public String[] getAssetLibraryKeys() {
+		return assetLibraryKeys;
 	}
 
-	public void setAssetLibraryKey(String assetLibraryKey) {
-		this.assetLibraryKey = assetLibraryKey;
+	public void setAssetLibraryKeys(String[] assetLibraryKeys) {
+		this.assetLibraryKeys = assetLibraryKeys;
 	}
 
-	public void setAssetLibraryKey(
-		UnsafeSupplier<String, Exception> assetLibraryKeyUnsafeSupplier) {
+	public void setAssetLibraryKeys(
+		UnsafeSupplier<String[], Exception> assetLibraryKeysUnsafeSupplier) {
 
 		try {
-			assetLibraryKey = assetLibraryKeyUnsafeSupplier.get();
+			assetLibraryKeys = assetLibraryKeysUnsafeSupplier.get();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected String assetLibraryKey;
+	protected String[] assetLibraryKeys;
 
 	public AssetType[] getAssetTypes() {
 		return assetTypes;
@@ -258,6 +258,27 @@ public class TaxonomyVocabulary implements Cloneable, Serializable {
 
 	protected Long id;
 
+	public Boolean getMultiValued() {
+		return multiValued;
+	}
+
+	public void setMultiValued(Boolean multiValued) {
+		this.multiValued = multiValued;
+	}
+
+	public void setMultiValued(
+		UnsafeSupplier<Boolean, Exception> multiValuedUnsafeSupplier) {
+
+		try {
+			multiValued = multiValuedUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean multiValued;
+
 	public String getName() {
 		return name;
 	}
@@ -426,6 +447,36 @@ public class TaxonomyVocabulary implements Cloneable, Serializable {
 
 	protected ViewableBy viewableBy;
 
+	public VisibilityType getVisibilityType() {
+		return visibilityType;
+	}
+
+	public String getVisibilityTypeAsString() {
+		if (visibilityType == null) {
+			return null;
+		}
+
+		return visibilityType.toString();
+	}
+
+	public void setVisibilityType(VisibilityType visibilityType) {
+		this.visibilityType = visibilityType;
+	}
+
+	public void setVisibilityType(
+		UnsafeSupplier<VisibilityType, Exception>
+			visibilityTypeUnsafeSupplier) {
+
+		try {
+			visibilityType = visibilityTypeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected VisibilityType visibilityType;
+
 	@Override
 	public TaxonomyVocabulary clone() throws CloneNotSupportedException {
 		return (TaxonomyVocabulary)super.clone();
@@ -483,6 +534,39 @@ public class TaxonomyVocabulary implements Cloneable, Serializable {
 		}
 
 		private ViewableBy(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
+	public static enum VisibilityType {
+
+		PUBLIC("PUBLIC"), INTERNAL("INTERNAL");
+
+		public static VisibilityType create(String value) {
+			for (VisibilityType visibilityType : values()) {
+				if (Objects.equals(visibilityType.getValue(), value) ||
+					Objects.equals(visibilityType.name(), value)) {
+
+					return visibilityType;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private VisibilityType(String value) {
 			_value = value;
 		}
 

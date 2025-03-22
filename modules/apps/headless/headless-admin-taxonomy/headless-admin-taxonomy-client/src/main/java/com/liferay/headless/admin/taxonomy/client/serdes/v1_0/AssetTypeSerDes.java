@@ -68,6 +68,16 @@ public class AssetTypeSerDes {
 			sb.append("\"");
 		}
 
+		if (assetType.getSubtypeClassTypeId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"subtypeClassTypeId\": ");
+
+			sb.append(assetType.getSubtypeClassTypeId());
+		}
+
 		if (assetType.getType() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -80,6 +90,16 @@ public class AssetTypeSerDes {
 			sb.append(_escape(assetType.getType()));
 
 			sb.append("\"");
+		}
+
+		if (assetType.getTypeClassNameId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"typeClassNameId\": ");
+
+			sb.append(assetType.getTypeClassNameId());
 		}
 
 		sb.append("}");
@@ -114,11 +134,29 @@ public class AssetTypeSerDes {
 			map.put("subtype", String.valueOf(assetType.getSubtype()));
 		}
 
+		if (assetType.getSubtypeClassTypeId() == null) {
+			map.put("subtypeClassTypeId", null);
+		}
+		else {
+			map.put(
+				"subtypeClassTypeId",
+				String.valueOf(assetType.getSubtypeClassTypeId()));
+		}
+
 		if (assetType.getType() == null) {
 			map.put("type", null);
 		}
 		else {
 			map.put("type", String.valueOf(assetType.getType()));
+		}
+
+		if (assetType.getTypeClassNameId() == null) {
+			map.put("typeClassNameId", null);
+		}
+		else {
+			map.put(
+				"typeClassNameId",
+				String.valueOf(assetType.getTypeClassNameId()));
 		}
 
 		return map;
@@ -144,7 +182,15 @@ public class AssetTypeSerDes {
 			else if (Objects.equals(jsonParserFieldName, "subtype")) {
 				return false;
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "subtypeClassTypeId")) {
+
+				return false;
+			}
 			else if (Objects.equals(jsonParserFieldName, "type")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "typeClassNameId")) {
 				return false;
 			}
 
@@ -166,9 +212,23 @@ public class AssetTypeSerDes {
 					assetType.setSubtype((String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "subtypeClassTypeId")) {
+
+				if (jsonParserFieldValue != null) {
+					assetType.setSubtypeClassTypeId(
+						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "type")) {
 				if (jsonParserFieldValue != null) {
 					assetType.setType((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "typeClassNameId")) {
+				if (jsonParserFieldValue != null) {
+					assetType.setTypeClassNameId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 		}

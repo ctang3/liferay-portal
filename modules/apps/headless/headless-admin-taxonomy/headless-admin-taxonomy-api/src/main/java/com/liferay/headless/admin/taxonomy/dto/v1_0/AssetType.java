@@ -136,6 +136,49 @@ public class AssetType implements Serializable {
 	private Supplier<String> _subtypeSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The classTypeId of the asset's subtype."
+	)
+	public Long getSubtypeClassTypeId() {
+		if (_subtypeClassTypeIdSupplier != null) {
+			subtypeClassTypeId = _subtypeClassTypeIdSupplier.get();
+
+			_subtypeClassTypeIdSupplier = null;
+		}
+
+		return subtypeClassTypeId;
+	}
+
+	public void setSubtypeClassTypeId(Long subtypeClassTypeId) {
+		this.subtypeClassTypeId = subtypeClassTypeId;
+
+		_subtypeClassTypeIdSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setSubtypeClassTypeId(
+		UnsafeSupplier<Long, Exception> subtypeClassTypeIdUnsafeSupplier) {
+
+		_subtypeClassTypeIdSupplier = () -> {
+			try {
+				return subtypeClassTypeIdUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(description = "The classTypeId of the asset's subtype.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long subtypeClassTypeId;
+
+	@JsonIgnore
+	private Supplier<Long> _subtypeClassTypeIdSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The asset's type (e.g., `BlogPosting`, `Document`, etc.)."
 	)
 	public String getType() {
@@ -177,6 +220,49 @@ public class AssetType implements Serializable {
 
 	@JsonIgnore
 	private Supplier<String> _typeSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The classNameId of the asset's type."
+	)
+	public Long getTypeClassNameId() {
+		if (_typeClassNameIdSupplier != null) {
+			typeClassNameId = _typeClassNameIdSupplier.get();
+
+			_typeClassNameIdSupplier = null;
+		}
+
+		return typeClassNameId;
+	}
+
+	public void setTypeClassNameId(Long typeClassNameId) {
+		this.typeClassNameId = typeClassNameId;
+
+		_typeClassNameIdSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setTypeClassNameId(
+		UnsafeSupplier<Long, Exception> typeClassNameIdUnsafeSupplier) {
+
+		_typeClassNameIdSupplier = () -> {
+			try {
+				return typeClassNameIdUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(description = "The classNameId of the asset's type.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long typeClassNameId;
+
+	@JsonIgnore
+	private Supplier<Long> _typeClassNameIdSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -233,6 +319,18 @@ public class AssetType implements Serializable {
 			sb.append("\"");
 		}
 
+		Long subtypeClassTypeId = getSubtypeClassTypeId();
+
+		if (subtypeClassTypeId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"subtypeClassTypeId\": ");
+
+			sb.append(subtypeClassTypeId);
+		}
+
 		String type = getType();
 
 		if (type != null) {
@@ -247,6 +345,18 @@ public class AssetType implements Serializable {
 			sb.append(_escape(type));
 
 			sb.append("\"");
+		}
+
+		Long typeClassNameId = getTypeClassNameId();
+
+		if (typeClassNameId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"typeClassNameId\": ");
+
+			sb.append(typeClassNameId);
 		}
 
 		sb.append("}");

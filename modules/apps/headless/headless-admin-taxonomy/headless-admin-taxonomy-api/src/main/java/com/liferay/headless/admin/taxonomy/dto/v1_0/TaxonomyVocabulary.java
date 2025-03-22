@@ -106,30 +106,32 @@ public class TaxonomyVocabulary implements Serializable {
 	@JsonIgnore
 	private Supplier<Map<String, Map<String, String>>> _actionsSupplier;
 
-	@io.swagger.v3.oas.annotations.media.Schema
-	public String getAssetLibraryKey() {
-		if (_assetLibraryKeySupplier != null) {
-			assetLibraryKey = _assetLibraryKeySupplier.get();
+	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "A list of asset libraries (spaces) that this vocabulary is associated with."
+	)
+	public String[] getAssetLibraryKeys() {
+		if (_assetLibraryKeysSupplier != null) {
+			assetLibraryKeys = _assetLibraryKeysSupplier.get();
 
-			_assetLibraryKeySupplier = null;
+			_assetLibraryKeysSupplier = null;
 		}
 
-		return assetLibraryKey;
+		return assetLibraryKeys;
 	}
 
-	public void setAssetLibraryKey(String assetLibraryKey) {
-		this.assetLibraryKey = assetLibraryKey;
+	public void setAssetLibraryKeys(String[] assetLibraryKeys) {
+		this.assetLibraryKeys = assetLibraryKeys;
 
-		_assetLibraryKeySupplier = null;
+		_assetLibraryKeysSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setAssetLibraryKey(
-		UnsafeSupplier<String, Exception> assetLibraryKeyUnsafeSupplier) {
+	public void setAssetLibraryKeys(
+		UnsafeSupplier<String[], Exception> assetLibraryKeysUnsafeSupplier) {
 
-		_assetLibraryKeySupplier = () -> {
+		_assetLibraryKeysSupplier = () -> {
 			try {
-				return assetLibraryKeyUnsafeSupplier.get();
+				return assetLibraryKeysUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -140,12 +142,14 @@ public class TaxonomyVocabulary implements Serializable {
 		};
 	}
 
-	@GraphQLField
+	@GraphQLField(
+		description = "A list of asset libraries (spaces) that this vocabulary is associated with."
+	)
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	protected String assetLibraryKey;
+	protected String[] assetLibraryKeys;
 
 	@JsonIgnore
-	private Supplier<String> _assetLibraryKeySupplier;
+	private Supplier<String[]> _assetLibraryKeysSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "A list of asset types that can be associated with this vocabulary."
@@ -541,6 +545,51 @@ public class TaxonomyVocabulary implements Serializable {
 	private Supplier<Long> _idSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "Whether multiple categories can be associated with this vocabulary."
+	)
+	public Boolean getMultiValued() {
+		if (_multiValuedSupplier != null) {
+			multiValued = _multiValuedSupplier.get();
+
+			_multiValuedSupplier = null;
+		}
+
+		return multiValued;
+	}
+
+	public void setMultiValued(Boolean multiValued) {
+		this.multiValued = multiValued;
+
+		_multiValuedSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setMultiValued(
+		UnsafeSupplier<Boolean, Exception> multiValuedUnsafeSupplier) {
+
+		_multiValuedSupplier = () -> {
+			try {
+				return multiValuedUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "Whether multiple categories can be associated with this vocabulary."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean multiValued;
+
+	@JsonIgnore
+	private Supplier<Boolean> _multiValuedSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The vocabulary's name."
 	)
 	public String getName() {
@@ -871,6 +920,63 @@ public class TaxonomyVocabulary implements Serializable {
 	@JsonIgnore
 	private Supplier<ViewableBy> _viewableBySupplier;
 
+	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The vocabulary's visibility type."
+	)
+	@JsonGetter("visibilityType")
+	@Valid
+	public VisibilityType getVisibilityType() {
+		if (_visibilityTypeSupplier != null) {
+			visibilityType = _visibilityTypeSupplier.get();
+
+			_visibilityTypeSupplier = null;
+		}
+
+		return visibilityType;
+	}
+
+	@JsonIgnore
+	public String getVisibilityTypeAsString() {
+		VisibilityType visibilityType = getVisibilityType();
+
+		if (visibilityType == null) {
+			return null;
+		}
+
+		return visibilityType.toString();
+	}
+
+	public void setVisibilityType(VisibilityType visibilityType) {
+		this.visibilityType = visibilityType;
+
+		_visibilityTypeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setVisibilityType(
+		UnsafeSupplier<VisibilityType, Exception>
+			visibilityTypeUnsafeSupplier) {
+
+		_visibilityTypeSupplier = () -> {
+			try {
+				return visibilityTypeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(description = "The vocabulary's visibility type.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected VisibilityType visibilityType;
+
+	@JsonIgnore
+	private Supplier<VisibilityType> _visibilityTypeSupplier;
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -913,20 +1019,30 @@ public class TaxonomyVocabulary implements Serializable {
 			sb.append(_toJSON(actions));
 		}
 
-		String assetLibraryKey = getAssetLibraryKey();
+		String[] assetLibraryKeys = getAssetLibraryKeys();
 
-		if (assetLibraryKey != null) {
+		if (assetLibraryKeys != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"assetLibraryKey\": ");
+			sb.append("\"assetLibraryKeys\": ");
 
-			sb.append("\"");
+			sb.append("[");
 
-			sb.append(_escape(assetLibraryKey));
+			for (int i = 0; i < assetLibraryKeys.length; i++) {
+				sb.append("\"");
 
-			sb.append("\"");
+				sb.append(_escape(assetLibraryKeys[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) < assetLibraryKeys.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		AssetType[] assetTypes = getAssetTypes();
@@ -1077,6 +1193,18 @@ public class TaxonomyVocabulary implements Serializable {
 			sb.append(id);
 		}
 
+		Boolean multiValued = getMultiValued();
+
+		if (multiValued != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"multiValued\": ");
+
+			sb.append(multiValued);
+		}
+
 		String name = getName();
 
 		if (name != null) {
@@ -1184,6 +1312,22 @@ public class TaxonomyVocabulary implements Serializable {
 			sb.append("\"");
 		}
 
+		VisibilityType visibilityType = getVisibilityType();
+
+		if (visibilityType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"visibilityType\": ");
+
+			sb.append("\"");
+
+			sb.append(visibilityType);
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -1227,6 +1371,44 @@ public class TaxonomyVocabulary implements Serializable {
 		}
 
 		private ViewableBy(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
+	@GraphQLName("VisibilityType")
+	public static enum VisibilityType {
+
+		PUBLIC("PUBLIC"), INTERNAL("INTERNAL");
+
+		@JsonCreator
+		public static VisibilityType create(String value) {
+			if ((value == null) || value.equals("")) {
+				return null;
+			}
+
+			for (VisibilityType visibilityType : values()) {
+				if (Objects.equals(visibilityType.getValue(), value)) {
+					return visibilityType;
+				}
+			}
+
+			throw new IllegalArgumentException("Invalid enum value: " + value);
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private VisibilityType(String value) {
 			_value = value;
 		}
 
