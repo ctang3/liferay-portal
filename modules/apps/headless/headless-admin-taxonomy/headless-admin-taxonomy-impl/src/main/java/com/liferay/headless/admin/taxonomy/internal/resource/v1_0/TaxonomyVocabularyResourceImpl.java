@@ -11,11 +11,14 @@ import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.model.AssetVocabularyConstants;
+import com.liferay.asset.kernel.model.AssetVocabularyGroupRel;
 import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.asset.kernel.model.ClassTypeReader;
+import com.liferay.asset.kernel.service.AssetVocabularyGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
 import com.liferay.depot.util.SiteConnectedGroupGroupProviderUtil;
+import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetType;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyVocabulary;
 import com.liferay.headless.admin.taxonomy.internal.dto.v1_0.util.CreatorUtil;
@@ -24,6 +27,7 @@ import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResou
 import com.liferay.headless.common.spi.service.context.ServiceContextBuilder;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
@@ -52,6 +56,7 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portlet.asset.service.permission.AssetCategoriesPermission;
 import com.liferay.portlet.asset.util.AssetVocabularySettingsHelper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -306,6 +311,33 @@ public class TaxonomyVocabularyResourceImpl
 	}
 
 	@Override
+	protected TaxonomyVocabulary doPostTaxonomyVocabulary(
+			TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		AssetLibrary[] assetLibraries = taxonomyVocabulary.getAssetLibraries();
+
+		Long[] assetLibraryIds = null;
+
+		if (assetLibraries != null) {
+			assetLibraryIds = new Long[assetLibraries.length];
+
+			for (int i = 0; i < assetLibraries.length; i++) {
+				assetLibraryIds[i] = assetLibraries[i].getId();
+			}
+		}
+		else {
+			assetLibraryIds = new Long[0];
+		}
+
+		return _toTaxonomyVocabulary(
+			_addAssetVocabulary(
+				taxonomyVocabulary.getMultiValued(),
+				taxonomyVocabulary.getExternalReferenceCode(), assetLibraryIds,
+				taxonomyVocabulary, taxonomyVocabulary.getVisibilityType()));
+	}
+
+	@Override
 	protected TaxonomyVocabulary
 			doPutAssetLibraryTaxonomyVocabularyByExternalReferenceCode(
 				Long assetLibraryId, String externalReferenceCode,
@@ -385,6 +417,48 @@ public class TaxonomyVocabularyResourceImpl
 	}
 
 	private AssetVocabulary _addAssetVocabulary(
+			Boolean allowMultipleCategories, String externalReferenceCode,
+			Long[] siteIds, TaxonomyVocabulary taxonomyVocabulary,
+			TaxonomyVocabulary.VisibilityType visibilityType)
+		throws Exception {
+
+		Map<Locale, String> titleMap = LocalizedMapUtil.getLocalizedMap(
+			contextAcceptLanguage.getPreferredLocale(),
+			taxonomyVocabulary.getName(), taxonomyVocabulary.getName_i18n());
+		Map<Locale, String> descriptionMap = LocalizedMapUtil.getLocalizedMap(
+			contextAcceptLanguage.getPreferredLocale(),
+			taxonomyVocabulary.getDescription(),
+			taxonomyVocabulary.getDescription_i18n());
+
+		LocalizedMapUtil.validateI18n(
+			true, LocaleUtil.getSiteDefault(), "Taxonomy vocabulary", titleMap,
+			new HashSet<>(descriptionMap.keySet()));
+
+		AssetVocabularySettingsHelper assetVocabularySettingsHelper =
+			new AssetVocabularySettingsHelper(
+				_getSettings(
+					taxonomyVocabulary.getAssetTypes(),
+					GroupConstants.DEFAULT_LIVE_GROUP_ID));
+
+		assetVocabularySettingsHelper.setMultiValued(allowMultipleCategories);
+
+		AssetVocabulary assetVocabulary = _assetVocabularyService.addVocabulary(
+			externalReferenceCode, GroupConstants.DEFAULT_LIVE_GROUP_ID,
+			titleMap.get(LocaleUtil.getSiteDefault()), null, titleMap,
+			descriptionMap, assetVocabularySettingsHelper.toString(),
+			AssetVocabularyConstants.fromString(visibilityType.getValue()),
+			ServiceContextBuilder.create(
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, contextHttpServletRequest,
+				taxonomyVocabulary.getViewableByAsString()
+			).build());
+
+		_assetVocabularyGroupRelLocalService.setAssetVocabularyGroupRels(
+			assetVocabulary.getVocabularyId(), ArrayUtil.toArray(siteIds));
+
+		return assetVocabulary;
+	}
+
+	private AssetVocabulary _addAssetVocabulary(
 			String externalReferenceCode, Long siteId,
 			TaxonomyVocabulary taxonomyVocabulary)
 		throws Exception {
@@ -411,6 +485,27 @@ public class TaxonomyVocabularyResourceImpl
 				siteId, contextHttpServletRequest,
 				taxonomyVocabulary.getViewableByAsString()
 			).build());
+	}
+
+	private AssetLibrary[] _getAssetLibraries(AssetVocabulary assetVocabulary) {
+		List<AssetVocabularyGroupRel> assetVocabularyGroupRels =
+			_assetVocabularyGroupRelLocalService.
+				getAssetVocabularyGroupRelsByVocabularyId(
+					assetVocabulary.getVocabularyId());
+
+		List<AssetLibrary> assetLibraries = new ArrayList<>();
+
+		for (AssetVocabularyGroupRel assetVocabularyGroupRel :
+				assetVocabularyGroupRels) {
+
+			AssetLibrary assetLibrary = _toAssetLibrary(
+				groupLocalService.fetchGroup(
+					assetVocabularyGroupRel.getGroupId()));
+
+			assetLibraries.add(assetLibrary);
+		}
+
+		return assetLibraries.toArray(new AssetLibrary[0]);
 	}
 
 	private AssetType _getAssetType(
@@ -478,6 +573,7 @@ public class TaxonomyVocabularyResourceImpl
 								getAssetRendererFactoryByClassNameId(
 									classNameId));
 					});
+				setTypeClassNameId(() -> classNameId);
 			}
 		};
 	}
@@ -673,6 +769,21 @@ public class TaxonomyVocabularyResourceImpl
 						document.get(Field.ASSET_VOCABULARY_ID)))));
 	}
 
+	private AssetLibrary _toAssetLibrary(Group group) {
+		return new AssetLibrary() {
+			{
+				setId(group::getGroupId);
+				setName(
+					() -> group.getName(
+						contextAcceptLanguage.getPreferredLocale()));
+				setName_i18n(
+					() -> LocalizedMapUtil.getI18nMap(
+						contextAcceptLanguage.isAcceptAllLanguages(),
+						group.getNameMap()));
+			}
+		};
+	}
+
 	private TaxonomyVocabulary _toTaxonomyVocabulary(
 		AssetVocabulary assetVocabulary) {
 
@@ -686,6 +797,7 @@ public class TaxonomyVocabularyResourceImpl
 						assetVocabulary.getGroupId(),
 						assetVocabulary.getVocabularyId(), contextUriInfo,
 						contextUser.getUserId()));
+				setAssetLibraries(() -> _getAssetLibraries(assetVocabulary));
 				setAssetLibraryKey(() -> GroupUtil.getAssetLibraryKey(group));
 				setAssetTypes(
 					() -> _getAssetTypes(
@@ -712,6 +824,7 @@ public class TaxonomyVocabularyResourceImpl
 				setExternalReferenceCode(
 					assetVocabulary::getExternalReferenceCode);
 				setId(assetVocabulary::getVocabularyId);
+				setMultiValued(assetVocabulary::isMultiValued);
 				setName(
 					() -> assetVocabulary.getTitle(
 						contextAcceptLanguage.getPreferredLocale()));
@@ -731,6 +844,10 @@ public class TaxonomyVocabularyResourceImpl
 						return 0;
 					});
 				setSiteId(() -> GroupUtil.getSiteId(group));
+				setVisibilityType(
+					() -> TaxonomyVocabulary.VisibilityType.create(
+						AssetVocabularyConstants.toString(
+							assetVocabulary.getVisibilityType())));
 			}
 		};
 	}
@@ -786,6 +903,10 @@ public class TaxonomyVocabularyResourceImpl
 		_map("WebSite", Group.class.getName());
 		_map("WikiPage", "com.liferay.wiki.model.WikiPage");
 	}
+
+	@Reference
+	private AssetVocabularyGroupRelLocalService
+		_assetVocabularyGroupRelLocalService;
 
 	@Reference
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
