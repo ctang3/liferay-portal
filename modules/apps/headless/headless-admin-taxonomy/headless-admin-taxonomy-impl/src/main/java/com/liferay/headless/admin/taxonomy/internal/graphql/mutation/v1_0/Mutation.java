@@ -810,6 +810,36 @@ public class Mutation {
 	}
 
 	@GraphQLField(
+		description = "Creates the asset library's taxonomy vocabulary in the given spaces."
+	)
+	public TaxonomyVocabulary createTaxonomyVocabulary(
+			@GraphQLName("taxonomyVocabulary") TaxonomyVocabulary
+				taxonomyVocabulary)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_taxonomyVocabularyResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			taxonomyVocabularyResource ->
+				taxonomyVocabularyResource.postTaxonomyVocabulary(
+					taxonomyVocabulary));
+	}
+
+	@GraphQLField
+	public Response createTaxonomyVocabularyBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_taxonomyVocabularyResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			taxonomyVocabularyResource ->
+				taxonomyVocabularyResource.postTaxonomyVocabularyBatch(
+					callbackURL, object));
+	}
+
+	@GraphQLField(
 		description = "Deletes the taxonomy vocabulary and returns a 204 if the operation succeeds."
 	)
 	public boolean deleteTaxonomyVocabulary(

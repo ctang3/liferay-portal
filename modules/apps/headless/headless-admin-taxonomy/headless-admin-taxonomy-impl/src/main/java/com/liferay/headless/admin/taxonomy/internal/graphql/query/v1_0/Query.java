@@ -431,7 +431,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {assetLibraryTaxonomyVocabularyByExternalReferenceCode(assetLibraryId: ___, externalReferenceCode: ___){actions, assetLibraryKey, assetTypes, availableLanguages, creator, dateCreated, dateModified, description, description_i18n, externalReferenceCode, id, name, name_i18n, numberOfTaxonomyCategories, permissions, siteExternalReferenceCode, siteId, viewableBy}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {assetLibraryTaxonomyVocabularyByExternalReferenceCode(assetLibraryId: ___, externalReferenceCode: ___){actions, assetLibraries, assetLibraryKey, assetTypes, availableLanguages, creator, dateCreated, dateModified, description, description_i18n, externalReferenceCode, id, multiValued, name, name_i18n, numberOfTaxonomyCategories, permissions, siteExternalReferenceCode, siteId, viewableBy, visibilityType}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField(
 		description = "Retrieves the asset library's taxonomy vocabulary by external reference code."
@@ -508,7 +508,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {taxonomyVocabularyByExternalReferenceCode(externalReferenceCode: ___, siteKey: ___){actions, assetLibraryKey, assetTypes, availableLanguages, creator, dateCreated, dateModified, description, description_i18n, externalReferenceCode, id, name, name_i18n, numberOfTaxonomyCategories, permissions, siteExternalReferenceCode, siteId, viewableBy}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {taxonomyVocabularyByExternalReferenceCode(externalReferenceCode: ___, siteKey: ___){actions, assetLibraries, assetLibraryKey, assetTypes, availableLanguages, creator, dateCreated, dateModified, description, description_i18n, externalReferenceCode, id, multiValued, name, name_i18n, numberOfTaxonomyCategories, permissions, siteExternalReferenceCode, siteId, viewableBy, visibilityType}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField(
 		description = "Retrieves the site's taxonomy vocabulary by external reference code."
@@ -550,7 +550,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {taxonomyVocabulary(taxonomyVocabularyId: ___){actions, assetLibraryKey, assetTypes, availableLanguages, creator, dateCreated, dateModified, description, description_i18n, externalReferenceCode, id, name, name_i18n, numberOfTaxonomyCategories, permissions, siteExternalReferenceCode, siteId, viewableBy}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {taxonomyVocabulary(taxonomyVocabularyId: ___){actions, assetLibraries, assetLibraryKey, assetTypes, availableLanguages, creator, dateCreated, dateModified, description, description_i18n, externalReferenceCode, id, multiValued, name, name_i18n, numberOfTaxonomyCategories, permissions, siteExternalReferenceCode, siteId, viewableBy, visibilityType}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField(description = "Retrieves a taxonomy vocabulary.")
 	public TaxonomyVocabulary taxonomyVocabulary(

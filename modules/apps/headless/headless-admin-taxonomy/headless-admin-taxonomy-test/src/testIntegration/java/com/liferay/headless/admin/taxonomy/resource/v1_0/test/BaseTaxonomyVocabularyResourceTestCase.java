@@ -2258,6 +2258,56 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 	}
 
 	@Test
+	public void testPostTaxonomyVocabulary() throws Exception {
+		TaxonomyVocabulary randomTaxonomyVocabulary =
+			randomTaxonomyVocabulary();
+
+		TaxonomyVocabulary postTaxonomyVocabulary =
+			testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+				randomTaxonomyVocabulary);
+
+		assertEquals(randomTaxonomyVocabulary, postTaxonomyVocabulary);
+		assertValid(postTaxonomyVocabulary);
+
+		TaxonomyVocabulary randomPermissionsTaxonomyVocabulary1 =
+			randomPermissionsTaxonomyVocabulary();
+
+		TaxonomyVocabulary postPermissionsTaxonomyVocabulary1 =
+			testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+				randomPermissionsTaxonomyVocabulary1);
+
+		Assert.assertNull(postPermissionsTaxonomyVocabulary1.getPermissions());
+
+		TaxonomyVocabulary randomPermissionsTaxonomyVocabulary2 =
+			randomPermissionsTaxonomyVocabulary();
+
+		TaxonomyVocabulary postPermissionsTaxonomyVocabulary2 =
+			testPostTaxonomyVocabulary_addPermissionsTaxonomyVocabulary(
+				randomPermissionsTaxonomyVocabulary2);
+
+		Assert.assertNotNull(
+			postPermissionsTaxonomyVocabulary2.getPermissions());
+	}
+
+	protected TaxonomyVocabulary
+			testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+				TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected TaxonomyVocabulary
+			testPostTaxonomyVocabulary_addPermissionsTaxonomyVocabulary(
+				TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testDeleteTaxonomyVocabulary() throws Exception {
 		@SuppressWarnings("PMD.UnusedLocalVariable")
 		TaxonomyVocabulary taxonomyVocabulary =
@@ -3081,6 +3131,14 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("assetLibraries", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getAssetLibraries() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("assetLibraryKey", additionalAssertFieldName)) {
 				if (taxonomyVocabulary.getAssetLibraryKey() == null) {
 					valid = false;
@@ -3141,6 +3199,14 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("multiValued", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getMultiValued() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (taxonomyVocabulary.getName() == null) {
 					valid = false;
@@ -3189,6 +3255,14 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 			if (Objects.equals("viewableBy", additionalAssertFieldName)) {
 				if (taxonomyVocabulary.getViewableBy() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("visibilityType", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getVisibilityType() == null) {
 					valid = false;
 				}
 
@@ -3329,6 +3403,17 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("assetLibraries", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getAssetLibraries(),
+						taxonomyVocabulary2.getAssetLibraries())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("assetTypes", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						taxonomyVocabulary1.getAssetTypes(),
@@ -3432,6 +3517,17 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("multiValued", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getMultiValued(),
+						taxonomyVocabulary2.getMultiValued())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						taxonomyVocabulary1.getName(),
@@ -3495,6 +3591,17 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				if (!Objects.deepEquals(
 						taxonomyVocabulary1.getViewableBy(),
 						taxonomyVocabulary2.getViewableBy())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("visibilityType", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getVisibilityType(),
+						taxonomyVocabulary2.getVisibilityType())) {
 
 					return false;
 				}
@@ -3611,6 +3718,11 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		sb.append(" ");
 
 		if (entityFieldName.equals("actions")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("assetLibraries")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -3836,6 +3948,11 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("multiValued")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("name")) {
 			Object object = taxonomyVocabulary.getName();
 
@@ -3956,6 +4073,11 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("visibilityType")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		throw new IllegalArgumentException(
 			"Invalid entity field " + entityFieldName);
 	}
@@ -4010,6 +4132,7 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 				externalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
+				multiValued = RandomTestUtil.randomBoolean();
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				numberOfTaxonomyCategories = RandomTestUtil.randomInt();
 				siteExternalReferenceCode = StringUtil.toLowerCase(
