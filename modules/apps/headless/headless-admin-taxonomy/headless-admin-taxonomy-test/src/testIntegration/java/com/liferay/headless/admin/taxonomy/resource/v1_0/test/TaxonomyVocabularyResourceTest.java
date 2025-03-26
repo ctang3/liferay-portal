@@ -6,6 +6,7 @@
 package com.liferay.headless.admin.taxonomy.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.headless.admin.taxonomy.client.dto.v1_0.AssetLibrary;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.AssetType;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.TaxonomyVocabulary;
 import com.liferay.headless.admin.taxonomy.client.pagination.Page;
@@ -17,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -359,6 +361,40 @@ public class TaxonomyVocabularyResourceTest
 	}
 
 	@Override
+	@Test
+	public void testPostTaxonomyVocabulary() throws Exception {
+		super.testPostTaxonomyVocabulary();
+
+		AssetLibrary[] assetLibraries = {
+			randomAssetLibrary(), randomAssetLibrary(), randomAssetLibrary()
+		};
+
+		TaxonomyVocabulary randomTaxonomyVocabulary1 =
+			randomCmsTaxonomyVocabulary(assetLibraries);
+
+		TaxonomyVocabulary postTaxonomyVocabulary1 =
+			testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+				randomTaxonomyVocabulary1);
+
+		assertEquals(randomTaxonomyVocabulary1, postTaxonomyVocabulary1);
+		assertValid(postTaxonomyVocabulary1);
+
+		TaxonomyVocabulary randomTaxonomyVocabulary2 =
+			randomCmsTaxonomyVocabulary(assetLibraries);
+
+		TaxonomyVocabulary postTaxonomyVocabulary2 =
+			testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+				randomTaxonomyVocabulary2);
+
+		assertEquals(randomTaxonomyVocabulary2, postTaxonomyVocabulary2);
+		assertValid(postTaxonomyVocabulary2);
+
+		Assert.assertSame(
+			postTaxonomyVocabulary1.getAssetLibraries(),
+			postTaxonomyVocabulary2.getAssetLibraries());
+	}
+
+	@Override
 	protected String[] getAdditionalAssertFieldNames() {
 		return new String[] {"assetTypes", "description", "name"};
 	}
@@ -368,10 +404,40 @@ public class TaxonomyVocabularyResourceTest
 		return new String[] {"dateCreated", "dateModified"};
 	}
 
+	protected AssetLibrary randomAssetLibrary() {
+		return new AssetLibrary() {
+			{
+				id = RandomTestUtil.randomLong();
+				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
+			}
+		};
+	}
+
+	protected TaxonomyVocabulary randomCmsTaxonomyVocabulary() {
+		TaxonomyVocabulary taxonomyVocabulary = randomTaxonomyVocabulary();
+
+		taxonomyVocabulary.setSiteId(GroupConstants.DEFAULT_LIVE_GROUP_ID);
+
+		return taxonomyVocabulary;
+	}
+
+	protected TaxonomyVocabulary randomCmsTaxonomyVocabulary(
+		AssetLibrary[] assetLibraries) {
+
+		TaxonomyVocabulary taxonomyVocabulary = randomCmsTaxonomyVocabulary();
+
+		taxonomyVocabulary.setAssetLibraries(assetLibraries);
+
+		return taxonomyVocabulary;
+	}
+
 	@Override
 	protected TaxonomyVocabulary randomTaxonomyVocabulary() {
 		return new TaxonomyVocabulary() {
 			{
+				assetLibraries = new AssetLibrary[] {
+					randomAssetLibrary(), randomAssetLibrary()
+				};
 				assetTypes = new AssetType[] {
 					new AssetType() {
 						{
@@ -384,8 +450,10 @@ public class TaxonomyVocabularyResourceTest
 				description = RandomTestUtil.randomString();
 				externalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
+				multiValued = RandomTestUtil.randomBoolean();
 				name = RandomTestUtil.randomString();
 				siteId = testGroup.getGroupId();
+				visibilityType = VisibilityType.PUBLIC;
 			}
 		};
 	}
@@ -420,6 +488,26 @@ public class TaxonomyVocabularyResourceTest
 		throws Exception {
 
 		return testDepotEntry.getDepotEntryId();
+	}
+
+	@Override
+	protected TaxonomyVocabulary
+			testPostTaxonomyVocabulary_addPermissionsTaxonomyVocabulary(
+				TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		return permissionsTaxonomyVocabularyResource.postTaxonomyVocabulary(
+			taxonomyVocabulary);
+	}
+
+	@Override
+	protected TaxonomyVocabulary
+			testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+				TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		return taxonomyVocabularyResource.postTaxonomyVocabulary(
+			taxonomyVocabulary);
 	}
 
 	@Override
