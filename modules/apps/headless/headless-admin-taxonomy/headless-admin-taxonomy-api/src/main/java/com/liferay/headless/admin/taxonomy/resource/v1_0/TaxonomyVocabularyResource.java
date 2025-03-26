@@ -142,6 +142,14 @@ public interface TaxonomyVocabularyResource {
 				com.liferay.portal.vulcan.permission.Permission[] permissions)
 		throws Exception;
 
+	public TaxonomyVocabulary postTaxonomyVocabulary(
+			TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception;
+
+	public Response postTaxonomyVocabularyBatch(
+			String callbackURL, Object object)
+		throws Exception;
+
 	public void deleteTaxonomyVocabulary(Long taxonomyVocabularyId)
 		throws Exception;
 

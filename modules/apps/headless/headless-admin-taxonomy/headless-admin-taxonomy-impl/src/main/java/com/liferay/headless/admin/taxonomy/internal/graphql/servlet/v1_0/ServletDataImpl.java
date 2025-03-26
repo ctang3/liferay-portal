@@ -291,6 +291,16 @@ public class ServletDataImpl implements ServletData {
 							TaxonomyVocabularyResourceImpl.class,
 							"putSiteTaxonomyVocabularyPermissionsPage"));
 					put(
+						"mutation#createTaxonomyVocabulary",
+						new ObjectValuePair<>(
+							TaxonomyVocabularyResourceImpl.class,
+							"postTaxonomyVocabulary"));
+					put(
+						"mutation#createTaxonomyVocabularyBatch",
+						new ObjectValuePair<>(
+							TaxonomyVocabularyResourceImpl.class,
+							"postTaxonomyVocabularyBatch"));
+					put(
 						"mutation#deleteTaxonomyVocabulary",
 						new ObjectValuePair<>(
 							TaxonomyVocabularyResourceImpl.class,

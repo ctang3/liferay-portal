@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -26,6 +26,8 @@ import java.util.function.Supplier;
 
 import javax.annotation.Generated;
 
+import javax.validation.Valid;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -34,47 +36,45 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Generated("")
 @GraphQLName(
-	description = "Represents the asset type associated with a `TaxonomyCategory`.",
-	value = "AssetType"
+	description = "Represents an Asset Library associated with a `Taxonomy Vocabulary`.",
+	value = "AssetLibrary"
 )
 @JsonFilter("Liferay.Vulcan")
-@XmlRootElement(name = "AssetType")
-public class AssetType implements Serializable {
+@XmlRootElement(name = "AssetLibrary")
+public class AssetLibrary implements Serializable {
 
-	public static AssetType toDTO(String json) {
-		return ObjectMapperUtil.readValue(AssetType.class, json);
+	public static AssetLibrary toDTO(String json) {
+		return ObjectMapperUtil.readValue(AssetLibrary.class, json);
 	}
 
-	public static AssetType unsafeToDTO(String json) {
-		return ObjectMapperUtil.unsafeReadValue(AssetType.class, json);
+	public static AssetLibrary unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(AssetLibrary.class, json);
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "A flag that marks if this type is required."
+		description = "The asset library's site ID."
 	)
-	public Boolean getRequired() {
-		if (_requiredSupplier != null) {
-			required = _requiredSupplier.get();
+	public Long getId() {
+		if (_idSupplier != null) {
+			id = _idSupplier.get();
 
-			_requiredSupplier = null;
+			_idSupplier = null;
 		}
 
-		return required;
+		return id;
 	}
 
-	public void setRequired(Boolean required) {
-		this.required = required;
+	public void setId(Long id) {
+		this.id = id;
 
-		_requiredSupplier = null;
+		_idSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setRequired(
-		UnsafeSupplier<Boolean, Exception> requiredUnsafeSupplier) {
-
-		_requiredSupplier = () -> {
+	public void setId(UnsafeSupplier<Long, Exception> idUnsafeSupplier) {
+		_idSupplier = () -> {
 			try {
-				return requiredUnsafeSupplier.get();
+				return idUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -85,39 +85,37 @@ public class AssetType implements Serializable {
 		};
 	}
 
-	@GraphQLField(description = "A flag that marks if this type is required.")
+	@GraphQLField(description = "The asset library's site ID.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Boolean required;
+	protected Long id;
 
 	@JsonIgnore
-	private Supplier<Boolean> _requiredSupplier;
+	private Supplier<Long> _idSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The asset's subtype."
+		description = "The asset library's name."
 	)
-	public String getSubtype() {
-		if (_subtypeSupplier != null) {
-			subtype = _subtypeSupplier.get();
+	public String getName() {
+		if (_nameSupplier != null) {
+			name = _nameSupplier.get();
 
-			_subtypeSupplier = null;
+			_nameSupplier = null;
 		}
 
-		return subtype;
+		return name;
 	}
 
-	public void setSubtype(String subtype) {
-		this.subtype = subtype;
+	public void setName(String name) {
+		this.name = name;
 
-		_subtypeSupplier = null;
+		_nameSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setSubtype(
-		UnsafeSupplier<String, Exception> subtypeUnsafeSupplier) {
-
-		_subtypeSupplier = () -> {
+	public void setName(UnsafeSupplier<String, Exception> nameUnsafeSupplier) {
+		_nameSupplier = () -> {
 			try {
-				return subtypeUnsafeSupplier.get();
+				return nameUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -128,37 +126,41 @@ public class AssetType implements Serializable {
 		};
 	}
 
-	@GraphQLField(description = "The asset's subtype.")
+	@GraphQLField(description = "The asset library's name.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String subtype;
+	protected String name;
 
 	@JsonIgnore
-	private Supplier<String> _subtypeSupplier;
+	private Supplier<String> _nameSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The asset's type (e.g., `BlogPosting`, `Document`, etc.)."
+		description = "The localized asset library's name."
 	)
-	public String getType() {
-		if (_typeSupplier != null) {
-			type = _typeSupplier.get();
+	@Valid
+	public Map<String, String> getName_i18n() {
+		if (_name_i18nSupplier != null) {
+			name_i18n = _name_i18nSupplier.get();
 
-			_typeSupplier = null;
+			_name_i18nSupplier = null;
 		}
 
-		return type;
+		return name_i18n;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setName_i18n(Map<String, String> name_i18n) {
+		this.name_i18n = name_i18n;
 
-		_typeSupplier = null;
+		_name_i18nSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setType(UnsafeSupplier<String, Exception> typeUnsafeSupplier) {
-		_typeSupplier = () -> {
+	public void setName_i18n(
+		UnsafeSupplier<Map<String, String>, Exception>
+			name_i18nUnsafeSupplier) {
+
+		_name_i18nSupplier = () -> {
 			try {
-				return typeUnsafeSupplier.get();
+				return name_i18nUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -169,57 +171,12 @@ public class AssetType implements Serializable {
 		};
 	}
 
-	@GraphQLField(
-		description = "The asset's type (e.g., `BlogPosting`, `Document`, etc.)."
-	)
+	@GraphQLField(description = "The localized asset library's name.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String type;
+	protected Map<String, String> name_i18n;
 
 	@JsonIgnore
-	private Supplier<String> _typeSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The classNameId of the asset's type."
-	)
-	public Long getTypeClassNameId() {
-		if (_typeClassNameIdSupplier != null) {
-			typeClassNameId = _typeClassNameIdSupplier.get();
-
-			_typeClassNameIdSupplier = null;
-		}
-
-		return typeClassNameId;
-	}
-
-	public void setTypeClassNameId(Long typeClassNameId) {
-		this.typeClassNameId = typeClassNameId;
-
-		_typeClassNameIdSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setTypeClassNameId(
-		UnsafeSupplier<Long, Exception> typeClassNameIdUnsafeSupplier) {
-
-		_typeClassNameIdSupplier = () -> {
-			try {
-				return typeClassNameIdUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField(description = "The classNameId of the asset's type.")
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long typeClassNameId;
-
-	@JsonIgnore
-	private Supplier<Long> _typeClassNameIdSupplier;
+	private Supplier<Map<String, String>> _name_i18nSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -227,13 +184,13 @@ public class AssetType implements Serializable {
 			return true;
 		}
 
-		if (!(object instanceof AssetType)) {
+		if (!(object instanceof AssetLibrary)) {
 			return false;
 		}
 
-		AssetType assetType = (AssetType)object;
+		AssetLibrary assetLibrary = (AssetLibrary)object;
 
-		return Objects.equals(toString(), assetType.toString());
+		return Objects.equals(toString(), assetLibrary.toString());
 	}
 
 	@Override
@@ -248,60 +205,44 @@ public class AssetType implements Serializable {
 
 		sb.append("{");
 
-		Boolean required = getRequired();
+		Long id = getId();
 
-		if (required != null) {
+		if (id != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"required\": ");
+			sb.append("\"id\": ");
 
-			sb.append(required);
+			sb.append(id);
 		}
 
-		String subtype = getSubtype();
+		String name = getName();
 
-		if (subtype != null) {
+		if (name != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"subtype\": ");
+			sb.append("\"name\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(subtype));
-
-			sb.append("\"");
-		}
-
-		String type = getType();
-
-		if (type != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"type\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(type));
+			sb.append(_escape(name));
 
 			sb.append("\"");
 		}
 
-		Long typeClassNameId = getTypeClassNameId();
+		Map<String, String> name_i18n = getName_i18n();
 
-		if (typeClassNameId != null) {
+		if (name_i18n != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"typeClassNameId\": ");
+			sb.append("\"name_i18n\": ");
 
-			sb.append(typeClassNameId);
+			sb.append(_toJSON(name_i18n));
 		}
 
 		sb.append("}");
@@ -311,7 +252,7 @@ public class AssetType implements Serializable {
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		accessMode = io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY,
-		defaultValue = "com.liferay.headless.admin.taxonomy.dto.v1_0.AssetType",
+		defaultValue = "com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary",
 		name = "x-class-name"
 	)
 	public String xClassName;
