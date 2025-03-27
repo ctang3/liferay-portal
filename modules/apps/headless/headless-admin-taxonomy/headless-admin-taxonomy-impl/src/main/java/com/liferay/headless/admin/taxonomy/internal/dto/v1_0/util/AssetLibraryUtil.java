@@ -8,6 +8,7 @@ package com.liferay.headless.admin.taxonomy.internal.dto.v1_0.util;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.util.GroupUtil;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 /**
@@ -20,7 +21,7 @@ public class AssetLibraryUtil {
 
 		return new AssetLibrary() {
 			{
-				setId(group::getGroupId);
+				setId(() -> GroupUtil.getSiteId(group));
 				setName(
 					() -> group.getName(
 						contextAcceptLanguage.getPreferredLocale()));
