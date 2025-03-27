@@ -1934,6 +1934,34 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/TaxonomyVocabulary"
             tags: ["TaxonomyVocabulary"]
+    "/taxonomy-vocabularies/{taxonomyVocabularyId}/asset-libraries":
+        get:
+            description:
+                Retrieves a taxonomy vocabulary's associated asset libraries.
+            operationId: getTaxonomyVocabularyAssetLibrariesPage
+            parameters:
+                - in: path
+                  name: taxonomyVocabularyId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AssetLibrary"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AssetLibrary"
+                                type: array
+                    description:
+                        successful operation
+            tags: ["AssetLibrary"]
     "/taxonomy-vocabularies/{taxonomyVocabularyId}/permissions":
         get:
             operationId: getTaxonomyVocabularyPermissionsPage
