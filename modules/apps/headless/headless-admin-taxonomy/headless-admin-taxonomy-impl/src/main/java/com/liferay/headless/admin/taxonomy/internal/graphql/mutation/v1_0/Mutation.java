@@ -8,6 +8,7 @@ package com.liferay.headless.admin.taxonomy.internal.graphql.mutation.v1_0;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.Keyword;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyCategory;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyVocabulary;
+import com.liferay.headless.admin.taxonomy.resource.v1_0.AssetLibraryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.KeywordResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
@@ -43,6 +44,14 @@ import org.osgi.service.component.ComponentServiceObjects;
 @Generated("")
 public class Mutation {
 
+	public static void setAssetLibraryResourceComponentServiceObjects(
+		ComponentServiceObjects<AssetLibraryResource>
+			assetLibraryResourceComponentServiceObjects) {
+
+		_assetLibraryResourceComponentServiceObjects =
+			assetLibraryResourceComponentServiceObjects;
+	}
+
 	public static void setKeywordResourceComponentServiceObjects(
 		ComponentServiceObjects<KeywordResource>
 			keywordResourceComponentServiceObjects) {
@@ -65,6 +74,24 @@ public class Mutation {
 
 		_taxonomyVocabularyResourceComponentServiceObjects =
 			taxonomyVocabularyResourceComponentServiceObjects;
+	}
+
+	@GraphQLField
+	public Response createTaxonomyVocabularyAssetLibrariesPageExportBatch(
+			@GraphQLName("taxonomyVocabularyId") Long taxonomyVocabularyId,
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("contentType") String contentType,
+			@GraphQLName("fieldNames") String fieldNames)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_assetLibraryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			assetLibraryResource ->
+				assetLibraryResource.
+					postTaxonomyVocabularyAssetLibrariesPageExportBatch(
+						taxonomyVocabularyId, callbackURL, contentType,
+						fieldNames));
 	}
 
 	@GraphQLField
@@ -978,6 +1005,27 @@ public class Mutation {
 		}
 	}
 
+	private void _populateResourceContext(
+			AssetLibraryResource assetLibraryResource)
+		throws Exception {
+
+		assetLibraryResource.setContextAcceptLanguage(_acceptLanguage);
+		assetLibraryResource.setContextCompany(_company);
+		assetLibraryResource.setContextHttpServletRequest(_httpServletRequest);
+		assetLibraryResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		assetLibraryResource.setContextUriInfo(_uriInfo);
+		assetLibraryResource.setContextUser(_user);
+		assetLibraryResource.setGroupLocalService(_groupLocalService);
+		assetLibraryResource.setRoleLocalService(_roleLocalService);
+
+		assetLibraryResource.setVulcanBatchEngineExportTaskResource(
+			_vulcanBatchEngineExportTaskResource);
+
+		assetLibraryResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
+	}
+
 	private void _populateResourceContext(KeywordResource keywordResource)
 		throws Exception {
 
@@ -1041,6 +1089,8 @@ public class Mutation {
 			_vulcanBatchEngineImportTaskResource);
 	}
 
+	private static ComponentServiceObjects<AssetLibraryResource>
+		_assetLibraryResourceComponentServiceObjects;
 	private static ComponentServiceObjects<KeywordResource>
 		_keywordResourceComponentServiceObjects;
 	private static ComponentServiceObjects<TaxonomyCategoryResource>

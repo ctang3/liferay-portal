@@ -5,9 +5,11 @@
 
 package com.liferay.headless.admin.taxonomy.internal.graphql.query.v1_0;
 
+import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.Keyword;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyCategory;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyVocabulary;
+import com.liferay.headless.admin.taxonomy.resource.v1_0.AssetLibraryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.KeywordResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
@@ -46,6 +48,14 @@ import org.osgi.service.component.ComponentServiceObjects;
 @Generated("")
 public class Query {
 
+	public static void setAssetLibraryResourceComponentServiceObjects(
+		ComponentServiceObjects<AssetLibraryResource>
+			assetLibraryResourceComponentServiceObjects) {
+
+		_assetLibraryResourceComponentServiceObjects =
+			assetLibraryResourceComponentServiceObjects;
+	}
+
 	public static void setKeywordResourceComponentServiceObjects(
 		ComponentServiceObjects<KeywordResource>
 			keywordResourceComponentServiceObjects) {
@@ -68,6 +78,26 @@ public class Query {
 
 		_taxonomyVocabularyResourceComponentServiceObjects =
 			taxonomyVocabularyResourceComponentServiceObjects;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {taxonomyVocabularyAssetLibraries(taxonomyVocabularyId: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField(
+		description = "Retrieves a taxonomy vocabulary's associated asset libraries."
+	)
+	public AssetLibraryPage taxonomyVocabularyAssetLibraries(
+			@GraphQLName("taxonomyVocabularyId") Long taxonomyVocabularyId)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_assetLibraryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			assetLibraryResource -> new AssetLibraryPage(
+				assetLibraryResource.getTaxonomyVocabularyAssetLibrariesPage(
+					taxonomyVocabularyId)));
 	}
 
 	/**
@@ -722,6 +752,44 @@ public class Query {
 
 	}
 
+	@GraphQLName("AssetLibraryPage")
+	public class AssetLibraryPage {
+
+		public AssetLibraryPage(Page assetLibraryPage) {
+			actions = assetLibraryPage.getActions();
+
+			facets = assetLibraryPage.getFacets();
+
+			items = assetLibraryPage.getItems();
+			lastPage = assetLibraryPage.getLastPage();
+			page = assetLibraryPage.getPage();
+			pageSize = assetLibraryPage.getPageSize();
+			totalCount = assetLibraryPage.getTotalCount();
+		}
+
+		@GraphQLField
+		protected Map<String, Map<String, String>> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
+
+		@GraphQLField
+		protected java.util.Collection<AssetLibrary> items;
+
+		@GraphQLField
+		protected long lastPage;
+
+		@GraphQLField
+		protected long page;
+
+		@GraphQLField
+		protected long pageSize;
+
+		@GraphQLField
+		protected long totalCount;
+
+	}
+
 	@GraphQLName("KeywordPage")
 	public class KeywordPage {
 
@@ -855,6 +923,21 @@ public class Query {
 		}
 	}
 
+	private void _populateResourceContext(
+			AssetLibraryResource assetLibraryResource)
+		throws Exception {
+
+		assetLibraryResource.setContextAcceptLanguage(_acceptLanguage);
+		assetLibraryResource.setContextCompany(_company);
+		assetLibraryResource.setContextHttpServletRequest(_httpServletRequest);
+		assetLibraryResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		assetLibraryResource.setContextUriInfo(_uriInfo);
+		assetLibraryResource.setContextUser(_user);
+		assetLibraryResource.setGroupLocalService(_groupLocalService);
+		assetLibraryResource.setRoleLocalService(_roleLocalService);
+	}
+
 	private void _populateResourceContext(KeywordResource keywordResource)
 		throws Exception {
 
@@ -900,6 +983,8 @@ public class Query {
 		taxonomyVocabularyResource.setRoleLocalService(_roleLocalService);
 	}
 
+	private static ComponentServiceObjects<AssetLibraryResource>
+		_assetLibraryResourceComponentServiceObjects;
 	private static ComponentServiceObjects<KeywordResource>
 		_keywordResourceComponentServiceObjects;
 	private static ComponentServiceObjects<TaxonomyCategoryResource>

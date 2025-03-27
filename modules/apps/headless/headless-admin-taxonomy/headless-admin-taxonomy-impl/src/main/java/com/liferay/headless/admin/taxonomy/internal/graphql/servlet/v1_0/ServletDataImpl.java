@@ -7,9 +7,11 @@ package com.liferay.headless.admin.taxonomy.internal.graphql.servlet.v1_0;
 
 import com.liferay.headless.admin.taxonomy.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.headless.admin.taxonomy.internal.graphql.query.v1_0.Query;
+import com.liferay.headless.admin.taxonomy.internal.resource.v1_0.AssetLibraryResourceImpl;
 import com.liferay.headless.admin.taxonomy.internal.resource.v1_0.KeywordResourceImpl;
 import com.liferay.headless.admin.taxonomy.internal.resource.v1_0.TaxonomyCategoryResourceImpl;
 import com.liferay.headless.admin.taxonomy.internal.resource.v1_0.TaxonomyVocabularyResourceImpl;
+import com.liferay.headless.admin.taxonomy.resource.v1_0.AssetLibraryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.KeywordResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
@@ -38,6 +40,8 @@ public class ServletDataImpl implements ServletData {
 
 	@Activate
 	public void activate(BundleContext bundleContext) {
+		Mutation.setAssetLibraryResourceComponentServiceObjects(
+			_assetLibraryResourceComponentServiceObjects);
 		Mutation.setKeywordResourceComponentServiceObjects(
 			_keywordResourceComponentServiceObjects);
 		Mutation.setTaxonomyCategoryResourceComponentServiceObjects(
@@ -45,6 +49,8 @@ public class ServletDataImpl implements ServletData {
 		Mutation.setTaxonomyVocabularyResourceComponentServiceObjects(
 			_taxonomyVocabularyResourceComponentServiceObjects);
 
+		Query.setAssetLibraryResourceComponentServiceObjects(
+			_assetLibraryResourceComponentServiceObjects);
 		Query.setKeywordResourceComponentServiceObjects(
 			_keywordResourceComponentServiceObjects);
 		Query.setTaxonomyCategoryResourceComponentServiceObjects(
@@ -87,6 +93,11 @@ public class ServletDataImpl implements ServletData {
 		_resourceMethodObjectValuePairs =
 			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
 				{
+					put(
+						"mutation#createTaxonomyVocabularyAssetLibrariesPageExportBatch",
+						new ObjectValuePair<>(
+							AssetLibraryResourceImpl.class,
+							"postTaxonomyVocabularyAssetLibrariesPageExportBatch"));
 					put(
 						"mutation#createAssetLibraryKeywordsPageExportBatch",
 						new ObjectValuePair<>(
@@ -332,6 +343,11 @@ public class ServletDataImpl implements ServletData {
 							"putTaxonomyVocabularyPermissionsPage"));
 
 					put(
+						"query#taxonomyVocabularyAssetLibraries",
+						new ObjectValuePair<>(
+							AssetLibraryResourceImpl.class,
+							"getTaxonomyVocabularyAssetLibrariesPage"));
+					put(
 						"query#assetLibraryKeywords",
 						new ObjectValuePair<>(
 							KeywordResourceImpl.class,
@@ -462,6 +478,10 @@ public class ServletDataImpl implements ServletData {
 							"getTaxonomyVocabularyTaxonomyCategoryByExternalReferenceCode"));
 				}
 			};
+
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private ComponentServiceObjects<AssetLibraryResource>
+		_assetLibraryResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<KeywordResource>
