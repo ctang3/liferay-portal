@@ -21,6 +21,7 @@ import com.liferay.depot.util.SiteConnectedGroupGroupProviderUtil;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetType;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyVocabulary;
+import com.liferay.headless.admin.taxonomy.internal.dto.v1_0.util.AssetLibraryUtil;
 import com.liferay.headless.admin.taxonomy.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.admin.taxonomy.internal.odata.entity.v1_0.VocabularyEntityModel;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
@@ -770,18 +771,7 @@ public class TaxonomyVocabularyResourceImpl
 	}
 
 	private AssetLibrary _toAssetLibrary(Group group) {
-		return new AssetLibrary() {
-			{
-				setId(group::getGroupId);
-				setName(
-					() -> group.getName(
-						contextAcceptLanguage.getPreferredLocale()));
-				setName_i18n(
-					() -> LocalizedMapUtil.getI18nMap(
-						contextAcceptLanguage.isAcceptAllLanguages(),
-						group.getNameMap()));
-			}
-		};
+		return AssetLibraryUtil.toAssetLibrary(group, contextAcceptLanguage);
 	}
 
 	private TaxonomyVocabulary _toTaxonomyVocabulary(
