@@ -291,6 +291,11 @@ public class ServletDataImpl implements ServletData {
 							TaxonomyVocabularyResourceImpl.class,
 							"putSiteTaxonomyVocabularyPermissionsPage"));
 					put(
+						"mutation#createTaxonomyVocabulariesPageExportBatch",
+						new ObjectValuePair<>(
+							TaxonomyVocabularyResourceImpl.class,
+							"postTaxonomyVocabulariesPageExportBatch"));
+					put(
 						"mutation#createTaxonomyVocabulary",
 						new ObjectValuePair<>(
 							TaxonomyVocabularyResourceImpl.class,
@@ -415,7 +420,7 @@ public class ServletDataImpl implements ServletData {
 							TaxonomyVocabularyResourceImpl.class,
 							"getAssetLibraryTaxonomyVocabularyPermissionsPage"));
 					put(
-						"query#taxonomyVocabularies",
+						"query#siteTaxonomyVocabularies",
 						new ObjectValuePair<>(
 							TaxonomyVocabularyResourceImpl.class,
 							"getSiteTaxonomyVocabulariesPage"));
@@ -429,6 +434,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							TaxonomyVocabularyResourceImpl.class,
 							"getSiteTaxonomyVocabularyPermissionsPage"));
+					put(
+						"query#taxonomyVocabularies",
+						new ObjectValuePair<>(
+							TaxonomyVocabularyResourceImpl.class,
+							"getTaxonomyVocabulariesPage"));
 					put(
 						"query#taxonomyVocabulary",
 						new ObjectValuePair<>(

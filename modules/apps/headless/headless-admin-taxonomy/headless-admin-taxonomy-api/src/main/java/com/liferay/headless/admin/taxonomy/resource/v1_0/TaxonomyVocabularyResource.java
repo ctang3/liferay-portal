@@ -142,6 +142,21 @@ public interface TaxonomyVocabularyResource {
 				com.liferay.portal.vulcan.permission.Permission[] permissions)
 		throws Exception;
 
+	public Page<TaxonomyVocabulary> getTaxonomyVocabulariesPage(
+			String search,
+			com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
+	public Response postTaxonomyVocabulariesPageExportBatch(
+			String search,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			com.liferay.portal.kernel.search.Sort[] sorts, String callbackURL,
+			String contentType, String fieldNames)
+		throws Exception;
+
 	public TaxonomyVocabulary postTaxonomyVocabulary(
 			TaxonomyVocabulary taxonomyVocabulary)
 		throws Exception;
