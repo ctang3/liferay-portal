@@ -1804,6 +1804,62 @@ paths:
                         application/xml: {}
             tags: ["TaxonomyCategory"]
     "/taxonomy-vocabularies":
+        get:
+            description:
+                Gets all taxonomy vocabularies that were created in CMS. Does not retrieve vocabularies created in DXP.
+                CMS vocabularies are distinguished by having a `groupId = 0`.
+            operationId: getTaxonomyVocabulariesPage
+            parameters:
+                - in: query
+                  name: aggregationTerms
+                  schema:
+                      items:
+                          type: string
+                      type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: filter
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
+                  name: search
+                  schema:
+                      type: string
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/TaxonomyVocabulary"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/TaxonomyVocabulary"
+                                type: array
+                    description:
+                        successful operation
+            tags: ["TaxonomyVocabulary"]
         post:
             description:
                 Creates the asset library's taxonomy vocabulary in the given spaces.
