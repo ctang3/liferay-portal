@@ -281,10 +281,9 @@ public class TaxonomyVocabularyResourceTest
 		_testGetTaxonomyVocabularyWithoutPermissionsAction();
 	}
 
-	@Override
 	@Test
 	public void testGraphQLGetSiteTaxonomyVocabulariesPage() throws Exception {
-		super.testGraphQLGetSiteTaxonomyVocabulariesPage();
+		_baseTestGraphQLGetSiteTaxonomyVocabulariesPage();
 
 		Page<TaxonomyVocabulary> page =
 			taxonomyVocabularyResource.getSiteTaxonomyVocabulariesPage(
@@ -490,6 +489,13 @@ public class TaxonomyVocabularyResourceTest
 		return testDepotEntry.getDepotEntryId();
 	}
 
+	protected TaxonomyVocabulary
+			testGraphQLGetSiteTaxonomyVocabulariesPage_addTaxonomyVocabulary()
+		throws Exception {
+
+		return testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary();
+	}
+
 	@Override
 	protected TaxonomyVocabulary
 			testPostTaxonomyVocabulary_addPermissionsTaxonomyVocabulary(
@@ -516,6 +522,80 @@ public class TaxonomyVocabularyResourceTest
 		throws Exception {
 
 		return testDepotEntry.getDepotEntryId();
+	}
+
+	@Test
+	private void _baseTestGraphQLGetSiteTaxonomyVocabulariesPage()
+		throws Exception {
+
+		GraphQLField graphQLField = new GraphQLField(
+			"taxonomyVocabularies",
+			HashMapBuilder.<String, Object>put(
+				"page", 1
+			).put(
+				"pageSize", 10
+			).put(
+				"siteKey",
+				"\"" + testGetSiteTaxonomyVocabulariesPage_getSiteId() + "\""
+			).build(),
+			new GraphQLField("items", getGraphQLFields()),
+			new GraphQLField("page"), new GraphQLField("totalCount"));
+
+		// No namespace
+
+		JSONObject taxonomyVocabulariesJSONObject =
+			JSONUtil.getValueAsJSONObject(
+				invokeGraphQLQuery(graphQLField), "JSONObject/data",
+				"JSONObject/taxonomyVocabularies");
+
+		long totalCount = taxonomyVocabulariesJSONObject.getLong("totalCount");
+
+		TaxonomyVocabulary taxonomyVocabulary1 =
+			testGraphQLGetSiteTaxonomyVocabulariesPage_addTaxonomyVocabulary();
+		TaxonomyVocabulary taxonomyVocabulary2 =
+			testGraphQLGetSiteTaxonomyVocabulariesPage_addTaxonomyVocabulary();
+
+		taxonomyVocabulariesJSONObject = JSONUtil.getValueAsJSONObject(
+			invokeGraphQLQuery(graphQLField), "JSONObject/data",
+			"JSONObject/taxonomyVocabularies");
+
+		Assert.assertEquals(
+			totalCount + 2,
+			taxonomyVocabulariesJSONObject.getLong("totalCount"));
+
+		assertContains(
+			taxonomyVocabulary1,
+			Arrays.asList(
+				TaxonomyVocabularySerDes.toDTOs(
+					taxonomyVocabulariesJSONObject.getString("items"))));
+		assertContains(
+			taxonomyVocabulary2,
+			Arrays.asList(
+				TaxonomyVocabularySerDes.toDTOs(
+					taxonomyVocabulariesJSONObject.getString("items"))));
+
+		// Using the namespace headlessAdminTaxonomy_v1_0
+
+		taxonomyVocabulariesJSONObject = JSONUtil.getValueAsJSONObject(
+			invokeGraphQLQuery(
+				new GraphQLField("headlessAdminTaxonomy_v1_0", graphQLField)),
+			"JSONObject/data", "JSONObject/headlessAdminTaxonomy_v1_0",
+			"JSONObject/taxonomyVocabularies");
+
+		Assert.assertEquals(
+			totalCount + 2,
+			taxonomyVocabulariesJSONObject.getLong("totalCount"));
+
+		assertContains(
+			taxonomyVocabulary1,
+			Arrays.asList(
+				TaxonomyVocabularySerDes.toDTOs(
+					taxonomyVocabulariesJSONObject.getString("items"))));
+		assertContains(
+			taxonomyVocabulary2,
+			Arrays.asList(
+				TaxonomyVocabularySerDes.toDTOs(
+					taxonomyVocabulariesJSONObject.getString("items"))));
 	}
 
 	private void _testGetTaxonomyVocabularyActions() throws Exception {
