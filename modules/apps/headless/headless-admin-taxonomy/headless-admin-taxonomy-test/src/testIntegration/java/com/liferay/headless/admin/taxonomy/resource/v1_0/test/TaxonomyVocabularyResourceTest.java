@@ -274,6 +274,66 @@ public class TaxonomyVocabularyResourceTest
 
 	@Override
 	@Test
+	public void testGetTaxonomyVocabulariesPage() throws Exception {
+		super.testGetTaxonomyVocabulariesPage();
+
+		Page<TaxonomyVocabulary> page =
+			taxonomyVocabularyResource.getTaxonomyVocabulariesPage(
+				null, null, null, Pagination.of(1, 10), null);
+
+		long totalCount = page.getTotalCount();
+
+		testGetTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+			randomCmsTaxonomyVocabulary());
+
+		page = taxonomyVocabularyResource.getTaxonomyVocabulariesPage(
+			null, null, null, Pagination.of(1, 10), null);
+
+		Assert.assertEquals(totalCount + 1, page.getTotalCount());
+
+		assertValid(
+			page,
+			HashMapBuilder.<String, Map<String, String>>put(
+				"create",
+				HashMapBuilder.put(
+					"href",
+					"http://localhost:8080/o/headless-admin-taxonomy/v1.0" +
+						"/taxonomy-vocabularies"
+				).put(
+					"method", "POST"
+				).build()
+			).put(
+				"createBatch",
+				HashMapBuilder.put(
+					"href",
+					"http://localhost:8080/o/headless-admin-taxonomy/v1.0" +
+						"/taxonomy-vocabularies/batch"
+				).put(
+					"method", "POST"
+				).build()
+			).put(
+				"deleteBatch",
+				HashMapBuilder.put(
+					"href",
+					"http://localhost:8080/o/headless-admin-taxonomy/v1.0" +
+						"/taxonomy-vocabularies/batch"
+				).put(
+					"method", "DELETE"
+				).build()
+			).put(
+				"updateBatch",
+				HashMapBuilder.put(
+					"href",
+					"http://localhost:8080/o/headless-admin-taxonomy/v1.0" +
+						"/taxonomy-vocabularies/batch"
+				).put(
+					"method", "PUT"
+				).build()
+			).build());
+	}
+
+	@Override
+	@Test
 	public void testGetTaxonomyVocabulary() throws Exception {
 		super.testGetTaxonomyVocabulary();
 
@@ -308,6 +368,85 @@ public class TaxonomyVocabularyResourceTest
 			).put(
 				"siteKey",
 				StringBundler.concat("\"", testGroup.getGroupId(), "\"")
+			).build(),
+			new GraphQLField(
+				"facets", new GraphQLField("facetCriteria"),
+				new GraphQLField(
+					"facetValues", new GraphQLField("numberOfOccurrences"),
+					new GraphQLField("term"))),
+			new GraphQLField("items", getGraphQLFields()),
+			new GraphQLField("totalCount"));
+
+		JSONObject taxonomyVocabulariesJSONObject =
+			JSONUtil.getValueAsJSONObject(
+				invokeGraphQLQuery(graphQLField), "JSONObject/data",
+				"JSONObject/taxonomyVocabularies");
+
+		Assert.assertEquals(
+			2, taxonomyVocabulariesJSONObject.getLong("totalCount"));
+
+		JSONAssert.assertEquals(
+			JSONFactoryUtil.createJSONArray(
+			).put(
+				JSONUtil.put(
+					"facetCriteria", "id"
+				).put(
+					"facetValues",
+					JSONFactoryUtil.createJSONArray(
+					).put(
+						JSONUtil.put(
+							"numberOfOccurrences", 1
+						).put(
+							"term", String.valueOf(taxonomyVocabulary1.getId())
+						)
+					).put(
+						JSONUtil.put(
+							"numberOfOccurrences", 1
+						).put(
+							"term", String.valueOf(taxonomyVocabulary2.getId())
+						)
+					)
+				)
+			).toString(),
+			taxonomyVocabulariesJSONObject.getJSONArray(
+				"facets"
+			).toString(),
+			JSONCompareMode.LENIENT);
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(taxonomyVocabulary1, taxonomyVocabulary2),
+			Arrays.asList(
+				TaxonomyVocabularySerDes.toDTOs(
+					taxonomyVocabulariesJSONObject.getString("items"))));
+	}
+
+	@Override
+	@Test
+	public void testGraphQLGetTaxonomyVocabulariesPage() throws Exception {
+		super.testGraphQLGetTaxonomyVocabulariesPage();
+
+		Page<TaxonomyVocabulary> page =
+			taxonomyVocabularyResource.getTaxonomyVocabulariesPage(
+				null, null, null, Pagination.of(1, 10), null);
+
+		for (TaxonomyVocabulary taxonomyVocabulary : page.getItems()) {
+			taxonomyVocabularyResource.deleteTaxonomyVocabulary(
+				taxonomyVocabulary.getId());
+		}
+
+		TaxonomyVocabulary taxonomyVocabulary1 =
+			testGraphQLGetTaxonomyVocabulariesPage_addTaxonomyVocabulary();
+		TaxonomyVocabulary taxonomyVocabulary2 =
+			testGraphQLGetTaxonomyVocabulariesPage_addTaxonomyVocabulary();
+
+		GraphQLField graphQLField = new GraphQLField(
+			"taxonomyVocabularies",
+			HashMapBuilder.<String, Object>put(
+				"aggregation", "[\"id\"]"
+			).put(
+				"siteKey",
+				StringBundler.concat(
+					"\"", GroupConstants.DEFAULT_LIVE_GROUP_ID, "\"")
 			).build(),
 			new GraphQLField(
 				"facets", new GraphQLField("facetCriteria"),
@@ -476,6 +615,18 @@ public class TaxonomyVocabularyResourceTest
 
 	@Override
 	protected TaxonomyVocabulary
+			testGetTaxonomyVocabulariesPage_addTaxonomyVocabulary(
+				TaxonomyVocabulary taxonomyVocabulary)
+		throws Exception {
+
+		taxonomyVocabulary.setSiteId(GroupConstants.DEFAULT_LIVE_GROUP_ID);
+
+		return testPostTaxonomyVocabulary_addTaxonomyVocabulary(
+			taxonomyVocabulary);
+	}
+
+	@Override
+	protected TaxonomyVocabulary
 			testGraphQLGetAssetLibraryTaxonomyVocabularyByExternalReferenceCode_addTaxonomyVocabulary()
 		throws Exception {
 
@@ -488,6 +639,15 @@ public class TaxonomyVocabularyResourceTest
 		throws Exception {
 
 		return testDepotEntry.getDepotEntryId();
+	}
+
+	@Override
+	protected TaxonomyVocabulary
+			testGraphQLGetTaxonomyVocabulariesPage_addTaxonomyVocabulary()
+		throws Exception {
+
+		return testGraphQLTaxonomyVocabulary_addTaxonomyVocabulary(
+			randomCmsTaxonomyVocabulary());
 	}
 
 	@Override
