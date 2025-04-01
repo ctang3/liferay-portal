@@ -68,27 +68,23 @@ export default function EditVocabulary({
 
 	const isNew: boolean = !!vocabularyId;
 
-		const fetchData = async () => {
-			if (vocabularyId) {
-				return;
+	const fetchAndSetData = () => {
+		if (vocabularyId) {
+			return;
+		}
+
+		VocabularyService.fetchVocabulary(vocabularyId).then(
+			(jsonResponse: IVocabulary) => {
+				setTitle(jsonResponse.name);
+				setVocabulary(jsonResponse);
 			}
+		).catch((error) => {
+			console.error(error);
+			navigate(backURL);
+		});
+	};
 
-			try {
-				const data: IVocabulary = await VocabularyService.fetchVocabulary(
-					vocabularyId
-				);
-
-				setTitle(data.name);
-
-				setVocabulary(data);
-			}
-			catch (error) {
-				console.error(error);
-				navigate(backURL);
-			}
-		};
-
-		fetchData();
+	fetchAndSetData();
 
 	const _handleValidateInputs = () => {
 		if (nameInputError || vocabulary.name === '') {

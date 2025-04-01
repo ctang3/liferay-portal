@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {fetch} from 'frontend-js-web';
+import { fetch } from 'frontend-js-web';
 
-import {IVocabulary} from '../types/IVocabulary';
+import { IVocabulary } from '../types/IVocabulary';
 
 const HEADERS = new Headers({
 	'Accept': 'application/json',
@@ -36,18 +36,16 @@ async function fetchVocabulary<IVocabulary>(
 ) {
 	const url: string = `/o/headless-admin-taxonomy/v1.0/taxonomy-vocabularies/${vocabularyId}`;
 
-	const response = await fetch(url, {
+	return await fetch(url, {
 		headers: HEADERS,
 		method: 'GET',
+	}).then((response) => {
+		if (response.ok) {
+			return response.json();
+		} else {
+			throw new Error(response.statusText);
+		}
 	});
-
-	if (response.ok) {
-		return (await response.json()) as IVocabulary;
-	}
-
-	const {title} = await response.json();
-
-	throw new Error(title);
 }
 
 async function updateVocabulary(siteId: number, vocabulary: IVocabulary) {
