@@ -31,4 +31,41 @@ async function createVocabulary(siteId: number, vocabulary: IVocabulary) {
 	throw new Error(title);
 }
 
-export default {createVocabulary};
+async function fetchVocabulary<IVocabulary>(
+	vocabularyId: number
+) {
+	const url: string = `/o/headless-admin-taxonomy/v1.0/taxonomy-vocabularies/${vocabularyId}`;
+
+	const response = await fetch(url, {
+		headers: HEADERS,
+		method: 'GET',
+	});
+
+	if (response.ok) {
+		return (await response.json()) as IVocabulary;
+	}
+
+	const {title} = await response.json();
+
+	throw new Error(title);
+}
+
+async function updateVocabulary(siteId: number, vocabulary: IVocabulary) {
+	const url: string = `/o/headless-admin-taxonomy/v1.0/sites/${siteId}/taxonomy-vocabularies/${vocabulary.id}`;
+
+	const response = await fetch(url, {
+		body: JSON.stringify(vocabulary),
+		headers: HEADERS,
+		method: 'PUT',
+	});
+
+	if (response.ok) {
+		return await response.json();
+	}
+
+	const {title} = await response.json();
+
+	throw new Error(title);
+}
+
+export default {createVocabulary, fetchVocabulary, updateVocabulary};

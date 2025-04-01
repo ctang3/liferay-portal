@@ -6,16 +6,23 @@
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
+import {useModal} from '@clayui/modal';
 import {ClayVerticalNav} from '@clayui/nav';
 import {ManagementToolbar} from 'frontend-js-components-web';
 import {navigate, sub} from 'frontend-js-web';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import VocabularyService from '../services/VocabularyService';
 import {AssetType} from '../types/AssetType';
 import {IVocabulary} from '../types/IVocabulary';
+import ConfirmChangesModal from './ConfirmChangesModal';
 import EditAssociatedAssetTypes from './EditAssociatedAssetTypes';
 import EditGeneralInfo from './EditGeneralInfo';
+
+const CONFIRM_CHANGES = {
+	ASSET_TYPES: false,
+	SPACES: false,
+};
 
 const NAVIGATION_TABS = {
 	ASSET_TYPES: 'assetTypes',
@@ -30,6 +37,7 @@ export default function EditVocabulary({
 	locales,
 	siteId,
 	spritemap,
+	vocabularyId,
 }: {
 	assetTypes: AssetType[];
 	backURL: string;
@@ -38,6 +46,7 @@ export default function EditVocabulary({
 	locales: any[];
 	siteId: number;
 	spritemap: string;
+	vocabularyId: number;
 }) {
 	const [activeVerticalNavKey, setActiveVerticalNavKey] = useState(
 		NAVIGATION_TABS.GENERAL
@@ -54,24 +63,48 @@ export default function EditVocabulary({
 				}
 	);
 	const [nameInputError, setNameInputError] = useState<string>('');
+	const {observer, onOpenChange, open} = useModal();
+	const [title, setTitle] = useState<string>('');
+
+	const isNew: boolean = !!vocabularyId;
+
+		const fetchData = async () => {
+			if (vocabularyId) {
+				return;
+			}
+
+			try {
+				const data: IVocabulary = await VocabularyService.fetchVocabulary(
+					vocabularyId
+				);
+
+				setTitle(data.name);
+
+				setVocabulary(data);
+			}
+			catch (error) {
+				console.error(error);
+				navigate(backURL);
+			}
+		};
+
+		fetchData();
 
 	const _handleValidateInputs = () => {
-		if (nameInputError === '') {
-			return true;
-		}
-
-		if (vocabulary.name === '') {
+		if (nameInputError || vocabulary.name === '') {
 			setNameInputError(
 				sub(
 					Liferay.Language.get('the-x-field-is-required'),
 					Liferay.Language.get('name')
 				)
 			);
+
+			setActiveVerticalNavKey('general');
+
+			return false;
 		}
 
-		setActiveVerticalNavKey(NAVIGATION_TABS.GENERAL);
-
-		return false;
+		return true;
 	};
 
 	const _handleSave = async () => {
@@ -80,17 +113,33 @@ export default function EditVocabulary({
 				return;
 			}
 
-			await VocabularyService.createVocabulary(siteId, vocabulary);
+			if (isNew) {
+				await VocabularyService.createVocabulary(siteId, vocabulary);
+			}
+			else {
+				await VocabularyService.updateVocabulary(siteId, vocabulary);
+			}
 
 			await navigate(backURL);
 
-			Liferay.Util.openToast({
-				message: Liferay.Util.sub(
-					Liferay.Language.get('x-was-published-successfully'),
-					vocabulary.name
-				),
-				type: 'success',
-			});
+			if (isNew) {
+				Liferay.Util.openToast({
+					message: Liferay.Util.sub(
+						Liferay.Language.get('x-was-published-successfully'),
+						vocabulary.name
+					),
+					type: 'success',
+				});
+			}
+			else {
+				Liferay.Util.openToast({
+					message: Liferay.Util.sub(
+						Liferay.Language.get('x-was-updated-successfully'),
+						vocabulary.name
+					),
+					type: 'success',
+				});
+			}
 		}
 		catch (error) {
 			Liferay.Util.openToast({
@@ -123,11 +172,8 @@ export default function EditVocabulary({
 
 						<ManagementToolbar.Item className="nav-item-expand">
 							<h2 className="font-weight-semi-bold m-0 text-5">
-								{vocabulary
-									? sub(
-											Liferay.Language.get('edit-x'),
-											vocabulary.name
-										)
+								{title
+									? sub(Liferay.Language.get('edit-x'), title)
 									: Liferay.Language.get('new-vocabulary')}
 							</h2>
 						</ManagementToolbar.Item>
@@ -144,7 +190,7 @@ export default function EditVocabulary({
 						<ManagementToolbar.Item>
 							<ClayButton
 								displayType="primary"
-								onClick={_handleSave}
+								onClick={() => onOpenChange(true)}
 								size="sm"
 							>
 								{Liferay.Language.get('save')}
@@ -213,6 +259,16 @@ export default function EditVocabulary({
 						</ClayLayout.Col>
 					</ClayLayout.Row>
 				</ClayLayout.ContainerFluid>
+
+				<>
+					{open && (
+						<ConfirmChangesModal
+							observer={observer}
+							onOpenChange={onOpenChange}
+							onSave={_handleSave}
+						/>
+					)}
+				</>
 			</div>
 		</div>
 	);
