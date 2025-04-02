@@ -507,6 +507,30 @@ public class AssetVocabularyLocalServiceImpl
 		return assetVocabularyPersistence.update(vocabulary);
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public AssetVocabulary updateVocabulary(
+			long vocabularyId, String title, Map<Locale, String> titleMap,
+			Map<Locale, String> descriptionMap, String settings,
+			ServiceContext serviceContext, int visibilityType)
+		throws PortalException {
+
+		AssetVocabulary vocabulary =
+			assetVocabularyPersistence.findByPrimaryKey(vocabularyId);
+
+		vocabulary.setTitleMap(_getTrimmedTitleMap(titleMap));
+
+		if (Validator.isNotNull(title)) {
+			vocabulary.setTitle(title);
+		}
+
+		vocabulary.setDescriptionMap(descriptionMap);
+		vocabulary.setSettings(settings);
+		vocabulary.setVisibilityType(visibilityType);
+
+		return assetVocabularyPersistence.update(vocabulary);
+	}
+
 	protected SearchContext buildSearchContext(
 		long companyId, long[] groupIds, String title, int[] visibilityTypes,
 		int start, int end, Sort sort) {
