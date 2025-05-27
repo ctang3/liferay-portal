@@ -23,6 +23,7 @@ ViewCategoriesDisplayContext viewCategoriesDisplayContext = (ViewCategoriesDispl
 		<frontend-data-set:headless-display
 			apiURL="<%= viewCategoriesDisplayContext.getCategoriesByVocabularyIdAPIURL() %>"
 			creationMenu="<%= viewCategoriesDisplayContext.getCreationMenu() %>"
+			emptyState="<%= viewCategoriesDisplayContext.getEmptyState() %>"
 			fdsActionDropdownItems="<%= viewCategoriesDisplayContext.getFDSActionDropdownItems() %>"
 			id="<%= CMSSiteInitializerFDSNames.CATEGORIES %>"
 			propsTransformer="{CategoryFDSPropsTransformer} from site-cms-site-initializer"
