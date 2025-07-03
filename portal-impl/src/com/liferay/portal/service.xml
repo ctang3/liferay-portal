@@ -248,7 +248,7 @@
 			<finder-column name="classPK" />
 		</finder>
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="Country" remote-service="true" uuid="true">
+	<entity local-service="true" name="Country" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -1879,7 +1879,7 @@
 			<finder-column name="layoutSetId" />
 		</finder>
 	</entity>
-	<entity change-tracking-enabled="true" local-service="true" name="Region" remote-service="true" uuid="true">
+	<entity local-service="true" name="Region" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
