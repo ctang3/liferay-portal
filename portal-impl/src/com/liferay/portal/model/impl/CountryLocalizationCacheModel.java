@@ -67,12 +67,10 @@ public class CountryLocalizationCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(15);
+		StringBundler sb = new StringBundler(13);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
-		sb.append(", ctCollectionId=");
-		sb.append(ctCollectionId);
 		sb.append(", countryLocalizationId=");
 		sb.append(countryLocalizationId);
 		sb.append(", companyId=");
@@ -94,7 +92,6 @@ public class CountryLocalizationCacheModel
 			new CountryLocalizationImpl();
 
 		countryLocalizationImpl.setMvccVersion(mvccVersion);
-		countryLocalizationImpl.setCtCollectionId(ctCollectionId);
 		countryLocalizationImpl.setCountryLocalizationId(countryLocalizationId);
 		countryLocalizationImpl.setCompanyId(companyId);
 		countryLocalizationImpl.setCountryId(countryId);
@@ -122,8 +119,6 @@ public class CountryLocalizationCacheModel
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 
-		ctCollectionId = objectInput.readLong();
-
 		countryLocalizationId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -136,8 +131,6 @@ public class CountryLocalizationCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
-
-		objectOutput.writeLong(ctCollectionId);
 
 		objectOutput.writeLong(countryLocalizationId);
 
@@ -161,7 +154,6 @@ public class CountryLocalizationCacheModel
 	}
 
 	public long mvccVersion;
-	public long ctCollectionId;
 	public long countryLocalizationId;
 	public long companyId;
 	public long countryId;

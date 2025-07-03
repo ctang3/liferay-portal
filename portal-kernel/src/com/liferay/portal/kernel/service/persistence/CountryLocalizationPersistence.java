@@ -7,7 +7,6 @@ package com.liferay.portal.kernel.service.persistence;
 
 import com.liferay.portal.kernel.exception.NoSuchCountryLocalizationException;
 import com.liferay.portal.kernel.model.CountryLocalization;
-import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -24,8 +23,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface CountryLocalizationPersistence
-	extends BasePersistence<CountryLocalization>,
-			CTPersistence<CountryLocalization> {
+	extends BasePersistence<CountryLocalization> {
 
 	/*
 	 * NOTE FOR DEVELOPERS:

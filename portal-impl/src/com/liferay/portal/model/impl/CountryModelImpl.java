@@ -68,13 +68,13 @@ public class CountryModelImpl
 	public static final String TABLE_NAME = "Country";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
-		{"uuid_", Types.VARCHAR}, {"defaultLanguageId", Types.VARCHAR},
-		{"countryId", Types.BIGINT}, {"companyId", Types.BIGINT},
-		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
-		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
-		{"a2", Types.VARCHAR}, {"a3", Types.VARCHAR},
-		{"active_", Types.BOOLEAN}, {"billingAllowed", Types.BOOLEAN},
+		{"mvccVersion", Types.BIGINT}, {"uuid_", Types.VARCHAR},
+		{"defaultLanguageId", Types.VARCHAR}, {"countryId", Types.BIGINT},
+		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
+		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
+		{"modifiedDate", Types.TIMESTAMP}, {"a2", Types.VARCHAR},
+		{"a3", Types.VARCHAR}, {"active_", Types.BOOLEAN},
+		{"billingAllowed", Types.BOOLEAN},
 		{"groupFilterEnabled", Types.BOOLEAN}, {"idd_", Types.VARCHAR},
 		{"name", Types.VARCHAR}, {"number_", Types.VARCHAR},
 		{"position", Types.DOUBLE}, {"shippingAllowed", Types.BOOLEAN},
@@ -87,7 +87,6 @@ public class CountryModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("defaultLanguageId", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("countryId", Types.BIGINT);
@@ -112,7 +111,7 @@ public class CountryModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table Country (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,defaultLanguageId VARCHAR(75) null,countryId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,a2 VARCHAR(75) null,a3 VARCHAR(75) null,active_ BOOLEAN,billingAllowed BOOLEAN,groupFilterEnabled BOOLEAN,idd_ VARCHAR(75) null,name VARCHAR(75) null,number_ VARCHAR(75) null,position DOUBLE,shippingAllowed BOOLEAN,subjectToVAT BOOLEAN,zipRequired BOOLEAN,lastPublishDate DATE null,primary key (countryId, ctCollectionId))";
+		"create table Country (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,defaultLanguageId VARCHAR(75) null,countryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,a2 VARCHAR(75) null,a3 VARCHAR(75) null,active_ BOOLEAN,billingAllowed BOOLEAN,groupFilterEnabled BOOLEAN,idd_ VARCHAR(75) null,name VARCHAR(75) null,number_ VARCHAR(75) null,position DOUBLE,shippingAllowed BOOLEAN,subjectToVAT BOOLEAN,zipRequired BOOLEAN,lastPublishDate DATE null)";
 
 	public static final String TABLE_SQL_DROP = "drop table Country";
 
@@ -297,8 +296,6 @@ public class CountryModelImpl
 
 			attributeGetterFunctions.put(
 				"mvccVersion", Country::getMvccVersion);
-			attributeGetterFunctions.put(
-				"ctCollectionId", Country::getCtCollectionId);
 			attributeGetterFunctions.put("uuid", Country::getUuid);
 			attributeGetterFunctions.put(
 				"defaultLanguageId", Country::getDefaultLanguageId);
@@ -347,9 +344,6 @@ public class CountryModelImpl
 			attributeSetterBiConsumers.put(
 				"mvccVersion",
 				(BiConsumer<Country, Long>)Country::setMvccVersion);
-			attributeSetterBiConsumers.put(
-				"ctCollectionId",
-				(BiConsumer<Country, Long>)Country::setCtCollectionId);
 			attributeSetterBiConsumers.put(
 				"uuid", (BiConsumer<Country, String>)Country::setUuid);
 			attributeSetterBiConsumers.put(
@@ -501,21 +495,6 @@ public class CountryModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
-	}
-
-	@JSON
-	@Override
-	public long getCtCollectionId() {
-		return _ctCollectionId;
-	}
-
-	@Override
-	public void setCtCollectionId(long ctCollectionId) {
-		if (_columnOriginalValues == Collections.EMPTY_MAP) {
-			_setColumnOriginalValues();
-		}
-
-		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -1079,7 +1058,6 @@ public class CountryModelImpl
 		CountryImpl countryImpl = new CountryImpl();
 
 		countryImpl.setMvccVersion(getMvccVersion());
-		countryImpl.setCtCollectionId(getCtCollectionId());
 		countryImpl.setUuid(getUuid());
 		countryImpl.setDefaultLanguageId(getDefaultLanguageId());
 		countryImpl.setCountryId(getCountryId());
@@ -1113,8 +1091,6 @@ public class CountryModelImpl
 
 		countryImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
-		countryImpl.setCtCollectionId(
-			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		countryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
 		countryImpl.setDefaultLanguageId(
 			this.<String>getColumnOriginalValue("defaultLanguageId"));
@@ -1225,8 +1201,6 @@ public class CountryModelImpl
 		CountryCacheModel countryCacheModel = new CountryCacheModel();
 
 		countryCacheModel.mvccVersion = getMvccVersion();
-
-		countryCacheModel.ctCollectionId = getCtCollectionId();
 
 		countryCacheModel.uuid = getUuid();
 
@@ -1401,7 +1375,6 @@ public class CountryModelImpl
 	}
 
 	private long _mvccVersion;
-	private long _ctCollectionId;
 	private String _uuid;
 	private String _defaultLanguageId;
 	private long _countryId;
@@ -1456,7 +1429,6 @@ public class CountryModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
-		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put("uuid_", _uuid);
 		_columnOriginalValues.put("defaultLanguageId", _defaultLanguageId);
 		_columnOriginalValues.put("countryId", _countryId);
@@ -1506,49 +1478,47 @@ public class CountryModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("ctCollectionId", 2L);
+		columnBitmasks.put("uuid_", 2L);
 
-		columnBitmasks.put("uuid_", 4L);
+		columnBitmasks.put("defaultLanguageId", 4L);
 
-		columnBitmasks.put("defaultLanguageId", 8L);
+		columnBitmasks.put("countryId", 8L);
 
-		columnBitmasks.put("countryId", 16L);
+		columnBitmasks.put("companyId", 16L);
 
-		columnBitmasks.put("companyId", 32L);
+		columnBitmasks.put("userId", 32L);
 
-		columnBitmasks.put("userId", 64L);
+		columnBitmasks.put("userName", 64L);
 
-		columnBitmasks.put("userName", 128L);
+		columnBitmasks.put("createDate", 128L);
 
-		columnBitmasks.put("createDate", 256L);
+		columnBitmasks.put("modifiedDate", 256L);
 
-		columnBitmasks.put("modifiedDate", 512L);
+		columnBitmasks.put("a2", 512L);
 
-		columnBitmasks.put("a2", 1024L);
+		columnBitmasks.put("a3", 1024L);
 
-		columnBitmasks.put("a3", 2048L);
+		columnBitmasks.put("active_", 2048L);
 
-		columnBitmasks.put("active_", 4096L);
+		columnBitmasks.put("billingAllowed", 4096L);
 
-		columnBitmasks.put("billingAllowed", 8192L);
+		columnBitmasks.put("groupFilterEnabled", 8192L);
 
-		columnBitmasks.put("groupFilterEnabled", 16384L);
+		columnBitmasks.put("idd_", 16384L);
 
-		columnBitmasks.put("idd_", 32768L);
+		columnBitmasks.put("name", 32768L);
 
-		columnBitmasks.put("name", 65536L);
+		columnBitmasks.put("number_", 65536L);
 
-		columnBitmasks.put("number_", 131072L);
+		columnBitmasks.put("position", 131072L);
 
-		columnBitmasks.put("position", 262144L);
+		columnBitmasks.put("shippingAllowed", 262144L);
 
-		columnBitmasks.put("shippingAllowed", 524288L);
+		columnBitmasks.put("subjectToVAT", 524288L);
 
-		columnBitmasks.put("subjectToVAT", 1048576L);
+		columnBitmasks.put("zipRequired", 1048576L);
 
-		columnBitmasks.put("zipRequired", 2097152L);
-
-		columnBitmasks.put("lastPublishDate", 4194304L);
+		columnBitmasks.put("lastPublishDate", 2097152L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

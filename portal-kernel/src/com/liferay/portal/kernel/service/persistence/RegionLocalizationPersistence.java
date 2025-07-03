@@ -7,7 +7,6 @@ package com.liferay.portal.kernel.service.persistence;
 
 import com.liferay.portal.kernel.exception.NoSuchRegionLocalizationException;
 import com.liferay.portal.kernel.model.RegionLocalization;
-import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -24,8 +23,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface RegionLocalizationPersistence
-	extends BasePersistence<RegionLocalization>,
-			CTPersistence<RegionLocalization> {
+	extends BasePersistence<RegionLocalization> {
 
 	/*
 	 * NOTE FOR DEVELOPERS:

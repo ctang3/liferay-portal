@@ -67,12 +67,10 @@ public class RegionLocalizationCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(15);
+		StringBundler sb = new StringBundler(13);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
-		sb.append(", ctCollectionId=");
-		sb.append(ctCollectionId);
 		sb.append(", regionLocalizationId=");
 		sb.append(regionLocalizationId);
 		sb.append(", companyId=");
@@ -94,7 +92,6 @@ public class RegionLocalizationCacheModel
 			new RegionLocalizationImpl();
 
 		regionLocalizationImpl.setMvccVersion(mvccVersion);
-		regionLocalizationImpl.setCtCollectionId(ctCollectionId);
 		regionLocalizationImpl.setRegionLocalizationId(regionLocalizationId);
 		regionLocalizationImpl.setCompanyId(companyId);
 		regionLocalizationImpl.setRegionId(regionId);
@@ -122,8 +119,6 @@ public class RegionLocalizationCacheModel
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 
-		ctCollectionId = objectInput.readLong();
-
 		regionLocalizationId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
@@ -136,8 +131,6 @@ public class RegionLocalizationCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(mvccVersion);
-
-		objectOutput.writeLong(ctCollectionId);
 
 		objectOutput.writeLong(regionLocalizationId);
 
@@ -161,7 +154,6 @@ public class RegionLocalizationCacheModel
 	}
 
 	public long mvccVersion;
-	public long ctCollectionId;
 	public long regionLocalizationId;
 	public long companyId;
 	public long regionId;

@@ -9,8 +9,6 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * <p>
@@ -34,7 +32,6 @@ public class CountryLocalizationWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
-		attributes.put("ctCollectionId", getCtCollectionId());
 		attributes.put("countryLocalizationId", getCountryLocalizationId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("countryId", getCountryId());
@@ -50,12 +47,6 @@ public class CountryLocalizationWrapper
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
-		}
-
-		Long ctCollectionId = (Long)attributes.get("ctCollectionId");
-
-		if (ctCollectionId != null) {
-			setCtCollectionId(ctCollectionId);
 		}
 
 		Long countryLocalizationId = (Long)attributes.get(
@@ -123,16 +114,6 @@ public class CountryLocalizationWrapper
 	@Override
 	public long getCountryLocalizationId() {
 		return model.getCountryLocalizationId();
-	}
-
-	/**
-	 * Returns the ct collection ID of this country localization.
-	 *
-	 * @return the ct collection ID of this country localization
-	 */
-	@Override
-	public long getCtCollectionId() {
-		return model.getCtCollectionId();
 	}
 
 	/**
@@ -206,16 +187,6 @@ public class CountryLocalizationWrapper
 	}
 
 	/**
-	 * Sets the ct collection ID of this country localization.
-	 *
-	 * @param ctCollectionId the ct collection ID of this country localization
-	 */
-	@Override
-	public void setCtCollectionId(long ctCollectionId) {
-		model.setCtCollectionId(ctCollectionId);
-	}
-
-	/**
 	 * Sets the language ID of this country localization.
 	 *
 	 * @param languageId the language ID of this country localization
@@ -258,20 +229,6 @@ public class CountryLocalizationWrapper
 	@Override
 	public String toXmlString() {
 		return model.toXmlString();
-	}
-
-	@Override
-	public Map<String, Function<CountryLocalization, Object>>
-		getAttributeGetterFunctions() {
-
-		return model.getAttributeGetterFunctions();
-	}
-
-	@Override
-	public Map<String, BiConsumer<CountryLocalization, Object>>
-		getAttributeSetterBiConsumers() {
-
-		return model.getAttributeSetterBiConsumers();
 	}
 
 	@Override

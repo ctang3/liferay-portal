@@ -6,7 +6,6 @@
 package com.liferay.portal.kernel.model;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
-import com.liferay.portal.kernel.model.change.tracking.CTModel;
 
 import java.util.Date;
 import java.util.Map;
@@ -26,8 +25,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface RegionModel
-	extends BaseModel<Region>, CTModel<Region>, MVCCModel, ShardedModel,
-			StagedAuditedModel {
+	extends BaseModel<Region>, MVCCModel, ShardedModel, StagedAuditedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -40,7 +38,6 @@ public interface RegionModel
 	 *
 	 * @return the primary key of this region
 	 */
-	@Override
 	public long getPrimaryKey();
 
 	/**
@@ -48,7 +45,6 @@ public interface RegionModel
 	 *
 	 * @param primaryKey the primary key of this region
 	 */
-	@Override
 	public void setPrimaryKey(long primaryKey);
 
 	/**
@@ -66,22 +62,6 @@ public interface RegionModel
 	 */
 	@Override
 	public void setMvccVersion(long mvccVersion);
-
-	/**
-	 * Returns the ct collection ID of this region.
-	 *
-	 * @return the ct collection ID of this region
-	 */
-	@Override
-	public long getCtCollectionId();
-
-	/**
-	 * Sets the ct collection ID of this region.
-	 *
-	 * @param ctCollectionId the ct collection ID of this region
-	 */
-	@Override
-	public void setCtCollectionId(long ctCollectionId);
 
 	/**
 	 * Returns the uuid of this region.

@@ -79,15 +79,15 @@ create index IX_FD2E9BDD on Contact_ (companyId, userId);
 create index IX_42F94F9F on Contact_ (userId);
 
 create index IX_25D734CD on Country (active_);
+create unique index IX_742FFB11 on Country (companyId, a2[$COLUMN_LENGTH:75$]);
+create unique index IX_742FFED2 on Country (companyId, a3[$COLUMN_LENGTH:75$]);
 create index IX_F9CD867E on Country (companyId, active_, billingAllowed);
 create index IX_54E98CCD on Country (companyId, active_, shippingAllowed);
-create unique index IX_7DA11A6F on Country (companyId, ctCollectionId, a2[$COLUMN_LENGTH:75$]);
-create unique index IX_7DA11E30 on Country (companyId, ctCollectionId, a3[$COLUMN_LENGTH:75$]);
-create unique index IX_B2A91789 on Country (companyId, ctCollectionId, name[$COLUMN_LENGTH:75$]);
-create unique index IX_74AB3DC on Country (companyId, ctCollectionId, number_[$COLUMN_LENGTH:75$]);
+create unique index IX_410257AB on Country (companyId, name[$COLUMN_LENGTH:75$]);
+create unique index IX_4B78E87A on Country (companyId, number_[$COLUMN_LENGTH:75$]);
 create index IX_B59A9078 on Country (uuid_[$COLUMN_LENGTH:75$]);
 
-create unique index IX_E22A5911 on CountryLocalization (countryId, languageId[$COLUMN_LENGTH:75$], ctCollectionId);
+create unique index IX_518948B3 on CountryLocalization (countryId, languageId[$COLUMN_LENGTH:75$]);
 
 create index IX_4CB1B2B4 on DLFileEntry (companyId);
 create index IX_B8526DBE on DLFileEntry (custom1ImageId);
@@ -331,10 +331,10 @@ create unique index IX_4654D204 on RecentLayoutSetBranch (userId, layoutSetId);
 
 create index IX_2D9A426F on Region (active_);
 create index IX_11FB3E42 on Region (countryId, active_);
-create unique index IX_183BFDBA on Region (countryId, regionCode[$COLUMN_LENGTH:75$], ctCollectionId);
+create unique index IX_A2635F5C on Region (countryId, regionCode[$COLUMN_LENGTH:75$]);
 create index IX_48A89E9A on Region (uuid_[$COLUMN_LENGTH:75$]);
 
-create unique index IX_982329B on RegionLocalization (regionId, languageId[$COLUMN_LENGTH:75$], ctCollectionId);
+create unique index IX_A149763D on RegionLocalization (regionId, languageId[$COLUMN_LENGTH:75$]);
 
 create unique index IX_8BD6BCA7 on Release_ (servletContextName[$COLUMN_LENGTH:75$]);
 

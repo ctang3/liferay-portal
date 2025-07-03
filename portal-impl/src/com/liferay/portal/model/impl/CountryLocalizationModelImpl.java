@@ -58,10 +58,9 @@ public class CountryLocalizationModelImpl
 	public static final String TABLE_NAME = "CountryLocalization";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
-		{"countryLocalizationId", Types.BIGINT}, {"companyId", Types.BIGINT},
-		{"countryId", Types.BIGINT}, {"languageId", Types.VARCHAR},
-		{"title", Types.VARCHAR}
+		{"mvccVersion", Types.BIGINT}, {"countryLocalizationId", Types.BIGINT},
+		{"companyId", Types.BIGINT}, {"countryId", Types.BIGINT},
+		{"languageId", Types.VARCHAR}, {"title", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -69,7 +68,6 @@ public class CountryLocalizationModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("countryLocalizationId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("countryId", Types.BIGINT);
@@ -78,7 +76,7 @@ public class CountryLocalizationModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CountryLocalization (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,countryLocalizationId LONG not null,companyId LONG,countryId LONG,languageId VARCHAR(75) null,title VARCHAR(75) null,primary key (countryLocalizationId, ctCollectionId))";
+		"create table CountryLocalization (mvccVersion LONG default 0 not null,countryLocalizationId LONG not null primary key,companyId LONG,countryId LONG,languageId VARCHAR(75) null,title VARCHAR(75) null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table CountryLocalization";
@@ -235,8 +233,6 @@ public class CountryLocalizationModelImpl
 			attributeGetterFunctions.put(
 				"mvccVersion", CountryLocalization::getMvccVersion);
 			attributeGetterFunctions.put(
-				"ctCollectionId", CountryLocalization::getCtCollectionId);
-			attributeGetterFunctions.put(
 				"countryLocalizationId",
 				CountryLocalization::getCountryLocalizationId);
 			attributeGetterFunctions.put(
@@ -270,10 +266,6 @@ public class CountryLocalizationModelImpl
 				"mvccVersion",
 				(BiConsumer<CountryLocalization, Long>)
 					CountryLocalization::setMvccVersion);
-			attributeSetterBiConsumers.put(
-				"ctCollectionId",
-				(BiConsumer<CountryLocalization, Long>)
-					CountryLocalization::setCtCollectionId);
 			attributeSetterBiConsumers.put(
 				"countryLocalizationId",
 				(BiConsumer<CountryLocalization, Long>)
@@ -313,20 +305,6 @@ public class CountryLocalizationModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
-	}
-
-	@Override
-	public long getCtCollectionId() {
-		return _ctCollectionId;
-	}
-
-	@Override
-	public void setCtCollectionId(long ctCollectionId) {
-		if (_columnOriginalValues == Collections.EMPTY_MAP) {
-			_setColumnOriginalValues();
-		}
-
-		_ctCollectionId = ctCollectionId;
 	}
 
 	@Override
@@ -487,7 +465,6 @@ public class CountryLocalizationModelImpl
 			new CountryLocalizationImpl();
 
 		countryLocalizationImpl.setMvccVersion(getMvccVersion());
-		countryLocalizationImpl.setCtCollectionId(getCtCollectionId());
 		countryLocalizationImpl.setCountryLocalizationId(
 			getCountryLocalizationId());
 		countryLocalizationImpl.setCompanyId(getCompanyId());
@@ -507,8 +484,6 @@ public class CountryLocalizationModelImpl
 
 		countryLocalizationImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
-		countryLocalizationImpl.setCtCollectionId(
-			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		countryLocalizationImpl.setCountryLocalizationId(
 			this.<Long>getColumnOriginalValue("countryLocalizationId"));
 		countryLocalizationImpl.setCompanyId(
@@ -597,8 +572,6 @@ public class CountryLocalizationModelImpl
 
 		countryLocalizationCacheModel.mvccVersion = getMvccVersion();
 
-		countryLocalizationCacheModel.ctCollectionId = getCtCollectionId();
-
 		countryLocalizationCacheModel.countryLocalizationId =
 			getCountryLocalizationId();
 
@@ -685,7 +658,6 @@ public class CountryLocalizationModelImpl
 	}
 
 	private long _mvccVersion;
-	private long _ctCollectionId;
 	private long _countryLocalizationId;
 	private long _companyId;
 	private long _countryId;
@@ -721,7 +693,6 @@ public class CountryLocalizationModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
-		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put(
 			"countryLocalizationId", _countryLocalizationId);
 		_columnOriginalValues.put("companyId", _companyId);
@@ -743,17 +714,15 @@ public class CountryLocalizationModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("ctCollectionId", 2L);
+		columnBitmasks.put("countryLocalizationId", 2L);
 
-		columnBitmasks.put("countryLocalizationId", 4L);
+		columnBitmasks.put("companyId", 4L);
 
-		columnBitmasks.put("companyId", 8L);
+		columnBitmasks.put("countryId", 8L);
 
-		columnBitmasks.put("countryId", 16L);
+		columnBitmasks.put("languageId", 16L);
 
-		columnBitmasks.put("languageId", 32L);
-
-		columnBitmasks.put("title", 64L);
+		columnBitmasks.put("title", 32L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

@@ -5,10 +5,7 @@
 
 package com.liferay.portal.service.persistence.impl;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
-import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -26,7 +23,6 @@ import com.liferay.portal.kernel.model.RegionLocalizationTable;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.RegionLocalizationPersistence;
 import com.liferay.portal.kernel.service.persistence.RegionLocalizationUtil;
-import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelperUtil;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -40,12 +36,6 @@ import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -158,100 +148,93 @@ public class RegionLocalizationPersistenceImpl
 		OrderByComparator<RegionLocalization> orderByComparator,
 		boolean useFinderCache) {
 
-		try (SafeCloseable safeCloseable =
-				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
-					RegionLocalization.class)) {
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
 
-			FinderPath finderPath = null;
-			Object[] finderArgs = null;
-
-			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
-				(orderByComparator == null)) {
-
-				if (useFinderCache) {
-					finderPath = _finderPathWithoutPaginationFindByRegionId;
-					finderArgs = new Object[] {regionId};
-				}
-			}
-			else if (useFinderCache) {
-				finderPath = _finderPathWithPaginationFindByRegionId;
-				finderArgs = new Object[] {
-					regionId, start, end, orderByComparator
-				};
-			}
-
-			List<RegionLocalization> list = null;
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
 
 			if (useFinderCache) {
-				list = (List<RegionLocalization>)FinderCacheUtil.getResult(
-					finderPath, finderArgs, this);
-
-				if ((list != null) && !list.isEmpty()) {
-					for (RegionLocalization regionLocalization : list) {
-						if (regionId != regionLocalization.getRegionId()) {
-							list = null;
-
-							break;
-						}
-					}
-				}
+				finderPath = _finderPathWithoutPaginationFindByRegionId;
+				finderArgs = new Object[] {regionId};
 			}
-
-			if (list == null) {
-				StringBundler sb = null;
-
-				if (orderByComparator != null) {
-					sb = new StringBundler(
-						3 + (orderByComparator.getOrderByFields().length * 2));
-				}
-				else {
-					sb = new StringBundler(3);
-				}
-
-				sb.append(_SQL_SELECT_REGIONLOCALIZATION_WHERE);
-
-				sb.append(_FINDER_COLUMN_REGIONID_REGIONID_2);
-
-				if (orderByComparator != null) {
-					appendOrderByComparator(
-						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
-				}
-				else {
-					sb.append(RegionLocalizationModelImpl.ORDER_BY_JPQL);
-				}
-
-				String sql = sb.toString();
-
-				Session session = null;
-
-				try {
-					session = openSession();
-
-					Query query = session.createQuery(sql);
-
-					QueryPos queryPos = QueryPos.getInstance(query);
-
-					queryPos.add(regionId);
-
-					list = (List<RegionLocalization>)QueryUtil.list(
-						query, getDialect(), start, end);
-
-					cacheResult(list);
-
-					if (useFinderCache) {
-						FinderCacheUtil.putResult(finderPath, finderArgs, list);
-					}
-				}
-				catch (Exception exception) {
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
-				}
-			}
-
-			return list;
 		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByRegionId;
+			finderArgs = new Object[] {regionId, start, end, orderByComparator};
+		}
+
+		List<RegionLocalization> list = null;
+
+		if (useFinderCache) {
+			list = (List<RegionLocalization>)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (RegionLocalization regionLocalization : list) {
+					if (regionId != regionLocalization.getRegionId()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_REGIONLOCALIZATION_WHERE);
+
+			sb.append(_FINDER_COLUMN_REGIONID_REGIONID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(RegionLocalizationModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(regionId);
+
+				list = (List<RegionLocalization>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -547,51 +530,46 @@ public class RegionLocalizationPersistenceImpl
 	 */
 	@Override
 	public int countByRegionId(long regionId) {
-		try (SafeCloseable safeCloseable =
-				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
-					RegionLocalization.class)) {
+		FinderPath finderPath = _finderPathCountByRegionId;
 
-			FinderPath finderPath = _finderPathCountByRegionId;
+		Object[] finderArgs = new Object[] {regionId};
 
-			Object[] finderArgs = new Object[] {regionId};
+		Long count = (Long)FinderCacheUtil.getResult(
+			finderPath, finderArgs, this);
 
-			Long count = (Long)FinderCacheUtil.getResult(
-				finderPath, finderArgs, this);
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
 
-			if (count == null) {
-				StringBundler sb = new StringBundler(2);
+			sb.append(_SQL_COUNT_REGIONLOCALIZATION_WHERE);
 
-				sb.append(_SQL_COUNT_REGIONLOCALIZATION_WHERE);
+			sb.append(_FINDER_COLUMN_REGIONID_REGIONID_2);
 
-				sb.append(_FINDER_COLUMN_REGIONID_REGIONID_2);
+			String sql = sb.toString();
 
-				String sql = sb.toString();
+			Session session = null;
 
-				Session session = null;
+			try {
+				session = openSession();
 
-				try {
-					session = openSession();
+				Query query = session.createQuery(sql);
 
-					Query query = session.createQuery(sql);
+				QueryPos queryPos = QueryPos.getInstance(query);
 
-					QueryPos queryPos = QueryPos.getInstance(query);
+				queryPos.add(regionId);
 
-					queryPos.add(regionId);
+				count = (Long)query.uniqueResult();
 
-					count = (Long)query.uniqueResult();
-
-					FinderCacheUtil.putResult(finderPath, finderArgs, count);
-				}
-				catch (Exception exception) {
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
-				}
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
 			}
-
-			return count.intValue();
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
 		}
+
+		return count.intValue();
 	}
 
 	private static final String _FINDER_COLUMN_REGIONID_REGIONID_2 =
@@ -664,103 +642,97 @@ public class RegionLocalizationPersistenceImpl
 	public RegionLocalization fetchByRegionId_LanguageId(
 		long regionId, String languageId, boolean useFinderCache) {
 
-		try (SafeCloseable safeCloseable =
-				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
-					RegionLocalization.class)) {
+		languageId = Objects.toString(languageId, "");
 
-			languageId = Objects.toString(languageId, "");
+		Object[] finderArgs = null;
 
-			Object[] finderArgs = null;
+		if (useFinderCache) {
+			finderArgs = new Object[] {regionId, languageId};
+		}
 
-			if (useFinderCache) {
-				finderArgs = new Object[] {regionId, languageId};
+		Object result = null;
+
+		if (useFinderCache) {
+			result = FinderCacheUtil.getResult(
+				_finderPathFetchByRegionId_LanguageId, finderArgs, this);
+		}
+
+		if (result instanceof RegionLocalization) {
+			RegionLocalization regionLocalization = (RegionLocalization)result;
+
+			if ((regionId != regionLocalization.getRegionId()) ||
+				!Objects.equals(
+					languageId, regionLocalization.getLanguageId())) {
+
+				result = null;
 			}
+		}
 
-			Object result = null;
+		if (result == null) {
+			StringBundler sb = new StringBundler(4);
 
-			if (useFinderCache) {
-				result = FinderCacheUtil.getResult(
-					_finderPathFetchByRegionId_LanguageId, finderArgs, this);
-			}
+			sb.append(_SQL_SELECT_REGIONLOCALIZATION_WHERE);
 
-			if (result instanceof RegionLocalization) {
-				RegionLocalization regionLocalization =
-					(RegionLocalization)result;
+			sb.append(_FINDER_COLUMN_REGIONID_LANGUAGEID_REGIONID_2);
 
-				if ((regionId != regionLocalization.getRegionId()) ||
-					!Objects.equals(
-						languageId, regionLocalization.getLanguageId())) {
+			boolean bindLanguageId = false;
 
-					result = null;
-				}
-			}
-
-			if (result == null) {
-				StringBundler sb = new StringBundler(4);
-
-				sb.append(_SQL_SELECT_REGIONLOCALIZATION_WHERE);
-
-				sb.append(_FINDER_COLUMN_REGIONID_LANGUAGEID_REGIONID_2);
-
-				boolean bindLanguageId = false;
-
-				if (languageId.isEmpty()) {
-					sb.append(_FINDER_COLUMN_REGIONID_LANGUAGEID_LANGUAGEID_3);
-				}
-				else {
-					bindLanguageId = true;
-
-					sb.append(_FINDER_COLUMN_REGIONID_LANGUAGEID_LANGUAGEID_2);
-				}
-
-				String sql = sb.toString();
-
-				Session session = null;
-
-				try {
-					session = openSession();
-
-					Query query = session.createQuery(sql);
-
-					QueryPos queryPos = QueryPos.getInstance(query);
-
-					queryPos.add(regionId);
-
-					if (bindLanguageId) {
-						queryPos.add(languageId);
-					}
-
-					List<RegionLocalization> list = query.list();
-
-					if (list.isEmpty()) {
-						if (useFinderCache) {
-							FinderCacheUtil.putResult(
-								_finderPathFetchByRegionId_LanguageId,
-								finderArgs, list);
-						}
-					}
-					else {
-						RegionLocalization regionLocalization = list.get(0);
-
-						result = regionLocalization;
-
-						cacheResult(regionLocalization);
-					}
-				}
-				catch (Exception exception) {
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
-				}
-			}
-
-			if (result instanceof List<?>) {
-				return null;
+			if (languageId.isEmpty()) {
+				sb.append(_FINDER_COLUMN_REGIONID_LANGUAGEID_LANGUAGEID_3);
 			}
 			else {
-				return (RegionLocalization)result;
+				bindLanguageId = true;
+
+				sb.append(_FINDER_COLUMN_REGIONID_LANGUAGEID_LANGUAGEID_2);
 			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(regionId);
+
+				if (bindLanguageId) {
+					queryPos.add(languageId);
+				}
+
+				List<RegionLocalization> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(
+							_finderPathFetchByRegionId_LanguageId, finderArgs,
+							list);
+					}
+				}
+				else {
+					RegionLocalization regionLocalization = list.get(0);
+
+					result = regionLocalization;
+
+					cacheResult(regionLocalization);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (RegionLocalization)result;
 		}
 	}
 
@@ -828,22 +800,17 @@ public class RegionLocalizationPersistenceImpl
 	 */
 	@Override
 	public void cacheResult(RegionLocalization regionLocalization) {
-		try (SafeCloseable safeCloseable =
-				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
-					regionLocalization.getCtCollectionId())) {
+		EntityCacheUtil.putResult(
+			RegionLocalizationImpl.class, regionLocalization.getPrimaryKey(),
+			regionLocalization);
 
-			EntityCacheUtil.putResult(
-				RegionLocalizationImpl.class,
-				regionLocalization.getPrimaryKey(), regionLocalization);
-
-			FinderCacheUtil.putResult(
-				_finderPathFetchByRegionId_LanguageId,
-				new Object[] {
-					regionLocalization.getRegionId(),
-					regionLocalization.getLanguageId()
-				},
-				regionLocalization);
-		}
+		FinderCacheUtil.putResult(
+			_finderPathFetchByRegionId_LanguageId,
+			new Object[] {
+				regionLocalization.getRegionId(),
+				regionLocalization.getLanguageId()
+			},
+			regionLocalization);
 	}
 
 	private int _valueObjectFinderCacheListThreshold;
@@ -864,16 +831,11 @@ public class RegionLocalizationPersistenceImpl
 		}
 
 		for (RegionLocalization regionLocalization : regionLocalizations) {
-			try (SafeCloseable safeCloseable =
-					CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
-						regionLocalization.getCtCollectionId())) {
+			if (EntityCacheUtil.getResult(
+					RegionLocalizationImpl.class,
+					regionLocalization.getPrimaryKey()) == null) {
 
-				if (EntityCacheUtil.getResult(
-						RegionLocalizationImpl.class,
-						regionLocalization.getPrimaryKey()) == null) {
-
-					cacheResult(regionLocalization);
-				}
+				cacheResult(regionLocalization);
 			}
 		}
 	}
@@ -926,19 +888,14 @@ public class RegionLocalizationPersistenceImpl
 	protected void cacheUniqueFindersCache(
 		RegionLocalizationModelImpl regionLocalizationModelImpl) {
 
-		try (SafeCloseable safeCloseable =
-				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
-					regionLocalizationModelImpl.getCtCollectionId())) {
+		Object[] args = new Object[] {
+			regionLocalizationModelImpl.getRegionId(),
+			regionLocalizationModelImpl.getLanguageId()
+		};
 
-			Object[] args = new Object[] {
-				regionLocalizationModelImpl.getRegionId(),
-				regionLocalizationModelImpl.getLanguageId()
-			};
-
-			FinderCacheUtil.putResult(
-				_finderPathFetchByRegionId_LanguageId, args,
-				regionLocalizationModelImpl);
-		}
+		FinderCacheUtil.putResult(
+			_finderPathFetchByRegionId_LanguageId, args,
+			regionLocalizationModelImpl);
 	}
 
 	/**
@@ -1030,9 +987,7 @@ public class RegionLocalizationPersistenceImpl
 					regionLocalization.getPrimaryKeyObj());
 			}
 
-			if ((regionLocalization != null) &&
-				CTPersistenceHelperUtil.isRemove(regionLocalization)) {
-
+			if (regionLocalization != null) {
 				session.delete(regionLocalization);
 			}
 		}
@@ -1081,13 +1036,7 @@ public class RegionLocalizationPersistenceImpl
 		try {
 			session = openSession();
 
-			if (CTPersistenceHelperUtil.isInsert(regionLocalization)) {
-				if (!isNew) {
-					session.evict(
-						RegionLocalizationImpl.class,
-						regionLocalization.getPrimaryKeyObj());
-				}
-
+			if (isNew) {
 				session.save(regionLocalization);
 			}
 			else {
@@ -1159,191 +1108,12 @@ public class RegionLocalizationPersistenceImpl
 	/**
 	 * Returns the region localization with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the region localization
-	 * @return the region localization, or <code>null</code> if a region localization with the primary key could not be found
-	 */
-	@Override
-	public RegionLocalization fetchByPrimaryKey(Serializable primaryKey) {
-		if (CTPersistenceHelperUtil.isProductionMode(
-				RegionLocalization.class, primaryKey)) {
-
-			try (SafeCloseable safeCloseable =
-					CTCollectionThreadLocal.
-						setProductionModeWithSafeCloseable()) {
-
-				return super.fetchByPrimaryKey(primaryKey);
-			}
-		}
-
-		RegionLocalization regionLocalization =
-			(RegionLocalization)EntityCacheUtil.getResult(
-				RegionLocalizationImpl.class, primaryKey);
-
-		if (regionLocalization != null) {
-			return regionLocalization;
-		}
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			regionLocalization = (RegionLocalization)session.get(
-				RegionLocalizationImpl.class, primaryKey);
-
-			if (regionLocalization != null) {
-				cacheResult(regionLocalization);
-			}
-		}
-		catch (Exception exception) {
-			throw processException(exception);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		return regionLocalization;
-	}
-
-	/**
-	 * Returns the region localization with the primary key or returns <code>null</code> if it could not be found.
-	 *
 	 * @param regionLocalizationId the primary key of the region localization
 	 * @return the region localization, or <code>null</code> if a region localization with the primary key could not be found
 	 */
 	@Override
 	public RegionLocalization fetchByPrimaryKey(long regionLocalizationId) {
 		return fetchByPrimaryKey((Serializable)regionLocalizationId);
-	}
-
-	@Override
-	public Map<Serializable, RegionLocalization> fetchByPrimaryKeys(
-		Set<Serializable> primaryKeys) {
-
-		if (CTPersistenceHelperUtil.isProductionMode(
-				RegionLocalization.class)) {
-
-			try (SafeCloseable safeCloseable =
-					CTCollectionThreadLocal.
-						setProductionModeWithSafeCloseable()) {
-
-				return super.fetchByPrimaryKeys(primaryKeys);
-			}
-		}
-
-		if (primaryKeys.isEmpty()) {
-			return Collections.emptyMap();
-		}
-
-		Map<Serializable, RegionLocalization> map =
-			new HashMap<Serializable, RegionLocalization>();
-
-		if (primaryKeys.size() == 1) {
-			Iterator<Serializable> iterator = primaryKeys.iterator();
-
-			Serializable primaryKey = iterator.next();
-
-			RegionLocalization regionLocalization = fetchByPrimaryKey(
-				primaryKey);
-
-			if (regionLocalization != null) {
-				map.put(primaryKey, regionLocalization);
-			}
-
-			return map;
-		}
-
-		Set<Serializable> uncachedPrimaryKeys = null;
-
-		for (Serializable primaryKey : primaryKeys) {
-			try (SafeCloseable safeCloseable =
-					CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
-						RegionLocalization.class, primaryKey)) {
-
-				RegionLocalization regionLocalization =
-					(RegionLocalization)EntityCacheUtil.getResult(
-						RegionLocalizationImpl.class, primaryKey);
-
-				if (regionLocalization == null) {
-					if (uncachedPrimaryKeys == null) {
-						uncachedPrimaryKeys = new HashSet<>();
-					}
-
-					uncachedPrimaryKeys.add(primaryKey);
-				}
-				else {
-					map.put(primaryKey, regionLocalization);
-				}
-			}
-		}
-
-		if (uncachedPrimaryKeys == null) {
-			return map;
-		}
-
-		if ((databaseInMaxParameters > 0) &&
-			(primaryKeys.size() > databaseInMaxParameters)) {
-
-			Iterator<Serializable> iterator = primaryKeys.iterator();
-
-			while (iterator.hasNext()) {
-				Set<Serializable> page = new HashSet<>();
-
-				for (int i = 0;
-					 (i < databaseInMaxParameters) && iterator.hasNext(); i++) {
-
-					page.add(iterator.next());
-				}
-
-				map.putAll(fetchByPrimaryKeys(page));
-			}
-
-			return map;
-		}
-
-		StringBundler sb = new StringBundler((primaryKeys.size() * 2) + 1);
-
-		sb.append(getSelectSQL());
-		sb.append(" WHERE ");
-		sb.append(getPKDBName());
-		sb.append(" IN (");
-
-		for (Serializable primaryKey : primaryKeys) {
-			sb.append((long)primaryKey);
-
-			sb.append(",");
-		}
-
-		sb.setIndex(sb.index() - 1);
-
-		sb.append(")");
-
-		String sql = sb.toString();
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Query query = session.createQuery(sql);
-
-			for (RegionLocalization regionLocalization :
-					(List<RegionLocalization>)query.list()) {
-
-				map.put(
-					regionLocalization.getPrimaryKeyObj(), regionLocalization);
-
-				cacheResult(regionLocalization);
-			}
-		}
-		catch (Exception exception) {
-			throw processException(exception);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		return map;
 	}
 
 	/**
@@ -1411,80 +1181,75 @@ public class RegionLocalizationPersistenceImpl
 		OrderByComparator<RegionLocalization> orderByComparator,
 		boolean useFinderCache) {
 
-		try (SafeCloseable safeCloseable =
-				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
-					RegionLocalization.class)) {
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
 
-			FinderPath finderPath = null;
-			Object[] finderArgs = null;
-
-			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
-				(orderByComparator == null)) {
-
-				if (useFinderCache) {
-					finderPath = _finderPathWithoutPaginationFindAll;
-					finderArgs = FINDER_ARGS_EMPTY;
-				}
-			}
-			else if (useFinderCache) {
-				finderPath = _finderPathWithPaginationFindAll;
-				finderArgs = new Object[] {start, end, orderByComparator};
-			}
-
-			List<RegionLocalization> list = null;
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
 
 			if (useFinderCache) {
-				list = (List<RegionLocalization>)FinderCacheUtil.getResult(
-					finderPath, finderArgs, this);
+				finderPath = _finderPathWithoutPaginationFindAll;
+				finderArgs = FINDER_ARGS_EMPTY;
 			}
-
-			if (list == null) {
-				StringBundler sb = null;
-				String sql = null;
-
-				if (orderByComparator != null) {
-					sb = new StringBundler(
-						2 + (orderByComparator.getOrderByFields().length * 2));
-
-					sb.append(_SQL_SELECT_REGIONLOCALIZATION);
-
-					appendOrderByComparator(
-						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
-
-					sql = sb.toString();
-				}
-				else {
-					sql = _SQL_SELECT_REGIONLOCALIZATION;
-
-					sql = sql.concat(RegionLocalizationModelImpl.ORDER_BY_JPQL);
-				}
-
-				Session session = null;
-
-				try {
-					session = openSession();
-
-					Query query = session.createQuery(sql);
-
-					list = (List<RegionLocalization>)QueryUtil.list(
-						query, getDialect(), start, end);
-
-					cacheResult(list);
-
-					if (useFinderCache) {
-						FinderCacheUtil.putResult(finderPath, finderArgs, list);
-					}
-				}
-				catch (Exception exception) {
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
-				}
-			}
-
-			return list;
 		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindAll;
+			finderArgs = new Object[] {start, end, orderByComparator};
+		}
+
+		List<RegionLocalization> list = null;
+
+		if (useFinderCache) {
+			list = (List<RegionLocalization>)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+			String sql = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					2 + (orderByComparator.getOrderByFields().length * 2));
+
+				sb.append(_SQL_SELECT_REGIONLOCALIZATION);
+
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+
+				sql = sb.toString();
+			}
+			else {
+				sql = _SQL_SELECT_REGIONLOCALIZATION;
+
+				sql = sql.concat(RegionLocalizationModelImpl.ORDER_BY_JPQL);
+			}
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				list = (List<RegionLocalization>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -1505,37 +1270,32 @@ public class RegionLocalizationPersistenceImpl
 	 */
 	@Override
 	public int countAll() {
-		try (SafeCloseable safeCloseable =
-				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
-					RegionLocalization.class)) {
+		Long count = (Long)FinderCacheUtil.getResult(
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
-			Long count = (Long)FinderCacheUtil.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
+		if (count == null) {
+			Session session = null;
 
-			if (count == null) {
-				Session session = null;
+			try {
+				session = openSession();
 
-				try {
-					session = openSession();
+				Query query = session.createQuery(
+					_SQL_COUNT_REGIONLOCALIZATION);
 
-					Query query = session.createQuery(
-						_SQL_COUNT_REGIONLOCALIZATION);
+				count = (Long)query.uniqueResult();
 
-					count = (Long)query.uniqueResult();
-
-					FinderCacheUtil.putResult(
-						_finderPathCountAll, FINDER_ARGS_EMPTY, count);
-				}
-				catch (Exception exception) {
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
-				}
+				FinderCacheUtil.putResult(
+					_finderPathCountAll, FINDER_ARGS_EMPTY, count);
 			}
-
-			return count.intValue();
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
 		}
+
+		return count.intValue();
 	}
 
 	@Override
@@ -1554,63 +1314,8 @@ public class RegionLocalizationPersistenceImpl
 	}
 
 	@Override
-	public Set<String> getCTColumnNames(
-		CTColumnResolutionType ctColumnResolutionType) {
-
-		return _ctColumnNamesMap.getOrDefault(
-			ctColumnResolutionType, Collections.emptySet());
-	}
-
-	@Override
-	public List<String> getMappingTableNames() {
-		return _mappingTableNames;
-	}
-
-	@Override
-	public Map<String, Integer> getTableColumnsMap() {
+	protected Map<String, Integer> getTableColumnsMap() {
 		return RegionLocalizationModelImpl.TABLE_COLUMNS_MAP;
-	}
-
-	@Override
-	public String getTableName() {
-		return "RegionLocalization";
-	}
-
-	@Override
-	public List<String[]> getUniqueIndexColumnNames() {
-		return _uniqueIndexColumnNames;
-	}
-
-	private static final Map<CTColumnResolutionType, Set<String>>
-		_ctColumnNamesMap = new EnumMap<CTColumnResolutionType, Set<String>>(
-			CTColumnResolutionType.class);
-	private static final List<String> _mappingTableNames =
-		new ArrayList<String>();
-	private static final List<String[]> _uniqueIndexColumnNames =
-		new ArrayList<String[]>();
-
-	static {
-		Set<String> ctControlColumnNames = new HashSet<String>();
-		Set<String> ctMergeColumnNames = new HashSet<String>();
-		Set<String> ctStrictColumnNames = new HashSet<String>();
-
-		ctControlColumnNames.add("mvccVersion");
-		ctControlColumnNames.add("ctCollectionId");
-		ctStrictColumnNames.add("companyId");
-		ctMergeColumnNames.add("regionId");
-		ctMergeColumnNames.add("languageId");
-		ctMergeColumnNames.add("title");
-
-		_ctColumnNamesMap.put(
-			CTColumnResolutionType.CONTROL, ctControlColumnNames);
-		_ctColumnNamesMap.put(CTColumnResolutionType.MERGE, ctMergeColumnNames);
-		_ctColumnNamesMap.put(
-			CTColumnResolutionType.PK,
-			Collections.singleton("regionLocalizationId"));
-		_ctColumnNamesMap.put(
-			CTColumnResolutionType.STRICT, ctStrictColumnNames);
-
-		_uniqueIndexColumnNames.add(new String[] {"regionId", "languageId"});
 	}
 
 	/**
