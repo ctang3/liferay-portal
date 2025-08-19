@@ -47,6 +47,7 @@ test('LPD-61649 Assert structure content fields are shown in the data tab', asyn
 	await changeTrackingPage.workOnPublication(ctCollection);
 
 	const basicTextFieldName = 'Text1234';
+	const imageFieldName = 'Image345';
 	const nonLocalizableFieldName = 'TextNonLocalizable';
 	const structureName = 'Structure 1';
 
@@ -59,6 +60,7 @@ test('LPD-61649 Assert structure content fields are shown in the data tab', asyn
 				name: nonLocalizableFieldName,
 				required: true,
 			},
+			{fieldType: 'image', name: imageFieldName},
 		],
 		name: structureName,
 	});
