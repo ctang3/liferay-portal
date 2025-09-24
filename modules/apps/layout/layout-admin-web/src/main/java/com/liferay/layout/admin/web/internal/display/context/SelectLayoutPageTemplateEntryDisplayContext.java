@@ -271,7 +271,9 @@ public class SelectLayoutPageTemplateEntryDisplayContext {
 				LayoutTypeController layoutTypeController =
 					LayoutTypeControllerTracker.getLayoutTypeController(type);
 
-				if (isEmptyPage()) {
+				if (isEmptyPage() &&
+					ParamUtil.getBoolean(_httpServletRequest, "editAction")) {
+
 					return layoutTypeController.isInstanceable() &&
 						   !layoutTypeController.isPrimaryType() &&
 						   !type.equals(LayoutConstants.TYPE_URL) &&
