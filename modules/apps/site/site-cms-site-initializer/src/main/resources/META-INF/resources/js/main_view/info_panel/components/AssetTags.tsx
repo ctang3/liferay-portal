@@ -20,11 +20,13 @@ type TKeyword = {
 
 const AssetTags = ({
 	cmsGroupId,
+	groupId,
 	inputSize,
 	objectEntry,
 	updateObjectEntry,
 }: {
 	cmsGroupId: number | string;
+	groupId?: number | string | null | undefined;
 	inputSize?: CategorizationInputSize;
 	objectEntry: IAssetObjectEntry | EntryCategorizationDTO;
 	updateObjectEntry: (object: EntryCategorizationDTO) => void | Promise<void>;
@@ -52,7 +54,8 @@ const AssetTags = ({
 
 	const createAndAddKeyword = useCallback(async () => {
 		const {data, error} = await TagService.createTag({
-			groupId: cmsGroupId,
+			cmsGroupId,
+			groupId,
 			name: value,
 		});
 
@@ -64,7 +67,7 @@ const AssetTags = ({
 		else if (error) {
 			console.error('Failed to create new keyword.', error);
 		}
-	}, [addKeyword, cmsGroupId, value]);
+	}, [addKeyword, cmsGroupId, groupId, value]);
 
 	const removeKeyword = useCallback(
 		async (keyword: string) => {
@@ -95,7 +98,7 @@ const AssetTags = ({
 		>
 			<ClayPanel.Body>
 				<ItemSelector<TKeyword>
-					apiURL={`${Liferay.ThemeDisplay.getPortalURL()}/o/headless-admin-taxonomy/v1.0/sites/${cmsGroupId}/keywords`}
+					apiURL={`${Liferay.ThemeDisplay.getPortalURL()}/o/headless-admin-taxonomy/v1.0/sites/${groupId}/keywords`}
 					locator={{
 						id: 'id',
 						label: 'name',

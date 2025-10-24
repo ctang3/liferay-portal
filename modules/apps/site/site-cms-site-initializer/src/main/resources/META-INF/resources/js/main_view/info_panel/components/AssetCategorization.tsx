@@ -27,6 +27,7 @@ export default function AssetCategorization({
 	categorization,
 	cmsGroupId,
 	getObjectEntryURL,
+	groupId,
 	inputSize,
 	onUpdateCategorization,
 	updateObjectEntryURL,
@@ -34,6 +35,7 @@ export default function AssetCategorization({
 	categorization?: Categorization;
 	cmsGroupId: number | string;
 	getObjectEntryURL: string;
+	groupId: number | string;
 	inputSize?: CategorizationInputSize;
 	onUpdateCategorization?: (data: IAssetObjectEntry) => void;
 	updateObjectEntryURL?: string;
@@ -168,6 +170,7 @@ export default function AssetCategorization({
 
 			<AssetTags
 				cmsGroupId={cmsGroupId}
+				groupId={groupId}
 				inputSize={inputSize}
 				key={objectEntry.keywords?.join(',') || 'tags'}
 				objectEntry={objectEntry}

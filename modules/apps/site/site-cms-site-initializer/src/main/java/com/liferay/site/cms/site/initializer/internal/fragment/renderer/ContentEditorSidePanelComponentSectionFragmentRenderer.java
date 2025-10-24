@@ -129,6 +129,8 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 					objectEntry.getModelClassName()),
 				"&classPK=", objectEntry.getObjectEntryId())
 		).put(
+			"cmsGroupId", themeDisplay.getScopeGroupId()
+		).put(
 			"comments",
 			() -> {
 				JSONArray jsonArray = _jsonFactory.createJSONArray();
@@ -222,7 +224,7 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 					themeDisplay.getLocale());
 			}
 		).put(
-			"groupId", themeDisplay.getScopeGroupId()
+			"groupId", objectEntry.getGroupId()
 		).put(
 			"id", String.valueOf(objectEntry.getObjectEntryId())
 		).put(
