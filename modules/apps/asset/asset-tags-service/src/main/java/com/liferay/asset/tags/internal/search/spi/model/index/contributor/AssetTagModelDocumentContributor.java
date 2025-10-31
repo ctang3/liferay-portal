@@ -33,7 +33,8 @@ public class AssetTagModelDocumentContributor
 	public void contribute(Document document, AssetTag assetTag) {
 		document.addTextSortable(Field.NAME, assetTag.getName());
 		document.addNumberSortable("assetCount", assetTag.getAssetCount());
-		document.addKeyword("groupIds", _getGroupIds(assetTag.getTagId()));
+		document.addKeyword(
+			"assetTagGroupRelsGroupIds", _getGroupIds(assetTag.getTagId()));
 		document.addKeyword(
 			"subscribed",
 			_subscriptionLocalService.isSubscribed(

@@ -33,7 +33,8 @@ public class KeywordEntityModel implements EntityModel {
 				locale -> Field.getSortableFieldName(Field.MODIFIED_DATE),
 				locale -> Field.MODIFIED_DATE),
 			new IdEntityField(
-				"groupIds", locale -> "groupIds", String::valueOf),
+				"assetTagGroupRelsGroupIds",
+				locale -> "assetTagGroupRelsGroupIds", String::valueOf),
 			new StringEntityField(
 				Field.NAME,
 				locale -> Field.getSortableFieldName(Field.NAME + "_String")));

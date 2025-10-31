@@ -30,10 +30,12 @@ public class AssetTagModelPreFilterContributor
 		BooleanFilter booleanFilter, ModelSearchSettings modelSearchSettings,
 		SearchContext searchContext) {
 
-		long[] groupIds = (long[])searchContext.getAttribute("groupIds");
+		long[] groupIds = (long[])searchContext.getAttribute(
+			"assetTagGroupRelsGroupIds");
 
 		if (ArrayUtil.isNotEmpty(groupIds)) {
-			TermsFilter groupIdsTermsFilter = new TermsFilter("groupIds");
+			TermsFilter groupIdsTermsFilter = new TermsFilter(
+				"assetTagGroupRelsGroupIds");
 
 			groupIdsTermsFilter.addValues(ArrayUtil.toStringArray(groupIds));
 

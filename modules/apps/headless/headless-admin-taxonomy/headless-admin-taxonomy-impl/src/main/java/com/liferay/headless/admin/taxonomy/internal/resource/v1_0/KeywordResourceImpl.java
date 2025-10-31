@@ -428,7 +428,7 @@ public class KeywordResourceImpl
 					(depotEntry.getType() == DepotConstants.TYPE_SPACE)) {
 
 					searchContext.setAttribute(
-						"groupIds",
+						"assetTagGroupRelsGroupIds",
 						new long[] {
 							groupId, GroupConstants.ANY_PARENT_GROUP_ID
 						});
