@@ -24,18 +24,18 @@ export type CategorizationInputSize = ComponentProps<
 >['sizing'];
 
 export default function AssetCategorization({
+	assetLibraryId,
 	categorization,
 	cmsGroupId,
 	getObjectEntryURL,
-	groupId,
 	inputSize,
 	onUpdateCategorization,
 	updateObjectEntryURL,
 }: {
+	assetLibraryId: number | string;
 	categorization?: Categorization;
 	cmsGroupId: number | string;
 	getObjectEntryURL: string;
-	groupId: number | string;
 	inputSize?: CategorizationInputSize;
 	onUpdateCategorization?: (data: IAssetObjectEntry) => void;
 	updateObjectEntryURL?: string;
@@ -169,8 +169,8 @@ export default function AssetCategorization({
 			/>
 
 			<AssetTags
+				assetLibraryId={assetLibraryId}
 				cmsGroupId={cmsGroupId}
-				groupId={groupId}
 				inputSize={inputSize}
 				key={objectEntry.keywords?.join(',') || 'tags'}
 				objectEntry={objectEntry}

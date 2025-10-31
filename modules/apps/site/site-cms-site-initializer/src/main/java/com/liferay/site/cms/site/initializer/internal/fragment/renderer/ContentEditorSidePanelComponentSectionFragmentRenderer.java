@@ -129,6 +129,8 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 					objectEntry.getModelClassName()),
 				"&classPK=", objectEntry.getObjectEntryId())
 		).put(
+			"assetLibraryId", objectEntry.getGroupId()
+		).put(
 			"cmsGroupId", themeDisplay.getScopeGroupId()
 		).put(
 			"comments",
@@ -223,8 +225,6 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 					expirationDate, "yyyy-MM-dd'T'HH:mm",
 					themeDisplay.getLocale());
 			}
-		).put(
-			"groupId", objectEntry.getGroupId()
 		).put(
 			"id", String.valueOf(objectEntry.getObjectEntryId())
 		).put(
