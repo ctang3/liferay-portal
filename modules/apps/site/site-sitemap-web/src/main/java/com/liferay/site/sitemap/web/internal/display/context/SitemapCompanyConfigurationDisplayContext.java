@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
 import com.liferay.site.configuration.manager.SitemapConfigurationManager;
+import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.site.item.selector.SiteItemSelectorCriterion;
 
 import java.util.ArrayList;
@@ -210,6 +211,11 @@ public class SitemapCompanyConfigurationDisplayContext {
 
 	public boolean includeWebContent() throws ConfigurationException {
 		return _sitemapConfigurationManager.includeWebContentCompanyEnabled(
+			_themeDisplay.getCompanyId());
+	}
+
+	public String xmlSitemapGroupingMode() throws ConfigurationException {
+		return _sitemapConfigurationManager.xmlSitemapGroupingMode(
 			_themeDisplay.getCompanyId());
 	}
 

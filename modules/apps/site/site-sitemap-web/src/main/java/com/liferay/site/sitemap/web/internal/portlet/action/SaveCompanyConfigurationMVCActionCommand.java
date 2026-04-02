@@ -98,6 +98,7 @@ public class SaveCompanyConfigurationMVCActionCommand
 			ParamUtil.getBoolean(actionRequest, "includeCategories"),
 			ParamUtil.getBoolean(actionRequest, "includePages"),
 			ParamUtil.getBoolean(actionRequest, "includeWebContent"),
+			ParamUtil.getString(actionRequest, "xmlSitemapGroupingMode"),
 			ParamUtil.getBoolean(actionRequest, "xmlSitemapIndexEnabled"));
 
 		SessionMessages.add(
