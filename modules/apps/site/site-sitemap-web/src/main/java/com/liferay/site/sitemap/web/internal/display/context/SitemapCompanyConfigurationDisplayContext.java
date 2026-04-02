@@ -5,6 +5,7 @@
 
 package com.liferay.site.sitemap.web.internal.display.context;
 
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.SelectOption;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.GroupItemSelectorReturnType;
 import com.liferay.object.item.selector.ObjectDefinitionItemSelectorCriterion;
@@ -12,7 +13,9 @@ import com.liferay.object.item.selector.ObjectDefinitionItemSelectorReturnType;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -24,6 +27,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
 import com.liferay.site.configuration.manager.SitemapConfigurationManager;
 import com.liferay.site.constants.SitemapGroupingMode;
@@ -187,6 +191,30 @@ public class SitemapCompanyConfigurationDisplayContext {
 		return _selectObjectDefinitionEventName;
 	}
 
+	public List<SelectOption> getSitemapGroupingModeSelectOptions()
+		throws ConfigurationException {
+
+		List<SelectOption> selectOptions = new ArrayList<>();
+
+		for (SitemapGroupingMode sitemapGroupingMode :
+				SitemapGroupingMode.values()) {
+
+			String groupingModeName = LanguageUtil.get(
+				_themeDisplay.getLocale(),
+				sitemapGroupingMode.getLanguageKey());
+
+			selectOptions.add(
+				new SelectOption(
+					LanguageUtil.get(_themeDisplay.getLocale(), "group-by") +
+						StringPool.SPACE + groupingModeName,
+					sitemapGroupingMode.name(),
+					StringUtil.equals(
+						sitemapGroupingMode.name(), xmlSitemapGroupingMode())));
+		}
+
+		return selectOptions;
+	}
+
 	public boolean hasVirtualHost(Group group) {
 		LayoutSet layoutSet = group.getPublicLayoutSet();
 
@@ -222,6 +250,22 @@ public class SitemapCompanyConfigurationDisplayContext {
 	public boolean xmlSitemapIndexEnabled() throws ConfigurationException {
 		return _sitemapConfigurationManager.xmlSitemapIndexCompanyEnabled(
 			_themeDisplay.getCompanyId());
+	}
+
+	public enum SitemapGroupingMode {
+
+		ASSET_TYPE("asset-type"), PAGE_LAYOUT("page-layout");
+
+		public String getLanguageKey() {
+			return _languageKey;
+		}
+
+		private SitemapGroupingMode(String languageKey) {
+			_languageKey = languageKey;
+		}
+
+		private final String _languageKey;
+
 	}
 
 	private Group _getGuestGroup() throws Exception {
