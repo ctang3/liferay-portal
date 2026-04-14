@@ -5,7 +5,10 @@
 
 package com.liferay.site.internal.manager;
 
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.journal.model.JournalArticle;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
+import com.liferay.object.model.ObjectEntry;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -45,6 +48,7 @@ import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.util.LayoutTypeControllerTracker;
 import com.liferay.redirect.provider.RedirectProvider;
 import com.liferay.site.configuration.manager.SitemapConfigurationManager;
+import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.site.provider.SitemapURLProvider;
 
@@ -219,18 +223,23 @@ public class SitemapManagerImpl implements SitemapManager {
 			long groupId, boolean privateLayout, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		return getSitemap(null, groupId, privateLayout, themeDisplay);
+		return getSitemap(null, groupId, privateLayout, themeDisplay, null);
 	}
 
 	@Override
 	public String getSitemap(
 			String layoutUuid, long groupId, boolean privateLayout,
-			ThemeDisplay themeDisplay)
+			ThemeDisplay themeDisplay, String assetType)
 		throws PortalException {
 
 		if (Validator.isNull(layoutUuid) &&
 			_sitemapConfigurationManager.xmlSitemapIndexCompanyEnabled(
 				themeDisplay.getCompanyId())) {
+
+			if (!assetType.isEmpty()) {
+				return _getAssetTypeSitemap(
+					groupId, privateLayout, themeDisplay, assetType);
+			}
 
 			return _getIndexSitemap(groupId, privateLayout, themeDisplay);
 		}
@@ -253,6 +262,140 @@ public class SitemapManagerImpl implements SitemapManager {
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
+	}
+
+	private String _getAssetTypeSitemap(
+			long groupId, boolean privateLayout, ThemeDisplay themeDisplay,
+			String assetType)
+		throws PortalException {
+
+		Document document = _saxReader.createDocument();
+
+		document.setXMLEncoding(StringPool.UTF8);
+
+		Element rootElement = document.addElement(
+			"urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+		rootElement.addAttribute(
+			"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		rootElement.addAttribute(
+			"xsi:schemaLocation",
+			"http://www.w3.org/1999/xhtml " +
+				"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
+		rootElement.addAttribute("xmlns:xhtml", "http://www.w3.org/1999/xhtml");
+
+		_initEntriesAndSize(rootElement);
+
+		if (StringUtil.equals(
+				assetType,
+				SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY.toString())) {
+
+			for (SitemapURLProvider sitemapURLProvider :
+					_getSitemapURLProviders()) {
+
+				if (!sitemapURLProvider.isInclude(
+						themeDisplay.getCompanyId(),
+						themeDisplay.getScopeGroupId()) ||
+					!StringUtil.equals(
+						sitemapURLProvider.getClassName(),
+						AssetCategory.class.getName())) {
+
+					continue;
+				}
+
+				for (LayoutSet curLayoutSet :
+						_getLayoutSets(
+							groupId, null, privateLayout, themeDisplay)) {
+
+					sitemapURLProvider.visitLayoutSet(
+						rootElement, curLayoutSet, themeDisplay);
+				}
+			}
+		}
+		else if (StringUtil.equals(
+					assetType,
+					SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.
+						toString())) {
+
+			for (SitemapURLProvider sitemapURLProvider :
+					_getSitemapURLProviders()) {
+
+				if (!sitemapURLProvider.isInclude(
+						themeDisplay.getCompanyId(),
+						themeDisplay.getScopeGroupId()) ||
+					!StringUtil.equals(
+						sitemapURLProvider.getClassName(),
+						JournalArticle.class.getName())) {
+
+					continue;
+				}
+
+				for (LayoutSet curLayoutSet :
+						_getLayoutSets(
+							groupId, null, privateLayout, themeDisplay)) {
+
+					sitemapURLProvider.visitLayoutSet(
+						rootElement, curLayoutSet, themeDisplay);
+				}
+			}
+		}
+		else if (StringUtil.equals(
+					assetType,
+					SitemapGroupingMode.AssetTypeGroup.LAYOUT.toString())) {
+
+			for (SitemapURLProvider sitemapURLProvider :
+					_getSitemapURLProviders()) {
+
+				if (!sitemapURLProvider.isInclude(
+						themeDisplay.getCompanyId(),
+						themeDisplay.getScopeGroupId()) ||
+					!StringUtil.equals(
+						sitemapURLProvider.getClassName(),
+						Layout.class.getName())) {
+
+					continue;
+				}
+
+				for (LayoutSet curLayoutSet :
+						_getLayoutSets(
+							groupId, null, privateLayout, themeDisplay)) {
+
+					sitemapURLProvider.visitLayoutSet(
+						rootElement, curLayoutSet, themeDisplay);
+				}
+			}
+		}
+		else if (StringUtil.equals(
+					assetType,
+					SitemapGroupingMode.AssetTypeGroup.OBJECT_ENTRY.
+						toString())) {
+
+			for (SitemapURLProvider sitemapURLProvider :
+					_getSitemapURLProviders()) {
+
+				if (!sitemapURLProvider.isInclude(
+						themeDisplay.getCompanyId(),
+						themeDisplay.getScopeGroupId()) ||
+					!StringUtil.equals(
+						sitemapURLProvider.getClassName(),
+						ObjectEntry.class.getName())) {
+
+					continue;
+				}
+
+				for (LayoutSet curLayoutSet :
+						_getLayoutSets(
+							groupId, null, privateLayout, themeDisplay)) {
+
+					sitemapURLProvider.visitLayoutSet(
+						rootElement, curLayoutSet, themeDisplay);
+				}
+			}
+		}
+
+		_removeEntriesAndSize(rootElement);
+
+		return document.asXML();
 	}
 
 	private String _getFriendlyURL(String path, long groupId) {
@@ -326,14 +469,44 @@ public class SitemapManagerImpl implements SitemapManager {
 		Element rootElement = document.addElement(
 			"sitemapindex", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
+		rootElement.addAttribute(
+			"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		rootElement.addAttribute(
+			"xsi:schemaLocation",
+			"http://www.w3.org/1999/xhtml " +
+				"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
 		rootElement.addAttribute("xmlns:xhtml", "http://www.w3.org/1999/xhtml");
 
 		_initEntriesAndSize(rootElement);
 
-		for (LayoutSet layoutSet :
-				_getLayoutSets(groupId, null, privateLayout, themeDisplay)) {
+		if (StringUtil.equals(
+				_sitemapConfigurationManager.xmlSitemapGroupingMode(
+					themeDisplay.getCompanyId()),
+				String.valueOf(SitemapGroupingMode.ASSET_TYPE))) {
 
-			_visitLayoutSet(rootElement, layoutSet, themeDisplay);
+			String portalURL = themeDisplay.getPortalURL();
+
+			for (SitemapGroupingMode.AssetTypeGroup assetTypeGroup :
+					SitemapGroupingMode.AssetTypeGroup.values()) {
+
+				Element sitemapElement = rootElement.addElement("sitemap");
+
+				Element locationElement = sitemapElement.addElement("loc");
+
+				locationElement.addText(
+					StringBundler.concat(
+						portalURL, _portal.getPathContext(),
+						"/sitemap.xml?groupId=", groupId, "&assetType=",
+						assetTypeGroup));
+			}
+		}
+		else {
+			for (LayoutSet layoutSet :
+					_getLayoutSets(
+						groupId, null, privateLayout, themeDisplay)) {
+
+				_visitLayoutSet(rootElement, layoutSet, themeDisplay);
+			}
 		}
 
 		_removeEntriesAndSize(rootElement);

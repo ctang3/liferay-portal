@@ -76,6 +76,7 @@ import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.redirect.model.RedirectEntry;
 import com.liferay.redirect.service.RedirectEntryLocalService;
 import com.liferay.site.manager.SitemapManager;
@@ -291,6 +292,45 @@ public class SitemapManagerTest {
 			_layoutSetLocalService.updateVirtualHosts(
 				group.getGroupId(), false,
 				new TreeMap<>(originalVirtualHostnames));
+		}
+	}
+
+	@Test
+	public void testSitemapAssetTypeWithXMLSitemapIndexEnabled()
+		throws Exception {
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapIndexEnabled", true
+						).build());
+			GroupConfigurationTemporarySwapper
+				groupConfigurationTemporarySwapper =
+					new GroupConfigurationTemporarySwapper(
+						_group.getGroupId(), _PID_SITEMAP_GROUP_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			SitemapGroupingMode.AssetTypeGroup[] assetTypeGroups =
+				SitemapGroupingMode.AssetTypeGroup.values();
+
+			String[] urls = new String[assetTypeGroups.length];
+
+			for (int i = 0; i < assetTypeGroups.length; i++) {
+				urls[i] = StringBundler.concat(
+					_themeDisplay.getPortalURL(), _portal.getPathContext(),
+					"/sitemap.xml?groupId=", _group.getGroupId(), "&assetType=",
+					assetTypeGroups[i]);
+			}
+
+			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK, urls);
 		}
 	}
 
@@ -1104,7 +1144,7 @@ public class SitemapManagerTest {
 		throws Exception {
 
 		String xml = _sitemapManager.getSitemap(
-			uuid, groupId, false, _themeDisplay);
+			uuid, groupId, false, _themeDisplay, null);
 
 		Document document = _saxReader.read(xml);
 
@@ -1119,8 +1159,16 @@ public class SitemapManagerTest {
 			boolean encodeURL, long groupId, String uuid, String... urls)
 		throws Exception {
 
+		_assertSitemap(StringPool.BLANK, encodeURL, groupId, uuid, urls);
+	}
+
+	private void _assertSitemap(
+			String assetType, boolean encodeURL, long groupId, String uuid,
+			String... urls)
+		throws Exception {
+
 		String xml = _sitemapManager.getSitemap(
-			uuid, groupId, false, _themeDisplay);
+			uuid, groupId, false, _themeDisplay, assetType);
 
 		Document document = _saxReader.read(xml);
 

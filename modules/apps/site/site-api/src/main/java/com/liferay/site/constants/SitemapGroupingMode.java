@@ -18,7 +18,7 @@ public enum SitemapGroupingMode {
 
 	public enum AssetTypeGroup {
 
-		ASSET_CATEGORY, JOURNAL_ARTICLE, LAYOUT_SET, OBJECT_ENTRY
+		ASSET_CATEGORY, JOURNAL_ARTICLE, LAYOUT, OBJECT_ENTRY
 
 	}
 
