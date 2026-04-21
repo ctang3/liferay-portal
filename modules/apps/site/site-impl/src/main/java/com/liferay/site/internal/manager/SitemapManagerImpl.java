@@ -232,14 +232,31 @@ public class SitemapManagerImpl implements SitemapManager {
 			ThemeDisplay themeDisplay, String assetType)
 		throws PortalException {
 
+		if (Validator.isNotNull(assetType)) {
+			long companyId = themeDisplay.getCompanyId();
+
+			SitemapGroupingMode.AssetTypeGroup assetTypeGroup =
+				SitemapGroupingMode.AssetTypeGroup.fromName(assetType);
+
+			if ((assetTypeGroup == null) ||
+				!_sitemapConfigurationManager.xmlSitemapIndexCompanyEnabled(
+					companyId) ||
+				!StringUtil.equals(
+					_sitemapConfigurationManager.xmlSitemapGroupingMode(
+						companyId),
+					String.valueOf(SitemapGroupingMode.ASSET_TYPE)) ||
+				!_isAssetTypeGroupEnabled(assetTypeGroup, companyId, groupId)) {
+
+				return null;
+			}
+
+			return _getAssetTypeSitemap(
+				groupId, privateLayout, themeDisplay, assetType);
+		}
+
 		if (Validator.isNull(layoutUuid) &&
 			_sitemapConfigurationManager.xmlSitemapIndexCompanyEnabled(
 				themeDisplay.getCompanyId())) {
-
-			if (Validator.isNotNull(assetType)) {
-				return _getAssetTypeSitemap(
-					groupId, privateLayout, themeDisplay, assetType);
-			}
 
 			return _getIndexSitemap(groupId, privateLayout, themeDisplay);
 		}
@@ -264,6 +281,42 @@ public class SitemapManagerImpl implements SitemapManager {
 		_serviceTrackerMap.close();
 	}
 
+	private Date _getAssetTypeGroupLastModified(
+			SitemapGroupingMode.AssetTypeGroup assetTypeGroup, long companyId,
+			long groupId)
+		throws PortalException {
+
+		String className = _assetTypeClassNamesMap.get(assetTypeGroup.name());
+
+		if (className == null) {
+			return null;
+		}
+
+		Date lastModified = null;
+
+		for (SitemapURLProvider sitemapURLProvider :
+				_getSitemapURLProviders()) {
+
+			if (!StringUtil.equals(
+					sitemapURLProvider.getClassName(), className)) {
+
+				continue;
+			}
+
+			Date providerLastModified = sitemapURLProvider.getLastModified(
+				companyId, groupId);
+
+			if ((providerLastModified != null) &&
+				((lastModified == null) ||
+				 providerLastModified.after(lastModified))) {
+
+				lastModified = providerLastModified;
+			}
+		}
+
+		return lastModified;
+	}
+
 	private String _getAssetTypeSitemap(
 			long groupId, boolean privateLayout, ThemeDisplay themeDisplay,
 			String assetType)
@@ -286,10 +339,9 @@ public class SitemapManagerImpl implements SitemapManager {
 
 		_initEntriesAndSize(rootElement);
 
-		if (StringUtil.equals(
-				assetType,
-				SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY.toString())) {
+		String className = _assetTypeClassNamesMap.get(assetType);
 
+		if (className != null) {
 			for (SitemapURLProvider sitemapURLProvider :
 					_getSitemapURLProviders()) {
 
@@ -297,88 +349,7 @@ public class SitemapManagerImpl implements SitemapManager {
 						themeDisplay.getCompanyId(),
 						themeDisplay.getScopeGroupId()) ||
 					!StringUtil.equals(
-						sitemapURLProvider.getClassName(),
-						AssetCategory.class.getName())) {
-
-					continue;
-				}
-
-				for (LayoutSet curLayoutSet :
-						_getLayoutSets(
-							groupId, null, privateLayout, themeDisplay)) {
-
-					sitemapURLProvider.visitLayoutSet(
-						rootElement, curLayoutSet, themeDisplay);
-				}
-			}
-		}
-		else if (StringUtil.equals(
-					assetType,
-					SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.
-						toString())) {
-
-			for (SitemapURLProvider sitemapURLProvider :
-					_getSitemapURLProviders()) {
-
-				if (!sitemapURLProvider.isInclude(
-						themeDisplay.getCompanyId(),
-						themeDisplay.getScopeGroupId()) ||
-					!StringUtil.equals(
-						sitemapURLProvider.getClassName(),
-						JournalArticle.class.getName())) {
-
-					continue;
-				}
-
-				for (LayoutSet curLayoutSet :
-						_getLayoutSets(
-							groupId, null, privateLayout, themeDisplay)) {
-
-					sitemapURLProvider.visitLayoutSet(
-						rootElement, curLayoutSet, themeDisplay);
-				}
-			}
-		}
-		else if (StringUtil.equals(
-					assetType,
-					SitemapGroupingMode.AssetTypeGroup.LAYOUT.toString())) {
-
-			for (SitemapURLProvider sitemapURLProvider :
-					_getSitemapURLProviders()) {
-
-				if (!sitemapURLProvider.isInclude(
-						themeDisplay.getCompanyId(),
-						themeDisplay.getScopeGroupId()) ||
-					!StringUtil.equals(
-						sitemapURLProvider.getClassName(),
-						Layout.class.getName())) {
-
-					continue;
-				}
-
-				for (LayoutSet curLayoutSet :
-						_getLayoutSets(
-							groupId, null, privateLayout, themeDisplay)) {
-
-					sitemapURLProvider.visitLayoutSet(
-						rootElement, curLayoutSet, themeDisplay);
-				}
-			}
-		}
-		else if (StringUtil.equals(
-					assetType,
-					SitemapGroupingMode.AssetTypeGroup.OBJECT_ENTRY.
-						toString())) {
-
-			for (SitemapURLProvider sitemapURLProvider :
-					_getSitemapURLProviders()) {
-
-				if (!sitemapURLProvider.isInclude(
-						themeDisplay.getCompanyId(),
-						themeDisplay.getScopeGroupId()) ||
-					!StringUtil.equals(
-						sitemapURLProvider.getClassName(),
-						ObjectEntry.class.getName())) {
+						sitemapURLProvider.getClassName(), className)) {
 
 					continue;
 				}
@@ -490,8 +461,7 @@ public class SitemapManagerImpl implements SitemapManager {
 					SitemapGroupingMode.AssetTypeGroup.values()) {
 
 				if (!_isAssetTypeGroupEnabled(
-						assetTypeGroup, themeDisplay.getCompanyId(),
-						groupId)) {
+						assetTypeGroup, themeDisplay.getCompanyId(), groupId)) {
 
 					continue;
 				}
@@ -502,9 +472,22 @@ public class SitemapManagerImpl implements SitemapManager {
 
 				locationElement.addText(
 					StringBundler.concat(
-						portalURL, _portal.getPathContext(),
-						"/sitemap.xml?groupId=", groupId, "&privateLayout=",
-						privateLayout, "&assetType=", assetTypeGroup));
+						portalURL, _portal.getPathContext(), "/sitemap-",
+						assetTypeGroup.getSlug(), ".xml?groupId=", groupId,
+						"&privateLayout=", privateLayout));
+
+				Date lastModified = _getAssetTypeGroupLastModified(
+					assetTypeGroup, themeDisplay.getCompanyId(), groupId);
+
+				if (lastModified != null) {
+					Element lastModifiedElement = sitemapElement.addElement(
+						"lastmod");
+
+					DateFormat w3cDateFormat = DateUtil.getISO8601Format();
+
+					lastModifiedElement.addText(
+						w3cDateFormat.format(lastModified));
+				}
 			}
 		}
 		else {
@@ -673,6 +656,28 @@ public class SitemapManagerImpl implements SitemapManager {
 		if (assetTypeGroup == SitemapGroupingMode.AssetTypeGroup.LAYOUT) {
 			return _sitemapConfigurationManager.includePagesGroupEnabled(
 				companyId, groupId);
+		}
+
+		if (assetTypeGroup ==
+				SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION) {
+
+			Long[] companySitemapObjectDefinitionIds =
+				_sitemapConfigurationManager.
+					getCompanySitemapObjectDefinitionIds(companyId);
+
+			for (Long companySitemapObjectDefinitionId :
+					companySitemapObjectDefinitionIds) {
+
+				if (_sitemapConfigurationManager.
+						isObjectDefinitionCompanyIncluded(
+							companyId,
+							String.valueOf(companySitemapObjectDefinitionId))) {
+
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		return false;
@@ -856,6 +861,15 @@ public class SitemapManagerImpl implements SitemapManager {
 	private static final Log _log = LogFactoryUtil.getLog(
 		SitemapManagerImpl.class.getName());
 
+	private static final Map<String, String> _assetTypeClassNamesMap = Map.of(
+		SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY.toString(),
+		AssetCategory.class.getName(),
+		SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.toString(),
+		JournalArticle.class.getName(),
+		SitemapGroupingMode.AssetTypeGroup.LAYOUT.toString(),
+		Layout.class.getName(),
+		SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION.toString(),
+		ObjectEntry.class.getName());
 	private static final BundleContext _bundleContext =
 		SystemBundleUtil.getBundleContext();
 

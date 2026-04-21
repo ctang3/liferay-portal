@@ -76,11 +76,13 @@ import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.redirect.model.RedirectEntry;
 import com.liferay.redirect.service.RedirectEntryLocalService;
+import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.translation.info.item.provider.InfoItemLanguagesProvider;
+
+import java.time.OffsetDateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -296,6 +298,78 @@ public class SitemapManagerTest {
 	}
 
 	@Test
+	public void testSitemapAssetTypeRespectsIncludeFlag() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"includeWebContent", false
+						).put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			JournalArticle journalArticle = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle);
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.name());
+
+			Document document = _saxReader.read(xml);
+
+			Element rootElement = document.getRootElement();
+
+			Assert.assertEquals("urlset", rootElement.getName());
+			Assert.assertTrue(
+				rootElement.elements(
+				).toString(),
+				rootElement.elements(
+				).isEmpty());
+		}
+	}
+
+	@Test
+	public void testSitemapAssetTypeWiringToProvider() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			JournalArticle journalArticle = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle);
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.name());
+
+			Document document = _saxReader.read(xml);
+
+			Element rootElement = document.getRootElement();
+
+			Assert.assertEquals("urlset", rootElement.getName());
+			Assert.assertFalse(
+				rootElement.elements(
+				).toString(),
+				rootElement.elements(
+				).isEmpty());
+		}
+	}
+
+	@Test
 	public void testSitemapAssetTypeWithXMLSitemapIndexEnabled()
 		throws Exception {
 
@@ -319,8 +393,8 @@ public class SitemapManagerTest {
 			for (int i = 0; i < assetTypeGroups.length; i++) {
 				urls[i] = StringBundler.concat(
 					_themeDisplay.getPortalURL(), _portal.getPathContext(),
-					"/sitemap.xml?groupId=", _group.getGroupId(),
-					"&privateLayout=false&assetType=", assetTypeGroups[i]);
+					"/sitemap-", assetTypeGroups[i].getSlug(), ".xml?groupId=",
+					_group.getGroupId(), "&privateLayout=false");
 			}
 
 			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK, urls);
@@ -1047,6 +1121,142 @@ public class SitemapManagerTest {
 	}
 
 	@Test
+	public void testSitemapIndexAssetTypeEmitsLastmod() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			JournalArticle journalArticle = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle);
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay, null);
+
+			Document document = _saxReader.read(xml);
+
+			Element rootElement = document.getRootElement();
+
+			Element webContentLocElement = _getLocElement(
+				rootElement.elements(),
+				_buildAssetTypeSitemapURL(
+					SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE));
+
+			Assert.assertNotNull(webContentLocElement);
+
+			Element sitemapElement = webContentLocElement.getParent();
+
+			Element lastmodElement = sitemapElement.element("lastmod");
+
+			Assert.assertNotNull(lastmodElement);
+
+			Assert.assertNotNull(
+				OffsetDateTime.parse(lastmodElement.getText()));
+		}
+	}
+
+	@Test
+	public void testSitemapIndexAssetTypeRespectsPerTypeFlagsCompany()
+		throws Exception {
+
+		String categoriesURL = _buildAssetTypeSitemapURL(
+			SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY);
+		String objectDefinitionsURL = _buildAssetTypeSitemapURL(
+			SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION);
+		String pagesURL = _buildAssetTypeSitemapURL(
+			SitemapGroupingMode.AssetTypeGroup.LAYOUT);
+		String webContentURL = _buildAssetTypeSitemapURL(
+			SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE);
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"includeWebContent", false
+						).put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			_assertSitemap(
+				false, _group.getGroupId(), StringPool.BLANK, categoriesURL,
+				objectDefinitionsURL, pagesURL);
+		}
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"includeCategories", false
+						).put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			_assertSitemap(
+				false, _group.getGroupId(), StringPool.BLANK, objectDefinitionsURL,
+				pagesURL, webContentURL);
+		}
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"includePages", false
+						).put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			_assertSitemap(
+				false, _group.getGroupId(), StringPool.BLANK, categoriesURL,
+				objectDefinitionsURL, webContentURL);
+		}
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"includeCategories", false
+						).put(
+							"includePages", false
+						).put(
+							"includeWebContent", false
+						).put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			_assertSitemap(
+				false, _group.getGroupId(), StringPool.BLANK, objectDefinitionsURL);
+		}
+	}
+
+	@Test
 	public void testSitemapWithCleanUrlEnabled() throws Exception {
 		try (SafeCloseable safeCloseable =
 				PropsValuesTestUtil.swapWithSafeCloseable(
@@ -1178,6 +1388,15 @@ public class SitemapManagerTest {
 
 			Assert.assertNotNull(_getLocElement(elements, url));
 		}
+	}
+
+	private String _buildAssetTypeSitemapURL(
+		SitemapGroupingMode.AssetTypeGroup assetTypeGroup) {
+
+		return StringBundler.concat(
+			_themeDisplay.getPortalURL(), _portal.getPathContext(), "/sitemap-",
+			assetTypeGroup.getSlug(), ".xml?groupId=", _group.getGroupId(),
+			"&privateLayout=false");
 	}
 
 	private Set<Locale> _getAvailableLocales(Layout layout)

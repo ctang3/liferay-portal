@@ -252,22 +252,6 @@ public class SitemapCompanyConfigurationDisplayContext {
 			_themeDisplay.getCompanyId());
 	}
 
-	public enum SitemapGroupingMode {
-
-		ASSET_TYPE("asset-type"), PAGE_LAYOUT("page-layout");
-
-		public String getLanguageKey() {
-			return _languageKey;
-		}
-
-		private SitemapGroupingMode(String languageKey) {
-			_languageKey = languageKey;
-		}
-
-		private final String _languageKey;
-
-	}
-
 	private Group _getGuestGroup() throws Exception {
 		if (_guestGroup != null) {
 			return _guestGroup;

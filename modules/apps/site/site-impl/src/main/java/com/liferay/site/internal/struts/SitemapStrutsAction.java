@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.site.manager.SitemapManager;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -115,12 +116,34 @@ public class SitemapStrutsAction implements StrutsAction {
 			if (currentGroup.isActive()) {
 				String assetType = ParamUtil.getString(
 					httpServletRequest, "assetType");
+				String assetTypeSlug = ParamUtil.getString(
+					httpServletRequest, "assetTypeSlug");
+
+				if (Validator.isNull(assetType) &&
+					Validator.isNotNull(assetTypeSlug)) {
+
+					SitemapGroupingMode.AssetTypeGroup assetTypeGroup =
+						SitemapGroupingMode.AssetTypeGroup.fromSlug(
+							assetTypeSlug);
+
+					if (assetTypeGroup != null) {
+						assetType = assetTypeGroup.name();
+					}
+				}
+
 				String layoutUuid = ParamUtil.getString(
 					httpServletRequest, "layoutUuid");
 
 				String sitemap = _sitemapManager.getSitemap(
 					layoutUuid, layoutSet.getGroupId(),
 					layoutSet.isPrivateLayout(), themeDisplay, assetType);
+
+				if (sitemap == null) {
+					httpServletResponse.sendError(
+						HttpServletResponse.SC_NOT_FOUND);
+
+					return null;
+				}
 
 				ServletResponseUtil.sendFile(
 					httpServletRequest, httpServletResponse, null,

@@ -5,6 +5,8 @@
 
 package com.liferay.site.constants;
 
+import java.util.Objects;
+
 /**
  * @author Cheryl Tang
  */
@@ -18,7 +20,38 @@ public enum SitemapGroupingMode {
 
 	public enum AssetTypeGroup {
 
-		ASSET_CATEGORY, JOURNAL_ARTICLE, LAYOUT, OBJECT_ENTRY
+		ASSET_CATEGORY("categories"), JOURNAL_ARTICLE("web-content"),
+		LAYOUT("pages"), OBJECT_DEFINITION("object-definitions");
+
+		public static AssetTypeGroup fromName(String name) {
+			for (AssetTypeGroup assetTypeGroup : values()) {
+				if (Objects.equals(assetTypeGroup.name(), name)) {
+					return assetTypeGroup;
+				}
+			}
+
+			return null;
+		}
+
+		public static AssetTypeGroup fromSlug(String slug) {
+			for (AssetTypeGroup assetTypeGroup : values()) {
+				if (assetTypeGroup._slug.equals(slug)) {
+					return assetTypeGroup;
+				}
+			}
+
+			return null;
+		}
+
+		public String getSlug() {
+			return _slug;
+		}
+
+		private AssetTypeGroup(String slug) {
+			_slug = slug;
+		}
+
+		private final String _slug;
 
 	}
 

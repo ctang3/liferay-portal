@@ -10,8 +10,10 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServ
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -35,6 +37,7 @@ import com.liferay.site.manager.SitemapManager;
 import com.liferay.site.provider.SitemapURLProvider;
 import com.liferay.site.provider.helper.SitemapURLProviderHelper;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +57,71 @@ public class ObjectEntrySitemapURLProvider implements SitemapURLProvider {
 	@Override
 	public String getClassName() {
 		return ObjectEntry.class.getName();
+	}
+
+	@Override
+	public Date getLastModified(long companyId, long groupId)
+		throws PortalException {
+
+		Date lastModified = null;
+
+		Long[] objectDefinitionIds =
+			_sitemapConfigurationManager.getCompanySitemapObjectDefinitionIds(
+				companyId);
+
+		for (long objectDefinitionId : objectDefinitionIds) {
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.fetchObjectDefinition(
+					objectDefinitionId);
+
+			if (objectDefinition == null) {
+				continue;
+			}
+
+			long scopedGroupId = groupId;
+
+			if (Objects.equals(
+					objectDefinition.getScope(),
+					ObjectDefinitionConstants.SCOPE_COMPANY)) {
+
+				scopedGroupId = GroupConstants.DEFAULT_PARENT_GROUP_ID;
+			}
+
+			List<Date> modifiedDates = _objectEntryLocalService.dslQuery(
+				DSLQueryFactoryUtil.select(
+					ObjectEntryTable.INSTANCE.modifiedDate
+				).from(
+					ObjectEntryTable.INSTANCE
+				).where(
+					ObjectEntryTable.INSTANCE.groupId.eq(
+						scopedGroupId
+					).and(
+						ObjectEntryTable.INSTANCE.objectDefinitionId.eq(
+							objectDefinition.getObjectDefinitionId())
+					).and(
+						ObjectEntryTable.INSTANCE.status.eq(
+							WorkflowConstants.STATUS_APPROVED)
+					).and(
+						ObjectEntryTable.INSTANCE.modifiedDate.isNotNull()
+					)
+				).orderBy(
+					ObjectEntryTable.INSTANCE.modifiedDate.descending()
+				).limit(
+					0, 1
+				));
+
+			if (modifiedDates.isEmpty()) {
+				continue;
+			}
+
+			Date modifiedDate = modifiedDates.get(0);
+
+			if ((lastModified == null) || modifiedDate.after(lastModified)) {
+				lastModified = modifiedDate;
+			}
+		}
+
+		return lastModified;
 	}
 
 	@Override
