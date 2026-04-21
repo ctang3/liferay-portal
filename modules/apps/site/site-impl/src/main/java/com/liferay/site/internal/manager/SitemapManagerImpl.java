@@ -236,7 +236,7 @@ public class SitemapManagerImpl implements SitemapManager {
 			_sitemapConfigurationManager.xmlSitemapIndexCompanyEnabled(
 				themeDisplay.getCompanyId())) {
 
-			if (!assetType.isEmpty()) {
+			if (Validator.isNotNull(assetType)) {
 				return _getAssetTypeSitemap(
 					groupId, privateLayout, themeDisplay, assetType);
 			}
@@ -489,6 +489,13 @@ public class SitemapManagerImpl implements SitemapManager {
 			for (SitemapGroupingMode.AssetTypeGroup assetTypeGroup :
 					SitemapGroupingMode.AssetTypeGroup.values()) {
 
+				if (!_isAssetTypeGroupEnabled(
+						assetTypeGroup, themeDisplay.getCompanyId(),
+						groupId)) {
+
+					continue;
+				}
+
 				Element sitemapElement = rootElement.addElement("sitemap");
 
 				Element locationElement = sitemapElement.addElement("loc");
@@ -496,8 +503,8 @@ public class SitemapManagerImpl implements SitemapManager {
 				locationElement.addText(
 					StringBundler.concat(
 						portalURL, _portal.getPathContext(),
-						"/sitemap.xml?groupId=", groupId, "&assetType=",
-						assetTypeGroup));
+						"/sitemap.xml?groupId=", groupId, "&privateLayout=",
+						privateLayout, "&assetType=", assetTypeGroup));
 			}
 		}
 		else {
@@ -642,6 +649,33 @@ public class SitemapManagerImpl implements SitemapManager {
 		int size = _getSize(rootElement);
 
 		rootElement.addAttribute("size", String.valueOf(size));
+	}
+
+	private boolean _isAssetTypeGroupEnabled(
+			SitemapGroupingMode.AssetTypeGroup assetTypeGroup, long companyId,
+			long groupId)
+		throws PortalException {
+
+		if (assetTypeGroup ==
+				SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY) {
+
+			return _sitemapConfigurationManager.includeCategoriesGroupEnabled(
+				companyId, groupId);
+		}
+
+		if (assetTypeGroup ==
+				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE) {
+
+			return _sitemapConfigurationManager.includeWebContentGroupEnabled(
+				companyId, groupId);
+		}
+
+		if (assetTypeGroup == SitemapGroupingMode.AssetTypeGroup.LAYOUT) {
+			return _sitemapConfigurationManager.includePagesGroupEnabled(
+				companyId, groupId);
+		}
+
+		return false;
 	}
 
 	private boolean _isCompanyVirtualHostname(ThemeDisplay themeDisplay) {

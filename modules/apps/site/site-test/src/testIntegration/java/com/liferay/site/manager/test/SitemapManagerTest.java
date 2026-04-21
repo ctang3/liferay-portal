@@ -305,13 +305,6 @@ public class SitemapManagerTest {
 						TestPropsValues.getCompanyId(),
 						_PID_SITEMAP_COMPANY_CONFIGURATION,
 						HashMapDictionaryBuilder.<String, Object>put(
-							"xmlSitemapIndexEnabled", true
-						).build());
-			GroupConfigurationTemporarySwapper
-				groupConfigurationTemporarySwapper =
-					new GroupConfigurationTemporarySwapper(
-						_group.getGroupId(), _PID_SITEMAP_GROUP_CONFIGURATION,
-						HashMapDictionaryBuilder.<String, Object>put(
 							"xmlSitemapGroupingMode",
 							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
 						).put(
@@ -326,8 +319,8 @@ public class SitemapManagerTest {
 			for (int i = 0; i < assetTypeGroups.length; i++) {
 				urls[i] = StringBundler.concat(
 					_themeDisplay.getPortalURL(), _portal.getPathContext(),
-					"/sitemap.xml?groupId=", _group.getGroupId(), "&assetType=",
-					assetTypeGroups[i]);
+					"/sitemap.xml?groupId=", _group.getGroupId(),
+					"&privateLayout=false&assetType=", assetTypeGroups[i]);
 			}
 
 			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK, urls);
