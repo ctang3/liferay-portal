@@ -31,6 +31,13 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.test.util.DisplayPageTemplateTestUtil;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
+import com.liferay.object.constants.ObjectEntryFolderConstants;
+import com.liferay.object.field.builder.TextObjectFieldBuilder;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
@@ -60,6 +67,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -67,6 +75,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TreeMapBuilder;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -76,11 +85,14 @@ import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.redirect.model.RedirectEntry;
 import com.liferay.redirect.service.RedirectEntryLocalService;
 import com.liferay.site.constants.SitemapGroupingMode;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.translation.info.item.provider.InfoItemLanguagesProvider;
+
+import java.io.Serializable;
 
 import java.time.OffsetDateTime;
 
@@ -298,7 +310,72 @@ public class SitemapManagerTest {
 	}
 
 	@Test
-	public void testSitemapAssetTypeRespectsIncludeFlag() throws Exception {
+	public void testSitemapByAssetTypeObjectDefinitionRespectsIncludeFilter()
+		throws Exception {
+
+		_includedObjectDefinition = _publishObjectDefinition();
+		_excludedObjectDefinition = _publishObjectDefinition();
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"companySitemapObjectDefinitionIds",
+							new String[] {
+								String.valueOf(
+									_includedObjectDefinition.
+										getObjectDefinitionId())
+							}
+						).put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			ObjectEntry includedObjectEntry = _addObjectEntry(
+				_includedObjectDefinition);
+			ObjectEntry excludedObjectEntry = _addObjectEntry(
+				_excludedObjectDefinition);
+
+			_addObjectDefinitionDisplayPage(_includedObjectDefinition);
+			_addObjectDefinitionDisplayPage(_excludedObjectDefinition);
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION.name());
+
+			Document document = _saxReader.read(xml);
+
+			Element rootElement = document.getRootElement();
+
+			List<Element> urlElements = rootElement.elements("url");
+
+			Assert.assertEquals(xml, 1, urlElements.size());
+
+			Element urlElement = urlElements.get(0);
+
+			Element locElement = urlElement.element("loc");
+
+			String locElementText = locElement.getText();
+
+			Assert.assertTrue(
+				locElementText,
+				locElementText.contains(
+					_getObjectEntryFriendlyURL(
+						includedObjectEntry, _includedObjectDefinition)));
+			Assert.assertFalse(
+				locElementText,
+				locElementText.contains(
+					_getObjectEntryFriendlyURL(
+						excludedObjectEntry, _excludedObjectDefinition)));
+		}
+	}
+
+	@Test
+	public void testSitemapByAssetTypeRespectsIncludeFlag() throws Exception {
 		try (CompanyConfigurationTemporarySwapper
 				companyConfigurationTemporarySwapper =
 					new CompanyConfigurationTemporarySwapper(
@@ -321,21 +398,12 @@ public class SitemapManagerTest {
 				null, _group.getGroupId(), false, _themeDisplay,
 				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.name());
 
-			Document document = _saxReader.read(xml);
-
-			Element rootElement = document.getRootElement();
-
-			Assert.assertEquals("urlset", rootElement.getName());
-			Assert.assertTrue(
-				rootElement.elements(
-				).toString(),
-				rootElement.elements(
-				).isEmpty());
+			Assert.assertNull(xml);
 		}
 	}
 
 	@Test
-	public void testSitemapAssetTypeWiringToProvider() throws Exception {
+	public void testSitemapByAssetTypeWiringToProvider() throws Exception {
 		try (CompanyConfigurationTemporarySwapper
 				companyConfigurationTemporarySwapper =
 					new CompanyConfigurationTemporarySwapper(
@@ -360,44 +428,11 @@ public class SitemapManagerTest {
 
 			Element rootElement = document.getRootElement();
 
+			List<Element> elements = rootElement.elements();
+
 			Assert.assertEquals("urlset", rootElement.getName());
-			Assert.assertFalse(
-				rootElement.elements(
-				).toString(),
-				rootElement.elements(
-				).isEmpty());
-		}
-	}
 
-	@Test
-	public void testSitemapAssetTypeWithXMLSitemapIndexEnabled()
-		throws Exception {
-
-		try (CompanyConfigurationTemporarySwapper
-				companyConfigurationTemporarySwapper =
-					new CompanyConfigurationTemporarySwapper(
-						TestPropsValues.getCompanyId(),
-						_PID_SITEMAP_COMPANY_CONFIGURATION,
-						HashMapDictionaryBuilder.<String, Object>put(
-							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
-						).put(
-							"xmlSitemapIndexEnabled", true
-						).build())) {
-
-			SitemapGroupingMode.AssetTypeGroup[] assetTypeGroups =
-				SitemapGroupingMode.AssetTypeGroup.values();
-
-			String[] urls = new String[assetTypeGroups.length];
-
-			for (int i = 0; i < assetTypeGroups.length; i++) {
-				urls[i] = StringBundler.concat(
-					_themeDisplay.getPortalURL(), _portal.getPathContext(),
-					"/sitemap-", assetTypeGroups[i].getSlug(), ".xml?groupId=",
-					_group.getGroupId(), "&privateLayout=false");
-			}
-
-			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK, urls);
+			Assert.assertFalse(elements.toString(), elements.isEmpty());
 		}
 	}
 
@@ -1121,7 +1156,43 @@ public class SitemapManagerTest {
 	}
 
 	@Test
-	public void testSitemapIndexAssetTypeEmitsLastmod() throws Exception {
+	public void testSitemapIndexByAssetType() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			SitemapGroupingMode.AssetTypeGroup[] assetTypeGroups =
+				SitemapGroupingMode.AssetTypeGroup.values();
+
+			String[] urls = new String[assetTypeGroups.length - 1];
+
+			for (int i = 0; i < assetTypeGroups.length; i++) {
+				if (assetTypeGroups[i] ==
+						SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION) {
+
+					continue;
+				}
+
+				urls[i] = StringBundler.concat(
+					_themeDisplay.getPortalURL(), _portal.getPathContext(),
+					"/sitemap-", assetTypeGroups[i].getSlug(), ".xml?groupId=",
+					_group.getGroupId(), "&privateLayout=false");
+			}
+
+			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK, urls);
+		}
+	}
+
+	@Test
+	public void testSitemapIndexByAssetTypeEmitsLastmod() throws Exception {
 		try (CompanyConfigurationTemporarySwapper
 				companyConfigurationTemporarySwapper =
 					new CompanyConfigurationTemporarySwapper(
@@ -1164,13 +1235,11 @@ public class SitemapManagerTest {
 	}
 
 	@Test
-	public void testSitemapIndexAssetTypeRespectsPerTypeFlagsCompany()
+	public void testSitemapIndexByAssetTypeRespectsPerTypeFlagsCompany()
 		throws Exception {
 
 		String categoriesURL = _buildAssetTypeSitemapURL(
 			SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY);
-		String objectDefinitionsURL = _buildAssetTypeSitemapURL(
-			SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION);
 		String pagesURL = _buildAssetTypeSitemapURL(
 			SitemapGroupingMode.AssetTypeGroup.LAYOUT);
 		String webContentURL = _buildAssetTypeSitemapURL(
@@ -1192,7 +1261,7 @@ public class SitemapManagerTest {
 
 			_assertSitemap(
 				false, _group.getGroupId(), StringPool.BLANK, categoriesURL,
-				objectDefinitionsURL, pagesURL);
+				pagesURL);
 		}
 
 		try (CompanyConfigurationTemporarySwapper
@@ -1210,8 +1279,8 @@ public class SitemapManagerTest {
 						).build())) {
 
 			_assertSitemap(
-				false, _group.getGroupId(), StringPool.BLANK, objectDefinitionsURL,
-				pagesURL, webContentURL);
+				false, _group.getGroupId(), StringPool.BLANK, pagesURL,
+				webContentURL);
 		}
 
 		try (CompanyConfigurationTemporarySwapper
@@ -1230,7 +1299,7 @@ public class SitemapManagerTest {
 
 			_assertSitemap(
 				false, _group.getGroupId(), StringPool.BLANK, categoriesURL,
-				objectDefinitionsURL, webContentURL);
+				webContentURL);
 		}
 
 		try (CompanyConfigurationTemporarySwapper
@@ -1251,8 +1320,7 @@ public class SitemapManagerTest {
 							"xmlSitemapIndexEnabled", true
 						).build())) {
 
-			_assertSitemap(
-				false, _group.getGroupId(), StringPool.BLANK, objectDefinitionsURL);
+			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK);
 		}
 	}
 
@@ -1326,6 +1394,30 @@ public class SitemapManagerTest {
 			journalArticle.getResourcePrimKey(),
 			journalArticle.getDDMStructureKey(),
 			AssetDisplayPageConstants.TYPE_SPECIFIC);
+	}
+
+	private void _addObjectDefinitionDisplayPage(
+			ObjectDefinition objectDefinition)
+		throws Exception {
+
+		DisplayPageTemplateTestUtil.addDisplayPageTemplate(
+			_group.getGroupId(),
+			_portal.getClassNameId(objectDefinition.getClassName()), null, true,
+			WorkflowConstants.STATUS_APPROVED);
+	}
+
+	private ObjectEntry _addObjectEntry(ObjectDefinition objectDefinition)
+		throws Exception {
+
+		return _objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId(),
+			ObjectEntryFolderConstants.PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
+			null,
+			HashMapBuilder.<String, Serializable>put(
+				"textObjectField", RandomTestUtil.randomString()
+			).build(),
+			ServiceContextTestUtil.getServiceContext());
 	}
 
 	private void _addRedirectEntry(String sourceURL) throws Exception {
@@ -1482,6 +1574,23 @@ public class SitemapManagerTest {
 		return null;
 	}
 
+	private String _getObjectEntryFriendlyURL(
+		ObjectEntry objectEntry, ObjectDefinition objectDefinition) {
+
+		String urlTitle = objectEntry.getURLTitle(
+			LocaleUtil.fromLanguageId(_themeDisplay.getLanguageId()));
+
+		if (Validator.isNotNull(urlTitle)) {
+			return urlTitle;
+		}
+
+		if (!objectDefinition.isDefaultStorageType()) {
+			return objectEntry.getExternalReferenceCode();
+		}
+
+		return String.valueOf(objectEntry.getObjectEntryId());
+	}
+
 	private String[] _getSitemapLayoutURLs(long groupId) {
 		return ArrayUtil.append(
 			TransformUtil.transformToArray(
@@ -1520,6 +1629,25 @@ public class SitemapManagerTest {
 					return null;
 				},
 				String[].class));
+	}
+
+	private ObjectDefinition _publishObjectDefinition() throws Exception {
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionTestUtil.addCustomObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						"textObjectField"
+					).objectFieldSettings(
+						Collections.emptyList()
+					).build()));
+
+		return _objectDefinitionLocalService.publishCustomObjectDefinition(
+			TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId());
 	}
 
 	private void _setUpAssetCategoryDisplayPage() throws Exception {
@@ -1741,6 +1869,9 @@ public class SitemapManagerTest {
 	@Inject
 	private CPFriendlyURL _cpFriendlyURL;
 
+	@DeleteAfterTestRun
+	private ObjectDefinition _excludedObjectDefinition;
+
 	@Inject
 	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 
@@ -1749,6 +1880,9 @@ public class SitemapManagerTest {
 
 	@Inject
 	private GroupLocalService _groupLocalService;
+
+	@DeleteAfterTestRun
+	private ObjectDefinition _includedObjectDefinition;
 
 	@Inject
 	private InfoItemServiceRegistry _infoItemServiceRegistry;
@@ -1760,6 +1894,12 @@ public class SitemapManagerTest {
 
 	@Inject
 	private LayoutSetLocalService _layoutSetLocalService;
+
+	@Inject
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Inject
+	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Inject
 	private Portal _portal;
