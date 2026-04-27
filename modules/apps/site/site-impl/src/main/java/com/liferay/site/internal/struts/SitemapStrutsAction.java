@@ -28,7 +28,7 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.site.constants.SitemapGroupingMode;
+import com.liferay.site.constants.SitemapGroupingModeConstants;
 import com.liferay.site.manager.SitemapManager;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -122,13 +122,9 @@ public class SitemapStrutsAction implements StrutsAction {
 				if (Validator.isNull(assetType) &&
 					Validator.isNotNull(assetTypeSlug)) {
 
-					SitemapGroupingMode.AssetTypeGroup assetTypeGroup =
-						SitemapGroupingMode.AssetTypeGroup.fromSlug(
+					assetType =
+						SitemapGroupingModeConstants.AssetTypeGroup.fromSlug(
 							assetTypeSlug);
-
-					if (assetTypeGroup != null) {
-						assetType = assetTypeGroup.name();
-					}
 				}
 
 				String layoutUuid = ParamUtil.getString(

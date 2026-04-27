@@ -88,7 +88,7 @@ import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.redirect.model.RedirectEntry;
 import com.liferay.redirect.service.RedirectEntryLocalService;
-import com.liferay.site.constants.SitemapGroupingMode;
+import com.liferay.site.constants.SitemapGroupingModeConstants;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.translation.info.item.provider.InfoItemLanguagesProvider;
 
@@ -330,7 +330,7 @@ public class SitemapManagerTest {
 							}
 						).put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -345,7 +345,7 @@ public class SitemapManagerTest {
 
 			String xml = _sitemapManager.getSitemap(
 				null, _group.getGroupId(), false, _themeDisplay,
-				SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION.name());
+				SitemapGroupingModeConstants.AssetTypeGroup.OBJECT_ENTRIES);
 
 			Document document = _saxReader.read(xml);
 
@@ -385,7 +385,7 @@ public class SitemapManagerTest {
 							"includeWebContent", false
 						).put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -396,7 +396,7 @@ public class SitemapManagerTest {
 
 			String xml = _sitemapManager.getSitemap(
 				null, _group.getGroupId(), false, _themeDisplay,
-				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.name());
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
 
 			Assert.assertNull(xml);
 		}
@@ -411,7 +411,7 @@ public class SitemapManagerTest {
 						_PID_SITEMAP_COMPANY_CONFIGURATION,
 						HashMapDictionaryBuilder.<String, Object>put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -422,7 +422,7 @@ public class SitemapManagerTest {
 
 			String xml = _sitemapManager.getSitemap(
 				null, _group.getGroupId(), false, _themeDisplay,
-				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.name());
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
 
 			Document document = _saxReader.read(xml);
 
@@ -1164,30 +1164,38 @@ public class SitemapManagerTest {
 						_PID_SITEMAP_COMPANY_CONFIGURATION,
 						HashMapDictionaryBuilder.<String, Object>put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
 
-			SitemapGroupingMode.AssetTypeGroup[] assetTypeGroups =
-				SitemapGroupingMode.AssetTypeGroup.values();
+			List<String> assetTypeGroups =
+				SitemapGroupingModeConstants.AssetTypeGroup.names;
 
-			String[] urls = new String[assetTypeGroups.length - 1];
+			List<String> urls = new ArrayList<>(assetTypeGroups.size() - 1);
 
-			for (int i = 0; i < assetTypeGroups.length; i++) {
-				if (assetTypeGroups[i] ==
-						SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION) {
+			for (String assetTypeGroup : assetTypeGroups) {
+				if (StringUtil.equals(
+						assetTypeGroup,
+						SitemapGroupingModeConstants.AssetTypeGroup.
+							OBJECT_ENTRIES)) {
 
 					continue;
 				}
 
-				urls[i] = StringBundler.concat(
-					_themeDisplay.getPortalURL(), _portal.getPathContext(),
-					"/sitemap-", assetTypeGroups[i].getSlug(), ".xml?groupId=",
-					_group.getGroupId(), "&privateLayout=false");
+				urls.add(
+					StringBundler.concat(
+						_themeDisplay.getPortalURL(), _portal.getPathContext(),
+						"/sitemap-",
+						SitemapGroupingModeConstants.AssetTypeGroup.getSlug(
+							assetTypeGroup),
+						".xml?groupId=", _group.getGroupId(),
+						"&privateLayout=false"));
 			}
 
-			_assertSitemap(false, _group.getGroupId(), StringPool.BLANK, urls);
+			_assertSitemap(
+				false, _group.getGroupId(), StringPool.BLANK,
+				ArrayUtil.toStringArray(urls));
 		}
 	}
 
@@ -1200,7 +1208,7 @@ public class SitemapManagerTest {
 						_PID_SITEMAP_COMPANY_CONFIGURATION,
 						HashMapDictionaryBuilder.<String, Object>put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -1219,7 +1227,8 @@ public class SitemapManagerTest {
 			Element webContentLocElement = _getLocElement(
 				rootElement.elements(),
 				_buildAssetTypeSitemapURL(
-					SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE));
+					SitemapGroupingModeConstants.AssetTypeGroup.
+						JOURNAL_ARTICLE));
 
 			Assert.assertNotNull(webContentLocElement);
 
@@ -1239,11 +1248,11 @@ public class SitemapManagerTest {
 		throws Exception {
 
 		String categoriesURL = _buildAssetTypeSitemapURL(
-			SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY);
+			SitemapGroupingModeConstants.AssetTypeGroup.ASSET_CATEGORY);
 		String pagesURL = _buildAssetTypeSitemapURL(
-			SitemapGroupingMode.AssetTypeGroup.LAYOUT);
+			SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT);
 		String webContentURL = _buildAssetTypeSitemapURL(
-			SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE);
+			SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
 
 		try (CompanyConfigurationTemporarySwapper
 				companyConfigurationTemporarySwapper =
@@ -1254,7 +1263,7 @@ public class SitemapManagerTest {
 							"includeWebContent", false
 						).put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -1273,7 +1282,7 @@ public class SitemapManagerTest {
 							"includeCategories", false
 						).put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -1292,7 +1301,7 @@ public class SitemapManagerTest {
 							"includePages", false
 						).put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -1315,7 +1324,7 @@ public class SitemapManagerTest {
 							"includeWebContent", false
 						).put(
 							"xmlSitemapGroupingMode",
-							String.valueOf(SitemapGroupingMode.ASSET_TYPE)
+							SitemapGroupingModeConstants.ASSET_TYPE
 						).put(
 							"xmlSitemapIndexEnabled", true
 						).build())) {
@@ -1482,13 +1491,11 @@ public class SitemapManagerTest {
 		}
 	}
 
-	private String _buildAssetTypeSitemapURL(
-		SitemapGroupingMode.AssetTypeGroup assetTypeGroup) {
-
+	private String _buildAssetTypeSitemapURL(String assetTypeGroup) {
 		return StringBundler.concat(
 			_themeDisplay.getPortalURL(), _portal.getPathContext(), "/sitemap-",
-			assetTypeGroup.getSlug(), ".xml?groupId=", _group.getGroupId(),
-			"&privateLayout=false");
+			SitemapGroupingModeConstants.AssetTypeGroup.getSlug(assetTypeGroup),
+			".xml?groupId=", _group.getGroupId(), "&privateLayout=false");
 	}
 
 	private Set<Locale> _getAvailableLocales(Layout layout)

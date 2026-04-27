@@ -30,7 +30,7 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
 import com.liferay.site.configuration.manager.SitemapConfigurationManager;
-import com.liferay.site.constants.SitemapGroupingMode;
+import com.liferay.site.constants.SitemapGroupingModeConstants;
 import com.liferay.site.item.selector.SiteItemSelectorCriterion;
 
 import java.util.ArrayList;
@@ -196,20 +196,19 @@ public class SitemapCompanyConfigurationDisplayContext {
 
 		List<SelectOption> selectOptions = new ArrayList<>();
 
-		for (SitemapGroupingMode sitemapGroupingMode :
-				SitemapGroupingMode.values()) {
-
+		for (String sitemapGroupingMode : SitemapGroupingModeConstants.values) {
 			String groupingModeName = LanguageUtil.get(
 				_themeDisplay.getLocale(),
-				sitemapGroupingMode.getLanguageKey());
+				SitemapGroupingModeConstants.getLanguageKey(
+					sitemapGroupingMode));
 
 			selectOptions.add(
 				new SelectOption(
 					LanguageUtil.get(_themeDisplay.getLocale(), "group-by") +
 						StringPool.SPACE + groupingModeName,
-					sitemapGroupingMode.name(),
+					sitemapGroupingMode,
 					StringUtil.equals(
-						sitemapGroupingMode.name(), xmlSitemapGroupingMode())));
+						sitemapGroupingMode, xmlSitemapGroupingMode())));
 		}
 
 		return selectOptions;

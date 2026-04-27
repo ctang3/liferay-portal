@@ -5,10 +5,7 @@
 
 package com.liferay.site.internal.manager;
 
-import com.liferay.asset.kernel.model.AssetCategory;
-import com.liferay.journal.model.JournalArticle;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
-import com.liferay.object.model.ObjectEntry;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -48,7 +45,7 @@ import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.util.LayoutTypeControllerTracker;
 import com.liferay.redirect.provider.RedirectProvider;
 import com.liferay.site.configuration.manager.SitemapConfigurationManager;
-import com.liferay.site.constants.SitemapGroupingMode;
+import com.liferay.site.constants.SitemapGroupingModeConstants;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.site.provider.SitemapURLProvider;
 
@@ -235,17 +232,15 @@ public class SitemapManagerImpl implements SitemapManager {
 		if (Validator.isNotNull(assetType)) {
 			long companyId = themeDisplay.getCompanyId();
 
-			SitemapGroupingMode.AssetTypeGroup assetTypeGroup =
-				SitemapGroupingMode.AssetTypeGroup.fromName(assetType);
-
-			if ((assetTypeGroup == null) ||
+			if (!SitemapGroupingModeConstants.AssetTypeGroup.names.contains(
+					assetType) ||
 				!_sitemapConfigurationManager.xmlSitemapIndexCompanyEnabled(
 					companyId) ||
 				!StringUtil.equals(
 					_sitemapConfigurationManager.xmlSitemapGroupingMode(
 						companyId),
-					String.valueOf(SitemapGroupingMode.ASSET_TYPE)) ||
-				!_isAssetTypeGroupEnabled(assetTypeGroup, companyId, groupId)) {
+					SitemapGroupingModeConstants.ASSET_TYPE) ||
+				!_isAssetTypeGroupEnabled(assetType, companyId, groupId)) {
 
 				return null;
 			}
@@ -282,11 +277,10 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	private Date _getAssetTypeGroupLastModified(
-			SitemapGroupingMode.AssetTypeGroup assetTypeGroup, long companyId,
-			long groupId)
+			String assetTypeGroup, long companyId, long groupId)
 		throws PortalException {
 
-		String className = _assetTypeClassNamesMap.get(assetTypeGroup.name());
+		String className = _assetTypeClassNamesMap.get(assetTypeGroup);
 
 		if (className == null) {
 			return null;
@@ -453,12 +447,12 @@ public class SitemapManagerImpl implements SitemapManager {
 		if (StringUtil.equals(
 				_sitemapConfigurationManager.xmlSitemapGroupingMode(
 					themeDisplay.getCompanyId()),
-				String.valueOf(SitemapGroupingMode.ASSET_TYPE))) {
+				SitemapGroupingModeConstants.ASSET_TYPE)) {
 
 			String portalURL = themeDisplay.getPortalURL();
 
-			for (SitemapGroupingMode.AssetTypeGroup assetTypeGroup :
-					SitemapGroupingMode.AssetTypeGroup.values()) {
+			for (String assetTypeGroup :
+					SitemapGroupingModeConstants.AssetTypeGroup.names) {
 
 				if (!_isAssetTypeGroupEnabled(
 						assetTypeGroup, themeDisplay.getCompanyId(), groupId)) {
@@ -473,8 +467,10 @@ public class SitemapManagerImpl implements SitemapManager {
 				locationElement.addText(
 					StringBundler.concat(
 						portalURL, _portal.getPathContext(), "/sitemap-",
-						assetTypeGroup.getSlug(), ".xml?groupId=", groupId,
-						"&privateLayout=", privateLayout));
+						SitemapGroupingModeConstants.AssetTypeGroup.getSlug(
+							assetTypeGroup),
+						".xml?groupId=", groupId, "&privateLayout=",
+						privateLayout));
 
 				Date lastModified = _getAssetTypeGroupLastModified(
 					assetTypeGroup, themeDisplay.getCompanyId(), groupId);
@@ -635,31 +631,36 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	private boolean _isAssetTypeGroupEnabled(
-			SitemapGroupingMode.AssetTypeGroup assetTypeGroup, long companyId,
-			long groupId)
+			String assetTypeGroup, long companyId, long groupId)
 		throws PortalException {
 
-		if (assetTypeGroup ==
-				SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY) {
+		if (StringUtil.equals(
+				assetTypeGroup,
+				SitemapGroupingModeConstants.AssetTypeGroup.ASSET_CATEGORY)) {
 
 			return _sitemapConfigurationManager.includeCategoriesGroupEnabled(
 				companyId, groupId);
 		}
 
-		if (assetTypeGroup ==
-				SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE) {
+		if (StringUtil.equals(
+				assetTypeGroup,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE)) {
 
 			return _sitemapConfigurationManager.includeWebContentGroupEnabled(
 				companyId, groupId);
 		}
 
-		if (assetTypeGroup == SitemapGroupingMode.AssetTypeGroup.LAYOUT) {
+		if (StringUtil.equals(
+				assetTypeGroup,
+				SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT)) {
+
 			return _sitemapConfigurationManager.includePagesGroupEnabled(
 				companyId, groupId);
 		}
 
-		if (assetTypeGroup ==
-				SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION) {
+		if (StringUtil.equals(
+				assetTypeGroup,
+				SitemapGroupingModeConstants.AssetTypeGroup.OBJECT_ENTRIES)) {
 
 			Long[] companySitemapObjectDefinitionIds =
 				_sitemapConfigurationManager.
@@ -862,14 +863,14 @@ public class SitemapManagerImpl implements SitemapManager {
 		SitemapManagerImpl.class.getName());
 
 	private static final Map<String, String> _assetTypeClassNamesMap = Map.of(
-		SitemapGroupingMode.AssetTypeGroup.ASSET_CATEGORY.toString(),
-		AssetCategory.class.getName(),
-		SitemapGroupingMode.AssetTypeGroup.JOURNAL_ARTICLE.toString(),
-		JournalArticle.class.getName(),
-		SitemapGroupingMode.AssetTypeGroup.LAYOUT.toString(),
-		Layout.class.getName(),
-		SitemapGroupingMode.AssetTypeGroup.OBJECT_DEFINITION.toString(),
-		ObjectEntry.class.getName());
+		SitemapGroupingModeConstants.AssetTypeGroup.ASSET_CATEGORY,
+		SitemapGroupingModeConstants.AssetTypeGroup.ASSET_CATEGORY_CLASS_NAME,
+		SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE,
+		SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE_CLASS_NAME,
+		SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT,
+		SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT_CLASS_NAME,
+		SitemapGroupingModeConstants.AssetTypeGroup.OBJECT_ENTRIES,
+		SitemapGroupingModeConstants.AssetTypeGroup.OBJECT_ENTRY_CLASS_NAME);
 	private static final BundleContext _bundleContext =
 		SystemBundleUtil.getBundleContext();
 
