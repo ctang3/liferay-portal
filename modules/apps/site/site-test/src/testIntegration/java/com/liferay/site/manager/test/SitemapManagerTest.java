@@ -1218,7 +1218,7 @@ public class SitemapManagerTest {
 			_addJournalArticleAssetDisplayPageEntry(journalArticle);
 
 			String xml = _sitemapManager.getSitemap(
-				null, _group.getGroupId(), false, _themeDisplay, null);
+				null, _group.getGroupId(), false, _themeDisplay);
 
 			Document document = _saxReader.read(xml);
 
@@ -1448,7 +1448,7 @@ public class SitemapManagerTest {
 		throws Exception {
 
 		String xml = _sitemapManager.getSitemap(
-			uuid, groupId, false, _themeDisplay, null);
+			uuid, groupId, false, _themeDisplay);
 
 		Document document = _saxReader.read(xml);
 

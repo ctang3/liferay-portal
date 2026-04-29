@@ -220,7 +220,17 @@ public class SitemapManagerImpl implements SitemapManager {
 			long groupId, boolean privateLayout, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		return getSitemap(null, groupId, privateLayout, themeDisplay, null);
+		return getSitemap(null, groupId, privateLayout, themeDisplay);
+	}
+
+	@Override
+	public String getSitemap(
+			String layoutUuid, long groupId, boolean privateLayout,
+			ThemeDisplay themeDisplay)
+		throws PortalException {
+
+		return getSitemap(
+			layoutUuid, groupId, privateLayout, themeDisplay, null);
 	}
 
 	@Override

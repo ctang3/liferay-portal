@@ -52,6 +52,11 @@ public interface SitemapManager {
 
 	public String getSitemap(
 			String layoutUuid, long groupId, boolean privateLayout,
+			ThemeDisplay themeDisplay)
+		throws PortalException;
+
+	public String getSitemap(
+			String layoutUuid, long groupId, boolean privateLayout,
 			ThemeDisplay themeDisplay, String assetType)
 		throws PortalException;
 
