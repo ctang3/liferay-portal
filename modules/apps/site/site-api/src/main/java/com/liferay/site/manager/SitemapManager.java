@@ -60,4 +60,6 @@ public interface SitemapManager {
 			ThemeDisplay themeDisplay, String assetType)
 		throws PortalException;
 
+	public void invalidateSitemapCache(long groupId, String assetType);
+
 }
