@@ -170,9 +170,20 @@ public class SitemapManagerTest {
 	@After
 	public void tearDown() {
 		try {
+			_sitemapManager.invalidateSitemapCache(_group.getGroupId());
+
 			_dlStore.deleteDirectory(
 				TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
 				"sitemaps/" + _group.getGroupId());
+
+			Group guestGroup = _groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.GUEST);
+
+			_sitemapManager.invalidateSitemapCache(guestGroup.getGroupId());
+
+			_dlStore.deleteDirectory(
+				TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+				"sitemaps/" + guestGroup.getGroupId());
 		}
 		catch (Exception exception) {
 		}
@@ -555,6 +566,56 @@ public class SitemapManagerTest {
 	}
 
 	@Test
+	public void testPageLayoutIndexSitemapStoredInDLStore() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.PAGE_LAYOUT
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay);
+
+			Assert.assertNotNull(xml);
+
+			Document document = _saxReader.read(xml);
+
+			Assert.assertEquals(
+				"sitemapindex",
+				document.getRootElement(
+				).getName());
+
+			Assert.assertTrue(
+				_dlStore.hasFile(
+					TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+					_getPageLayoutFileName("index-page-layout", 1),
+					Store.VERSION_DEFAULT));
+		}
+	}
+
+	@Test
+	public void testPageLayoutSitemapStoredInDLStore() throws Exception {
+		String xml = _sitemapManager.getSitemap(
+			_layout.getUuid(), _group.getGroupId(), false, _themeDisplay);
+
+		Assert.assertNotNull(xml);
+
+		try (InputStream inputStream = _dlStore.getFileAsStream(
+				TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+				_getPageLayoutFileName("page-layout/" + _layout.getUuid(), 1),
+				Store.VERSION_DEFAULT)) {
+
+			Assert.assertEquals(xml, StringUtil.read(inputStream));
+		}
+	}
+
+	@Test
 	public void testSitemapByAssetTypeObjectDefinitionRespectsIncludeFilter()
 		throws Exception {
 
@@ -849,6 +910,8 @@ public class SitemapManagerTest {
 		_layoutLocalService.updateTypeSettings(
 			childLayout, typeSettingsUnicodeProperties.toString());
 
+		_sitemapManager.invalidateSitemapCache(_group.getGroupId());
+
 		_testSitemapIncludePagesCompanyEnabledGroupEnabled(
 			childLayout.getUuid(), childLayoutCanonicalURL);
 
@@ -862,6 +925,8 @@ public class SitemapManagerTest {
 
 		_layoutLocalService.updateTypeSettings(
 			_layout, typeSettingsUnicodeProperties.toString());
+
+		_sitemapManager.invalidateSitemapCache(_group.getGroupId());
 
 		_testEmptySitemapIncludePagesCompanyEnabledGroupEnabled(
 			childLayout.getUuid());
@@ -1072,6 +1137,8 @@ public class SitemapManagerTest {
 
 			_addRedirectEntry(sourceURL.substring(1));
 
+			_sitemapManager.invalidateSitemapCache(_group.getGroupId());
+
 			_assertSitemap(
 				true, _group.getGroupId(), _layout.getUuid(), canonicalURL);
 		}
@@ -1113,6 +1180,8 @@ public class SitemapManagerTest {
 			String sourceURL = HttpComponentsUtil.getPath(canonicalURL);
 
 			_addRedirectEntry(sourceURL.substring(1));
+
+			_sitemapManager.invalidateSitemapCache(_group.getGroupId());
 
 			_assertEmptySitemap(_group.getGroupId(), _layout.getUuid());
 		}
@@ -1169,6 +1238,8 @@ public class SitemapManagerTest {
 			String sourceURL = HttpComponentsUtil.getPath(canonicalURL);
 
 			_addRedirectEntry(sourceURL.substring(1));
+
+			_sitemapManager.invalidateSitemapCache(_group.getGroupId());
 
 			_assertEmptySitemap(_group.getGroupId(), childLayout.getUuid());
 		}
@@ -1395,6 +1466,8 @@ public class SitemapManagerTest {
 					journalArticle.getUrlTitle();
 
 			_addRedirectEntry(sourceURL.substring(1));
+
+			_sitemapManager.invalidateSitemapCache(_group.getGroupId());
 
 			_assertEmptySitemap(_group.getGroupId(), layout.getUuid());
 		}
@@ -1852,6 +1925,11 @@ public class SitemapManagerTest {
 		}
 
 		return String.valueOf(objectEntry.getObjectEntryId());
+	}
+
+	private String _getPageLayoutFileName(String slug, int page) {
+		return StringBundler.concat(
+			"sitemaps/", _group.getGroupId(), "/", slug, "/", page, ".xml");
 	}
 
 	private String _getSitemapFileName(String assetType, int page) {

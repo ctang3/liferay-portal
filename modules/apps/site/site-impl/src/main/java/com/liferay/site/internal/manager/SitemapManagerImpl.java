@@ -11,6 +11,7 @@ import com.liferay.document.library.kernel.store.Store;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -280,6 +281,16 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	@Override
+	public void invalidateSitemapCache(long groupId) {
+		String prefix = groupId + StringPool.UNDERLINE;
+
+		_generationTimestamps.keySet(
+		).removeIf(
+			key -> key.startsWith(prefix)
+		);
+	}
+
+	@Override
 	public void invalidateSitemapCache(long groupId, String assetType) {
 		_generationTimestamps.remove(_getTimestampKey(groupId, assetType));
 	}
@@ -309,73 +320,69 @@ public class SitemapManagerImpl implements SitemapManager {
 		_dlStore.deleteDirectory(companyId, CompanyConstants.SYSTEM, dirName);
 	}
 
-	private void _generateAndStoreAssetTypeSitemap(
-			long companyId, long groupId, boolean privateLayout,
-			ThemeDisplay themeDisplay, String assetType, String slug)
+	private void _generateAndStoreSitemap(
+			long companyId, long groupId, String cacheKey, String slug,
+			boolean index,
+			UnsafeConsumer<Element, PortalException> contentPopulator)
 		throws PortalException {
 
-		_generateAllMode.set(Boolean.TRUE);
+		String key = _getTimestampKey(groupId, cacheKey);
+
+		ReentrantLock lock = _generationLocks.computeIfAbsent(
+			key, k -> new ReentrantLock());
+
+		lock.lock();
 
 		try {
-			Document document = _saxReader.createDocument();
-
-			document.setXMLEncoding(StringPool.UTF8);
-
-			Element rootElement = document.addElement(
-				"urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
-
-			rootElement.addAttribute(
-				"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-			rootElement.addAttribute(
-				"xsi:schemaLocation",
-				"http://www.w3.org/1999/xhtml " +
-					"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
-			rootElement.addAttribute(
-				"xmlns:xhtml", "http://www.w3.org/1999/xhtml");
-
-			_initEntriesAndSize(rootElement);
-
-			String className = _assetTypeClassNamesMap.get(assetType);
-
-			if (className != null) {
-				for (SitemapURLProvider sitemapURLProvider :
-						_getSitemapURLProviders()) {
-
-					if (!sitemapURLProvider.isInclude(
-							companyId, themeDisplay.getScopeGroupId()) ||
-						!StringUtil.equals(
-							sitemapURLProvider.getClassName(), className)) {
-
-						continue;
-					}
-
-					for (LayoutSet curLayoutSet :
-							_getLayoutSets(
-								groupId, null, privateLayout, themeDisplay)) {
-
-						sitemapURLProvider.visitLayoutSet(
-							rootElement, curLayoutSet, themeDisplay);
-					}
-				}
+			if (_isStoredSitemapFresh(groupId, cacheKey)) {
+				return;
 			}
 
-			_removeEntriesAndSize(rootElement);
+			_generateAllMode.set(Boolean.TRUE);
 
-			_deleteStoredSitemap(companyId, groupId, slug);
+			try {
+				Document document = _saxReader.createDocument();
 
-			_storeChunk(
-				companyId, groupId, slug, 1,
-				document.asXML(
-				).getBytes(
-					StandardCharsets.UTF_8
-				));
+				document.setXMLEncoding(StringPool.UTF8);
 
-			_generationTimestamps.put(
-				_getTimestampKey(groupId, assetType),
-				System.currentTimeMillis());
+				String rootElementName = index ? "sitemapindex" : "urlset";
+
+				Element rootElement = document.addElement(
+					rootElementName,
+					"http://www.sitemaps.org/schemas/sitemap/0.9");
+
+				rootElement.addAttribute(
+					"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+				rootElement.addAttribute(
+					"xsi:schemaLocation",
+					"http://www.w3.org/1999/xhtml " +
+						"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
+				rootElement.addAttribute(
+					"xmlns:xhtml", "http://www.w3.org/1999/xhtml");
+
+				_initEntriesAndSize(rootElement);
+
+				contentPopulator.accept(rootElement);
+
+				_removeEntriesAndSize(rootElement);
+
+				_deleteStoredSitemap(companyId, groupId, slug);
+
+				_storeChunk(
+					companyId, groupId, slug, 1,
+					document.asXML(
+					).getBytes(
+						StandardCharsets.UTF_8
+					));
+
+				_generationTimestamps.put(key, System.currentTimeMillis());
+			}
+			finally {
+				_generateAllMode.remove();
+			}
 		}
 		finally {
-			_generateAllMode.remove();
+			lock.unlock();
 		}
 	}
 
@@ -425,23 +432,36 @@ public class SitemapManagerImpl implements SitemapManager {
 			assetType);
 
 		if (!_isStoredSitemapFresh(groupId, assetType)) {
-			String key = _getTimestampKey(groupId, assetType);
+			String className = _assetTypeClassNamesMap.get(assetType);
 
-			ReentrantLock reentrantLock = _generationLocks.computeIfAbsent(
-				key, k -> new ReentrantLock());
+			_generateAndStoreSitemap(
+				companyId, groupId, assetType, slug, false,
+				rootElement -> {
+					if (className == null) {
+						return;
+					}
 
-			reentrantLock.lock();
+					for (SitemapURLProvider sitemapURLProvider :
+							_getSitemapURLProviders()) {
 
-			try {
-				if (!_isStoredSitemapFresh(groupId, assetType)) {
-					_generateAndStoreAssetTypeSitemap(
-						companyId, groupId, privateLayout, themeDisplay,
-						assetType, slug);
-				}
-			}
-			finally {
-				reentrantLock.unlock();
-			}
+						if (!sitemapURLProvider.isInclude(
+								companyId, themeDisplay.getScopeGroupId()) ||
+							!StringUtil.equals(
+								sitemapURLProvider.getClassName(), className)) {
+
+							continue;
+						}
+
+						for (LayoutSet curLayoutSet :
+								_getLayoutSets(
+									groupId, null, privateLayout,
+									themeDisplay)) {
+
+							sitemapURLProvider.visitLayoutSet(
+								rootElement, curLayoutSet, themeDisplay);
+						}
+					}
+				});
 		}
 
 		return _readChunk(companyId, groupId, slug, 1);
@@ -571,11 +591,29 @@ public class SitemapManagerImpl implements SitemapManager {
 			}
 		}
 		else {
-			for (LayoutSet layoutSet :
-					_getLayoutSets(
-						groupId, null, privateLayout, themeDisplay)) {
+			long companyId = themeDisplay.getCompanyId();
 
-				_visitLayoutSet(rootElement, layoutSet, themeDisplay);
+			String slug = "index-page-layout";
+
+			if (!_isStoredSitemapFresh(groupId, slug)) {
+				_generateAndStoreSitemap(
+					companyId, groupId, slug, slug, true,
+					rootElement2 -> {
+						for (LayoutSet layoutSet :
+								_getLayoutSets(
+									groupId, null, privateLayout,
+									themeDisplay)) {
+
+							_visitLayoutSet(
+								rootElement2, layoutSet, themeDisplay);
+						}
+					});
+			}
+
+			String cachedXml = _readChunk(companyId, groupId, slug, 1);
+
+			if (cachedXml != null) {
+				return cachedXml;
 			}
 		}
 
@@ -652,30 +690,22 @@ public class SitemapManagerImpl implements SitemapManager {
 			ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		Document document = _saxReader.createDocument();
+		long companyId = themeDisplay.getCompanyId();
 
-		document.setXMLEncoding(StringPool.UTF8);
+		String slug =
+			Validator.isNotNull(layoutUuid) ? "page-layout/" + layoutUuid :
+				"page-layout/main";
 
-		Element rootElement = document.addElement(
-			"urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+		if (!_isStoredSitemapFresh(groupId, slug)) {
+			_generateAndStoreSitemap(
+				companyId, groupId, slug, slug, false,
+				rootElement -> _visitLayoutSets(
+					_getLayoutSets(
+						groupId, layoutUuid, privateLayout, themeDisplay),
+					layoutUuid, rootElement, themeDisplay));
+		}
 
-		rootElement.addAttribute(
-			"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-		rootElement.addAttribute(
-			"xsi:schemaLocation",
-			"http://www.w3.org/1999/xhtml " +
-				"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
-		rootElement.addAttribute("xmlns:xhtml", "http://www.w3.org/1999/xhtml");
-
-		_initEntriesAndSize(rootElement);
-
-		_visitLayoutSets(
-			_getLayoutSets(groupId, layoutUuid, privateLayout, themeDisplay),
-			layoutUuid, rootElement, themeDisplay);
-
-		_removeEntriesAndSize(rootElement);
-
-		return document.asXML();
+		return _readChunk(companyId, groupId, slug, 1);
 	}
 
 	private List<SitemapURLProvider> _getSitemapURLProviders() {
