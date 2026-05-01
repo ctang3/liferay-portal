@@ -5,6 +5,9 @@
 
 package com.liferay.site.internal.manager;
 
+import com.liferay.document.library.kernel.store.DLStore;
+import com.liferay.document.library.kernel.store.DLStoreRequest;
+import com.liferay.document.library.kernel.store.Store;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
@@ -16,6 +19,7 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -49,6 +53,11 @@ import com.liferay.site.constants.SitemapGroupingModeConstants;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.site.provider.SitemapURLProvider;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.nio.charset.StandardCharsets;
+
 import java.text.DateFormat;
 
 import java.util.ArrayList;
@@ -60,6 +69,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -269,6 +279,11 @@ public class SitemapManagerImpl implements SitemapManager {
 		return _getSitemap(layoutUuid, groupId, privateLayout, themeDisplay);
 	}
 
+	@Override
+	public void invalidateSitemapCache(long groupId, String assetType) {
+		_generationTimestamps.remove(_getTimestampKey(groupId, assetType));
+	}
+
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
@@ -284,6 +299,84 @@ public class SitemapManagerImpl implements SitemapManager {
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
+	}
+
+	private void _deleteStoredSitemap(long companyId, long groupId, String slug)
+		throws PortalException {
+
+		String dirName = StringBundler.concat("sitemaps/", groupId, "/", slug);
+
+		_dlStore.deleteDirectory(companyId, CompanyConstants.SYSTEM, dirName);
+	}
+
+	private void _generateAndStoreAssetTypeSitemap(
+			long companyId, long groupId, boolean privateLayout,
+			ThemeDisplay themeDisplay, String assetType, String slug)
+		throws PortalException {
+
+		_generateAllMode.set(Boolean.TRUE);
+
+		try {
+			Document document = _saxReader.createDocument();
+
+			document.setXMLEncoding(StringPool.UTF8);
+
+			Element rootElement = document.addElement(
+				"urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+			rootElement.addAttribute(
+				"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+			rootElement.addAttribute(
+				"xsi:schemaLocation",
+				"http://www.w3.org/1999/xhtml " +
+					"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
+			rootElement.addAttribute(
+				"xmlns:xhtml", "http://www.w3.org/1999/xhtml");
+
+			_initEntriesAndSize(rootElement);
+
+			String className = _assetTypeClassNamesMap.get(assetType);
+
+			if (className != null) {
+				for (SitemapURLProvider sitemapURLProvider :
+						_getSitemapURLProviders()) {
+
+					if (!sitemapURLProvider.isInclude(
+							companyId, themeDisplay.getScopeGroupId()) ||
+						!StringUtil.equals(
+							sitemapURLProvider.getClassName(), className)) {
+
+						continue;
+					}
+
+					for (LayoutSet curLayoutSet :
+							_getLayoutSets(
+								groupId, null, privateLayout, themeDisplay)) {
+
+						sitemapURLProvider.visitLayoutSet(
+							rootElement, curLayoutSet, themeDisplay);
+					}
+				}
+			}
+
+			_removeEntriesAndSize(rootElement);
+
+			_deleteStoredSitemap(companyId, groupId, slug);
+
+			_storeChunk(
+				companyId, groupId, slug, 1,
+				document.asXML(
+				).getBytes(
+					StandardCharsets.UTF_8
+				));
+
+			_generationTimestamps.put(
+				_getTimestampKey(groupId, assetType),
+				System.currentTimeMillis());
+		}
+		finally {
+			_generateAllMode.remove();
+		}
 	}
 
 	private Date _getAssetTypeGroupLastModified(
@@ -326,51 +419,32 @@ public class SitemapManagerImpl implements SitemapManager {
 			String assetType)
 		throws PortalException {
 
-		Document document = _saxReader.createDocument();
+		long companyId = themeDisplay.getCompanyId();
 
-		document.setXMLEncoding(StringPool.UTF8);
+		String slug = SitemapGroupingModeConstants.AssetTypeGroup.getSlug(
+			assetType);
 
-		Element rootElement = document.addElement(
-			"urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+		if (!_isStoredSitemapFresh(groupId, assetType)) {
+			String key = _getTimestampKey(groupId, assetType);
 
-		rootElement.addAttribute(
-			"xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-		rootElement.addAttribute(
-			"xsi:schemaLocation",
-			"http://www.w3.org/1999/xhtml " +
-				"http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd");
-		rootElement.addAttribute("xmlns:xhtml", "http://www.w3.org/1999/xhtml");
+			ReentrantLock reentrantLock = _generationLocks.computeIfAbsent(
+				key, k -> new ReentrantLock());
 
-		_initEntriesAndSize(rootElement);
+			reentrantLock.lock();
 
-		String className = _assetTypeClassNamesMap.get(assetType);
-
-		if (className != null) {
-			for (SitemapURLProvider sitemapURLProvider :
-					_getSitemapURLProviders()) {
-
-				if (!sitemapURLProvider.isInclude(
-						themeDisplay.getCompanyId(),
-						themeDisplay.getScopeGroupId()) ||
-					!StringUtil.equals(
-						sitemapURLProvider.getClassName(), className)) {
-
-					continue;
+			try {
+				if (!_isStoredSitemapFresh(groupId, assetType)) {
+					_generateAndStoreAssetTypeSitemap(
+						companyId, groupId, privateLayout, themeDisplay,
+						assetType, slug);
 				}
-
-				for (LayoutSet curLayoutSet :
-						_getLayoutSets(
-							groupId, null, privateLayout, themeDisplay)) {
-
-					sitemapURLProvider.visitLayoutSet(
-						rootElement, curLayoutSet, themeDisplay);
-				}
+			}
+			finally {
+				reentrantLock.unlock();
 			}
 		}
 
-		_removeEntriesAndSize(rootElement);
-
-		return document.asXML();
+		return _readChunk(companyId, groupId, slug, 1);
 	}
 
 	private String _getFriendlyURL(String path, long groupId) {
@@ -632,6 +706,10 @@ public class SitemapManagerImpl implements SitemapManager {
 		return bytes.length - offset;
 	}
 
+	private String _getTimestampKey(long groupId, String assetType) {
+		return groupId + StringPool.UNDERLINE + assetType;
+	}
+
 	private void _initEntriesAndSize(Element rootElement) {
 		rootElement.addAttribute("entries", "0");
 
@@ -706,6 +784,48 @@ public class SitemapManagerImpl implements SitemapManager {
 		return Objects.equals(virtualHostname, themeDisplay.getServerName());
 	}
 
+	private boolean _isStoredSitemapFresh(long groupId, String assetType) {
+		Long lastGenerated = _generationTimestamps.get(
+			_getTimestampKey(groupId, assetType));
+
+		if (lastGenerated == null) {
+			return false;
+		}
+
+		if ((System.currentTimeMillis() - lastGenerated) <
+				_REGENERATION_INTERVAL) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private String _readChunk(
+			long companyId, long groupId, String slug, int page)
+		throws PortalException {
+
+		String fileName = StringBundler.concat(
+			"sitemaps/", groupId, "/", slug, "/", page, ".xml");
+
+		if (!_dlStore.hasFile(
+				companyId, CompanyConstants.SYSTEM, fileName,
+				Store.VERSION_DEFAULT)) {
+
+			return null;
+		}
+
+		try (InputStream inputStream = _dlStore.getFileAsStream(
+				companyId, CompanyConstants.SYSTEM, fileName,
+				Store.VERSION_DEFAULT)) {
+
+			return StringUtil.read(inputStream);
+		}
+		catch (IOException ioException) {
+			throw new PortalException(ioException);
+		}
+	}
+
 	private void _removeEntriesAndSize(Element rootElement) {
 		Attribute entriesAttribute = rootElement.attribute("entries");
 		Attribute sizeAttribute = rootElement.attribute("size");
@@ -750,9 +870,17 @@ public class SitemapManagerImpl implements SitemapManager {
 	private void _removeOldestElement(Element rootElement, Element newElement) {
 		int entries = GetterUtil.getInteger(
 			rootElement.attributeValue("entries"));
-		int size = GetterUtil.getInteger(rootElement.attributeValue("size"));
 
 		entries++;
+
+		if (_generateAllMode.get()) {
+			rootElement.addAttribute("entries", String.valueOf(entries));
+
+			return;
+		}
+
+		int size = GetterUtil.getInteger(rootElement.attributeValue("size"));
+
 		size += _getSize(newElement);
 
 		while ((entries > MAXIMUM_ENTRIES) || (size >= _MAXIMUM_SIZE)) {
@@ -767,6 +895,21 @@ public class SitemapManagerImpl implements SitemapManager {
 
 		rootElement.addAttribute("entries", String.valueOf(entries));
 		rootElement.addAttribute("size", String.valueOf(size));
+	}
+
+	private void _storeChunk(
+			long companyId, long groupId, String slug, int page,
+			byte[] xmlBytes)
+		throws PortalException {
+
+		String fileName = StringBundler.concat(
+			"sitemaps/", groupId, "/", slug, "/", page, ".xml");
+
+		DLStoreRequest dlStoreRequest = DLStoreRequest.builder(
+			companyId, CompanyConstants.SYSTEM, fileName
+		).build();
+
+		_dlStore.addFile(dlStoreRequest, xmlBytes);
 	}
 
 	private void _visitLayoutSet(
@@ -869,6 +1012,8 @@ public class SitemapManagerImpl implements SitemapManager {
 
 	private static final int _MAXIMUM_SIZE = 50 * 1024 * 1024;
 
+	private static final long _REGENERATION_INTERVAL = 24L * 60 * 60 * 1000;
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		SitemapManagerImpl.class.getName());
 
@@ -883,8 +1028,18 @@ public class SitemapManagerImpl implements SitemapManager {
 		SitemapGroupingModeConstants.AssetTypeGroup.OBJECT_ENTRY_CLASS_NAME);
 	private static final BundleContext _bundleContext =
 		SystemBundleUtil.getBundleContext();
+	private static final ThreadLocal<Boolean> _generateAllMode =
+		ThreadLocal.withInitial(() -> Boolean.FALSE);
 
 	private final Map<Long, Long> _companyIds = new ConcurrentHashMap<>();
+
+	@Reference
+	private DLStore _dlStore;
+
+	private final Map<String, ReentrantLock> _generationLocks =
+		new ConcurrentHashMap<>();
+	private final Map<String, Long> _generationTimestamps =
+		new ConcurrentHashMap<>();
 
 	@Reference
 	private GroupLocalService _groupLocalService;

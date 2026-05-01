@@ -19,6 +19,8 @@ import com.liferay.asset.test.util.AssetTestUtil;
 import com.liferay.commerce.product.constants.CPPortletKeys;
 import com.liferay.commerce.product.url.CPFriendlyURL;
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.document.library.kernel.store.DLStore;
+import com.liferay.document.library.kernel.store.Store;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.info.item.InfoItemServiceRegistry;
@@ -47,6 +49,7 @@ import com.liferay.portal.configuration.test.util.GroupConfigurationTemporarySwa
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
@@ -92,6 +95,7 @@ import com.liferay.site.constants.SitemapGroupingModeConstants;
 import com.liferay.site.manager.SitemapManager;
 import com.liferay.translation.info.item.provider.InfoItemLanguagesProvider;
 
+import java.io.InputStream;
 import java.io.Serializable;
 
 import java.time.OffsetDateTime;
@@ -107,6 +111,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -160,6 +165,246 @@ public class SitemapManagerTest {
 			_group.getGroupId());
 
 		_setUpThemeDisplay();
+	}
+
+	@After
+	public void tearDown() {
+		try {
+			_dlStore.deleteDirectory(
+				TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+				"sitemaps/" + _group.getGroupId());
+		}
+		catch (Exception exception) {
+		}
+	}
+
+	@Test
+	public void testAssetTypeSitemapRegeneratesAfterTTLExpiry()
+		throws Exception {
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.ASSET_TYPE
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			JournalArticle journalArticle1 = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle1);
+
+			String xml1 = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			Assert.assertNotNull(xml1);
+
+			JournalArticle journalArticle2 = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle2);
+
+			String xml2 = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			Assert.assertEquals(xml1, xml2);
+
+			_sitemapManager.invalidateSitemapCache(
+				_group.getGroupId(),
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			String xml3 = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			Assert.assertNotEquals(xml1, xml3);
+
+			Document document = _saxReader.read(xml3);
+
+			List<Element> urlElements = document.getRootElement(
+			).elements(
+				"url"
+			);
+
+			Assert.assertEquals(xml3, 2, urlElements.size());
+
+			Assert.assertEquals(
+				1,
+				_countStoredPages(
+					SitemapGroupingModeConstants.AssetTypeGroup.
+						JOURNAL_ARTICLE));
+		}
+	}
+
+	@Test
+	public void testAssetTypeSitemapReturnsNullWhenDisabled() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"includeWebContent", false
+						).put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.ASSET_TYPE
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			Assert.assertNull(xml);
+
+			Assert.assertFalse(
+				_dlStore.hasFile(
+					TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+					_getSitemapFileName(
+						SitemapGroupingModeConstants.AssetTypeGroup.
+							JOURNAL_ARTICLE,
+						1),
+					Store.VERSION_DEFAULT));
+		}
+	}
+
+	@Test
+	public void testAssetTypeSitemapStoragePerAssetType() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.ASSET_TYPE
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			JournalArticle journalArticle = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle);
+
+			_sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			_sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT);
+
+			Assert.assertTrue(
+				_dlStore.hasFile(
+					TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+					_getSitemapFileName(
+						SitemapGroupingModeConstants.AssetTypeGroup.
+							JOURNAL_ARTICLE,
+						1),
+					Store.VERSION_DEFAULT));
+
+			Assert.assertTrue(
+				_dlStore.hasFile(
+					TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+					_getSitemapFileName(
+						SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT, 1),
+					Store.VERSION_DEFAULT));
+		}
+	}
+
+	@Test
+	public void testAssetTypeSitemapStoredInDLStore() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.ASSET_TYPE
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			JournalArticle journalArticle = _addJournalArticle();
+
+			_addJournalArticleAssetDisplayPageEntry(journalArticle);
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.JOURNAL_ARTICLE);
+
+			Assert.assertNotNull(xml);
+
+			try (InputStream inputStream = _dlStore.getFileAsStream(
+					TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+					_getSitemapFileName(
+						SitemapGroupingModeConstants.AssetTypeGroup.
+							JOURNAL_ARTICLE,
+						1),
+					Store.VERSION_DEFAULT)) {
+
+				Assert.assertEquals(xml, StringUtil.read(inputStream));
+			}
+		}
+	}
+
+	@Test
+	public void testAssetTypeSitemapSurvivesConfigChange() throws Exception {
+		String originalXml;
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.ASSET_TYPE
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			originalXml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT);
+
+			Assert.assertNotNull(originalXml);
+		}
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						_PID_SITEMAP_COMPANY_CONFIGURATION,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"xmlSitemapGroupingMode",
+							SitemapGroupingModeConstants.PAGE_LAYOUT
+						).put(
+							"xmlSitemapIndexEnabled", true
+						).build())) {
+
+			String xml = _sitemapManager.getSitemap(
+				null, _group.getGroupId(), false, _themeDisplay,
+				SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT);
+
+			Assert.assertNull(xml);
+
+			try (InputStream inputStream = _dlStore.getFileAsStream(
+					TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM,
+					_getSitemapFileName(
+						SitemapGroupingModeConstants.AssetTypeGroup.LAYOUT, 1),
+					Store.VERSION_DEFAULT)) {
+
+				Assert.assertEquals(originalXml, StringUtil.read(inputStream));
+			}
+		}
 	}
 
 	@Test
@@ -1498,6 +1743,17 @@ public class SitemapManagerTest {
 			".xml?groupId=", _group.getGroupId(), "&privateLayout=false");
 	}
 
+	private int _countStoredPages(String assetType) throws Exception {
+		String dirName = StringBundler.concat(
+			"sitemaps/", _group.getGroupId(), "/",
+			SitemapGroupingModeConstants.AssetTypeGroup.getSlug(assetType));
+
+		String[] fileNames = _dlStore.getFileNames(
+			TestPropsValues.getCompanyId(), CompanyConstants.SYSTEM, dirName);
+
+		return fileNames.length;
+	}
+
 	private Set<Locale> _getAvailableLocales(Layout layout)
 		throws PortalException {
 
@@ -1596,6 +1852,13 @@ public class SitemapManagerTest {
 		}
 
 		return String.valueOf(objectEntry.getObjectEntryId());
+	}
+
+	private String _getSitemapFileName(String assetType, int page) {
+		return StringBundler.concat(
+			"sitemaps/", _group.getGroupId(), "/",
+			SitemapGroupingModeConstants.AssetTypeGroup.getSlug(assetType), "/",
+			page, ".xml");
 	}
 
 	private String[] _getSitemapLayoutURLs(long groupId) {
@@ -1875,6 +2138,9 @@ public class SitemapManagerTest {
 
 	@Inject
 	private CPFriendlyURL _cpFriendlyURL;
+
+	@Inject
+	private DLStore _dlStore;
 
 	@DeleteAfterTestRun
 	private ObjectDefinition _excludedObjectDefinition;
