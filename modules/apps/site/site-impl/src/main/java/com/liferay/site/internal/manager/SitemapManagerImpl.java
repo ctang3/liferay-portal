@@ -17,6 +17,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.lock.DuplicateLockException;
+import com.liferay.portal.kernel.lock.Lock;
+import com.liferay.portal.kernel.lock.LockManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
@@ -26,6 +29,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypeController;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerException;
@@ -68,6 +72,7 @@ import com.liferay.portal.kernel.xml.Attribute;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReader;
+import com.liferay.portal.lock.service.LockLocalService;
 import com.liferay.portal.theme.ThemeDisplayFactory;
 import com.liferay.portal.util.LayoutTypeControllerTracker;
 import com.liferay.redirect.provider.RedirectProvider;
@@ -416,6 +421,21 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	@Override
+	public boolean isRegenerateSitemapInProgress(long companyId) {
+		List<com.liferay.portal.lock.model.Lock> locks =
+			_lockLocalService.getLocks(
+				companyId, SitemapManagerImpl.class.getName());
+
+		for (com.liferay.portal.lock.model.Lock lock : locks) {
+			if (!lock.isExpired()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override
 	public void regenerateSitemap(
 			String assetTypeKey, long companyId, long groupId)
 		throws PortalException {
@@ -441,12 +461,23 @@ public class SitemapManagerImpl implements SitemapManager {
 			return;
 		}
 
-		ThemeDisplay themeDisplay = _createThemeDisplay(companyId, groupId);
+		Lock lock = _lockRegenerateSitemap(assetTypeKey, companyId, groupId);
 
-		_regenerateAssetTypeSitemap(
-			assetTypeClassNameId, groupId, false, themeDisplay);
+		if ((lock == null) || !lock.isNew()) {
+			return;
+		}
 
-		_getIndexSitemap(groupId, false, themeDisplay);
+		try {
+			ThemeDisplay themeDisplay = _createThemeDisplay(companyId, groupId);
+
+			_regenerateAssetTypeSitemap(
+				assetTypeClassNameId, groupId, false, themeDisplay);
+
+			_getIndexSitemap(groupId, false, themeDisplay);
+		}
+		finally {
+			_unlockRegenerateSitemap(assetTypeKey, companyId, groupId);
+		}
 	}
 
 	@Override
@@ -460,6 +491,12 @@ public class SitemapManagerImpl implements SitemapManager {
 					companyId)) {
 
 				return;
+			}
+
+			boolean force = false;
+
+			if (startDate != null) {
+				force = true;
 			}
 
 			if (startDate == null) {
@@ -476,11 +513,11 @@ public class SitemapManagerImpl implements SitemapManager {
 
 			if ((group == null) || group.isCompany()) {
 				_scheduleCompanyRegenerateSitemap(
-					assetTypeKey, companyId, startDate);
+					assetTypeKey, companyId, force, startDate);
 			}
 			else {
 				_scheduleGroupRegenerateSitemap(
-					assetTypeKey, companyId, groupId, startDate);
+					assetTypeKey, companyId, force, groupId, startDate);
 			}
 		}
 		catch (PortalException portalException) {
@@ -1124,6 +1161,13 @@ public class SitemapManagerImpl implements SitemapManager {
 		return Collections.emptyList();
 	}
 
+	private String _getLockKey(
+		String assetTypeKey, long companyId, long groupId) {
+
+		return StringBundler.concat(
+			assetTypeKey, StringPool.SLASH, groupId, StringPool.AT, companyId);
+	}
+
 	private String _getSchedulerJobName(
 		String assetTypeKey, long companyId, long groupId) {
 
@@ -1224,6 +1268,28 @@ public class SitemapManagerImpl implements SitemapManager {
 		return false;
 	}
 
+	private Lock _lockRegenerateSitemap(
+			String assetTypeKey, long companyId, long groupId)
+		throws PortalException {
+
+		User guestUser = _userLocalService.getGuestUser(companyId);
+
+		try {
+			return _lockManager.lock(
+				guestUser.getUserId(), SitemapManagerImpl.class.getName(),
+				_getLockKey(assetTypeKey, companyId, groupId),
+				SitemapManagerImpl.class.getName(), false, Time.MINUTE * 20,
+				false);
+		}
+		catch (DuplicateLockException duplicateLockException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(duplicateLockException);
+			}
+
+			return null;
+		}
+	}
+
 	private void _regenerateAssetTypeSitemap(
 			long assetTypeClassNameId, long groupId, boolean privateLayout,
 			ThemeDisplay themeDisplay)
@@ -1321,7 +1387,7 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	private void _scheduleCompanyRegenerateSitemap(
-			String assetTypeKey, long companyId, Date startDate)
+			String assetTypeKey, long companyId, boolean force, Date startDate)
 		throws PortalException {
 
 		for (Group group :
@@ -1329,12 +1395,13 @@ public class SitemapManagerImpl implements SitemapManager {
 					companyId, GroupConstants.ANY_PARENT_GROUP_ID, true)) {
 
 			_scheduleGroupRegenerateSitemap(
-				assetTypeKey, companyId, group.getGroupId(), startDate);
+				assetTypeKey, companyId, force, group.getGroupId(), startDate);
 		}
 	}
 
 	private void _scheduleGroupRegenerateSitemap(
-			String assetTypeKey, long companyId, long groupId, Date startDate)
+			String assetTypeKey, long companyId, boolean force, long groupId,
+			Date startDate)
 		throws PortalException {
 
 		SitemapURLProvider sitemapURLProvider = _serviceTrackerMap.getService(
@@ -1355,7 +1422,13 @@ public class SitemapManagerImpl implements SitemapManager {
 				StorageType.PERSISTED);
 
 		if (schedulerResponse != null) {
-			return;
+			if (!force) {
+				return;
+			}
+
+			_schedulerEngineHelper.delete(
+				schedulerJobName, SitemapDestinationNames.SITEMAP_REGENERATION,
+				StorageType.PERSISTED);
 		}
 
 		Message message = new Message();
@@ -1373,6 +1446,14 @@ public class SitemapManagerImpl implements SitemapManager {
 				"Sitemap regeneration for group ", groupId, " and asset type ",
 				assetTypeKey),
 			SitemapDestinationNames.SITEMAP_REGENERATION, message);
+	}
+
+	private void _unlockRegenerateSitemap(
+		String assetTypeKey, long companyId, long groupId) {
+
+		_lockManager.unlock(
+			SitemapManagerImpl.class.getName(),
+			_getLockKey(assetTypeKey, companyId, groupId));
 	}
 
 	private void _visitLayoutSet(
@@ -1517,6 +1598,12 @@ public class SitemapManagerImpl implements SitemapManager {
 
 	@Reference
 	private LayoutSetLocalService _layoutSetLocalService;
+
+	@Reference
+	private LockLocalService _lockLocalService;
+
+	@Reference
+	private LockManager _lockManager;
 
 	private int _maximumEntries;
 
