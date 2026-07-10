@@ -472,6 +472,8 @@ SitemapCompanyConfigurationDisplayContext sitemapCompanyConfigurationDisplayCont
 	<liferay-frontend:component
 		context='<%=
 			HashMapBuilder.<String, Object>put(
+				"checkRegenerationInProgressURL", sitemapCompanyConfigurationDisplayContext.getCheckRegenerationInProgressURL()
+			).put(
 				"groupSelectorURL", sitemapCompanyConfigurationDisplayContext.getGroupSelectorURL()
 			).put(
 				"isRegenerationInProgress", sitemapCompanyConfigurationDisplayContext.isRegenerationInProgress()

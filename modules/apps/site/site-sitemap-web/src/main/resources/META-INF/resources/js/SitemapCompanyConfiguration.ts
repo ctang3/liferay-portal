@@ -7,6 +7,7 @@ import {openSelectionModal} from 'frontend-js-components-web';
 import {delegate, sub} from 'frontend-js-web';
 
 interface Props {
+	checkRegenerationInProgressURL: string;
 	groupSelectorURL: string;
 	isRegenerationInProgress: boolean;
 	namespace: string;
@@ -25,6 +26,7 @@ type SelectedItem = {
 };
 
 export default function ({
+	checkRegenerationInProgressURL,
 	groupSelectorURL,
 	isRegenerationInProgress,
 	namespace,
@@ -324,6 +326,7 @@ export default function ({
 		`${namespace}xmlSitemapRegenerationTimeZoneField`
 	);
 
+	let regenerationPollIntervalId: number | undefined;
 	let saveAndGenerateItem: HTMLDivElement | null = null;
 	let saveAndGenerateButton: HTMLButtonElement | null = null;
 
@@ -392,7 +395,9 @@ export default function ({
 	}
 
 	// Disable every control and show a loading indicator while a regeneration
-	// is in progress. The lock-based state survives a page refresh.
+	// is in progress. The lock-based state survives a page refresh. Poll the
+	// server and reload once the regeneration finishes so the form re-renders
+	// in its enabled state with the freshly cached values.
 
 	if (isRegenerationInProgress && form) {
 		const controls = form.querySelectorAll<HTMLInputElement>(
@@ -419,6 +424,22 @@ export default function ({
 
 			btnGroup.appendChild(loadingItem);
 		}
+
+		regenerationPollIntervalId = window.setInterval(() => {
+			if (document.hidden) {
+				return;
+			}
+
+			Liferay.Util.fetch(checkRegenerationInProgressURL)
+				.then((response) => response.json())
+				.then((json) => {
+					if (!json.inProgress) {
+						window.clearInterval(regenerationPollIntervalId);
+
+						window.location.reload();
+					}
+				});
+		}, 3000);
 	}
 
 	return {
@@ -445,6 +466,10 @@ export default function ({
 				'click',
 				onSaveAndGenerateClick
 			);
+
+			if (regenerationPollIntervalId) {
+				window.clearInterval(regenerationPollIntervalId);
+			}
 		},
 	};
 }
