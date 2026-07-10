@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
+import com.liferay.portal.kernel.portlet.url.builder.ResourceURLBuilder;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -62,6 +63,14 @@ public class SitemapCompanyConfigurationDisplayContext {
 	public boolean cachedGenerationEnabled() throws ConfigurationException {
 		return _sitemapConfigurationManager.cachedGenerationEnabled(
 			_themeDisplay.getCompanyId());
+	}
+
+	public String getCheckRegenerationInProgressURL() {
+		return ResourceURLBuilder.createResourceURL(
+			_liferayPortletResponse
+		).setResourceID(
+			"/site_sitemap/check_regeneration_in_progress"
+		).buildString();
 	}
 
 	public SearchContainer<Group> getGroupSearchContainer() throws Exception {
