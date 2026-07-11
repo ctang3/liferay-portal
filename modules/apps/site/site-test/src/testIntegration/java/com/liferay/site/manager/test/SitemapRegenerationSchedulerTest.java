@@ -25,6 +25,7 @@ import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
+import com.liferay.portal.kernel.lock.LockManager;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -114,6 +115,27 @@ public class SitemapRegenerationSchedulerTest {
 
 		_sitemapStorageHelper.deleteSitemaps(
 			TestPropsValues.getCompanyId(), _group.getGroupId());
+	}
+
+	@Test
+	public void testIsRegenerationInProgress() throws Exception {
+		long companyId = TestPropsValues.getCompanyId();
+
+		Assert.assertFalse(_sitemapManager.isRegenerationInProgress(companyId));
+
+		_lockManager.lock(
+			TestPropsValues.getUserId(), _SITEMAP_MANAGER_CLASS_NAME,
+			"test-key", _SITEMAP_MANAGER_CLASS_NAME, false, Time.MINUTE, false);
+
+		try {
+			Assert.assertTrue(
+				_sitemapManager.isRegenerationInProgress(companyId));
+		}
+		finally {
+			_lockManager.unlock(_SITEMAP_MANAGER_CLASS_NAME, "test-key");
+		}
+
+		Assert.assertFalse(_sitemapManager.isRegenerationInProgress(companyId));
 	}
 
 	@Test
@@ -682,6 +704,9 @@ public class SitemapRegenerationSchedulerTest {
 	private static final String _PID_SITEMAP_COMPANY_CONFIGURATION =
 		"com.liferay.site.internal.configuration.SitemapCompanyConfiguration";
 
+	private static final String _SITEMAP_MANAGER_CLASS_NAME =
+		"com.liferay.site.internal.manager.SitemapManagerImpl";
+
 	private static CompanyConfigurationTemporarySwapper
 		_companyConfigurationTemporarySwapper;
 
@@ -699,6 +724,9 @@ public class SitemapRegenerationSchedulerTest {
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;
+
+	@Inject
+	private LockManager _lockManager;
 
 	@Inject
 	private ObjectEntryLocalService _objectEntryLocalService;
