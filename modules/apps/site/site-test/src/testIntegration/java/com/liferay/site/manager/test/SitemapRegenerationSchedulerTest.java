@@ -23,6 +23,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.model.Group;
@@ -51,10 +52,12 @@ import com.liferay.site.storage.helper.SitemapStorageHelper;
 
 import java.io.Serializable;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -86,6 +89,8 @@ public class SitemapRegenerationSchedulerTest {
 				TestPropsValues.getCompanyId(),
 				_PID_SITEMAP_COMPANY_CONFIGURATION,
 				HashMapDictionaryBuilder.<String, Object>put(
+					"cachedGenerationEnabled", true
+				).put(
 					"xmlSitemapIndexEnabled", true
 				).put(
 					"xmlSitemapIndexMode",
@@ -144,6 +149,29 @@ public class SitemapRegenerationSchedulerTest {
 	}
 
 	@Test
+	public void testScheduleRegenerateSitemapDailyDelay() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					_getRegenerationCompanyConfigurationTemporarySwapper(
+						SitemapConstants.REGENERATION_FREQUENCY_DAILY,
+						StringPool.BLANK, "03:30", "UTC")) {
+
+			long time = System.currentTimeMillis();
+
+			Date startTime = _scheduleRegenerateSitemapAndGetStartTime();
+
+			Calendar calendar = _getRoundedUTCCalendar(startTime);
+
+			Assert.assertEquals(3, calendar.get(Calendar.HOUR_OF_DAY));
+			Assert.assertEquals(30, calendar.get(Calendar.MINUTE));
+
+			Assert.assertTrue(startTime.toString(), startTime.getTime() > time);
+			Assert.assertTrue(
+				startTime.toString(), startTime.getTime() <= (time + Time.DAY));
+		}
+	}
+
+	@Test
 	public void testScheduleRegenerateSitemapDebouncesDuplicateRequests()
 		throws Exception {
 
@@ -163,25 +191,52 @@ public class SitemapRegenerationSchedulerTest {
 	}
 
 	@Test
-	public void testScheduleRegenerateSitemapDelay() throws Exception {
-		_sitemapManager.scheduleRegenerateSitemap(
-			SitemapConstants.ASSET_TYPE_KEY_WEB_CONTENT,
-			TestPropsValues.getCompanyId(), _group.getGroupId(), null);
+	public void testScheduleRegenerateSitemapHourlyDelay() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					_getRegenerationCompanyConfigurationTemporarySwapper(
+						SitemapConstants.REGENERATION_FREQUENCY_HOURLY,
+						StringPool.BLANK, StringPool.BLANK, "UTC")) {
 
-		List<SchedulerResponse> schedulerResponses =
-			_getRegenerateSitemapSchedulerResponses(
-				SitemapConstants.ASSET_TYPE_KEY_WEB_CONTENT);
+			long time = System.currentTimeMillis();
 
-		Assert.assertEquals(
-			schedulerResponses.toString(), 1, schedulerResponses.size());
+			Date startTime = _scheduleRegenerateSitemapAndGetStartTime();
 
-		Date startTime = _schedulerEngineHelper.getStartTime(
-			schedulerResponses.get(0));
+			Calendar calendar = _getRoundedUTCCalendar(startTime);
 
-		Assert.assertTrue(
-			startTime.toString(),
-			startTime.getTime() >
-				(System.currentTimeMillis() + (12 * Time.HOUR)));
+			Assert.assertEquals(0, calendar.get(Calendar.MINUTE));
+
+			Assert.assertTrue(startTime.toString(), startTime.getTime() > time);
+			Assert.assertTrue(
+				startTime.toString(),
+				startTime.getTime() <= (time + Time.HOUR));
+		}
+	}
+
+	@Test
+	public void testScheduleRegenerateSitemapWeeklyDelay() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					_getRegenerationCompanyConfigurationTemporarySwapper(
+						SitemapConstants.REGENERATION_FREQUENCY_WEEKLY,
+						String.valueOf(Calendar.WEDNESDAY), "03:30", "UTC")) {
+
+			long time = System.currentTimeMillis();
+
+			Date startTime = _scheduleRegenerateSitemapAndGetStartTime();
+
+			Calendar calendar = _getRoundedUTCCalendar(startTime);
+
+			Assert.assertEquals(
+				Calendar.WEDNESDAY, calendar.get(Calendar.DAY_OF_WEEK));
+			Assert.assertEquals(3, calendar.get(Calendar.HOUR_OF_DAY));
+			Assert.assertEquals(30, calendar.get(Calendar.MINUTE));
+
+			Assert.assertTrue(startTime.toString(), startTime.getTime() > time);
+			Assert.assertTrue(
+				startTime.toString(),
+				startTime.getTime() <= (time + (7 * Time.DAY)));
+		}
 	}
 
 	@Test
@@ -261,7 +316,7 @@ public class SitemapRegenerationSchedulerTest {
 	}
 
 	@Test
-	public void testScheduleRegenerateSitemapWithDelayConfigured()
+	public void testScheduleRegenerateSitemapWithCachedGenerationDisabled()
 		throws Exception {
 
 		try (CompanyConfigurationTemporarySwapper
@@ -270,12 +325,12 @@ public class SitemapRegenerationSchedulerTest {
 						TestPropsValues.getCompanyId(),
 						_PID_SITEMAP_COMPANY_CONFIGURATION,
 						HashMapDictionaryBuilder.<String, Object>put(
+							"cachedGenerationEnabled", false
+						).put(
 							"xmlSitemapIndexEnabled", true
 						).put(
 							"xmlSitemapIndexMode",
 							SitemapConstants.INDEX_MODE_ASSET_TYPE
-						).put(
-							"xmlSitemapRegenerationDelay", 60L
 						).build())) {
 
 			_sitemapManager.scheduleRegenerateSitemap(
@@ -287,15 +342,7 @@ public class SitemapRegenerationSchedulerTest {
 					SitemapConstants.ASSET_TYPE_KEY_WEB_CONTENT);
 
 			Assert.assertEquals(
-				schedulerResponses.toString(), 1, schedulerResponses.size());
-
-			Date startTime = _schedulerEngineHelper.getStartTime(
-				schedulerResponses.get(0));
-
-			Assert.assertTrue(
-				startTime.toString(),
-				startTime.getTime() <
-					(System.currentTimeMillis() + (5 * Time.MINUTE)));
+				schedulerResponses.toString(), 0, schedulerResponses.size());
 		}
 	}
 
@@ -491,6 +538,8 @@ public class SitemapRegenerationSchedulerTest {
 		return new CompanyConfigurationTemporarySwapper(
 			TestPropsValues.getCompanyId(), _PID_SITEMAP_COMPANY_CONFIGURATION,
 			HashMapDictionaryBuilder.<String, Object>put(
+				"cachedGenerationEnabled", true
+			).put(
 				"companySitemapObjectDefinitionIds",
 				new String[] {
 					String.valueOf(objectDefinition.getObjectDefinitionId())
@@ -540,6 +589,42 @@ public class SitemapRegenerationSchedulerTest {
 			});
 	}
 
+	private CompanyConfigurationTemporarySwapper
+			_getRegenerationCompanyConfigurationTemporarySwapper(
+				String frequency, String day, String time, String timeZoneId)
+		throws Exception {
+
+		return new CompanyConfigurationTemporarySwapper(
+			TestPropsValues.getCompanyId(), _PID_SITEMAP_COMPANY_CONFIGURATION,
+			HashMapDictionaryBuilder.<String, Object>put(
+				"cachedGenerationEnabled", true
+			).put(
+				"xmlSitemapIndexEnabled", true
+			).put(
+				"xmlSitemapIndexMode", SitemapConstants.INDEX_MODE_ASSET_TYPE
+			).put(
+				"xmlSitemapRegenerationDay", day
+			).put(
+				"xmlSitemapRegenerationFrequency", frequency
+			).put(
+				"xmlSitemapRegenerationTime", time
+			).put(
+				"xmlSitemapRegenerationTimeZoneId", timeZoneId
+			).build());
+	}
+
+	private Calendar _getRoundedUTCCalendar(Date date) {
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+		long milliseconds = date.getTime();
+
+		long roundedMinutes = Math.round((double)milliseconds / Time.MINUTE);
+
+		calendar.setTimeInMillis(roundedMinutes * Time.MINUTE);
+
+		return calendar;
+	}
+
 	private ObjectDefinition _publishObjectDefinition(String scope)
 		throws Exception {
 
@@ -577,6 +662,21 @@ public class SitemapRegenerationSchedulerTest {
 		}
 
 		return objectDefinition;
+	}
+
+	private Date _scheduleRegenerateSitemapAndGetStartTime() throws Exception {
+		_sitemapManager.scheduleRegenerateSitemap(
+			SitemapConstants.ASSET_TYPE_KEY_WEB_CONTENT,
+			TestPropsValues.getCompanyId(), _group.getGroupId(), null);
+
+		List<SchedulerResponse> schedulerResponses =
+			_getRegenerateSitemapSchedulerResponses(
+				SitemapConstants.ASSET_TYPE_KEY_WEB_CONTENT);
+
+		Assert.assertEquals(
+			schedulerResponses.toString(), 1, schedulerResponses.size());
+
+		return _schedulerEngineHelper.getStartTime(schedulerResponses.get(0));
 	}
 
 	private static final String _PID_SITEMAP_COMPANY_CONFIGURATION =
