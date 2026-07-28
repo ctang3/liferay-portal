@@ -400,6 +400,10 @@
 					"value": "space"
 				},
 				{
+					"name": "sitemapEligible",
+					"value": "true"
+				},
+				{
 					"name": "visible",
 					"value": "true"
 				}
@@ -682,6 +686,10 @@
 				{
 					"name": "domain",
 					"value": "space"
+				},
+				{
+					"name": "sitemapEligible",
+					"value": "true"
 				},
 				{
 					"name": "visible",

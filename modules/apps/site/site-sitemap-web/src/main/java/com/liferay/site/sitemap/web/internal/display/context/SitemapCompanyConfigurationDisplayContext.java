@@ -8,6 +8,7 @@ package com.liferay.site.sitemap.web.internal.display.context;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.SelectOption;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.GroupItemSelectorReturnType;
+import com.liferay.object.constants.ObjectDefinitionSettingConstants;
 import com.liferay.object.item.selector.ObjectDefinitionItemSelectorCriterion;
 import com.liferay.object.item.selector.ObjectDefinitionItemSelectorReturnType;
 import com.liferay.object.model.ObjectDefinition;
@@ -157,6 +158,8 @@ public class SitemapCompanyConfigurationDisplayContext {
 
 		objectDefinitionItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new ObjectDefinitionItemSelectorReturnType());
+		objectDefinitionItemSelectorCriterion.setObjectDefinitionSettingName(
+			ObjectDefinitionSettingConstants.NAME_SITEMAP_ELIGIBLE);
 
 		_objectDefinitionSelectorURL = String.valueOf(
 			_itemSelector.getItemSelectorURL(
