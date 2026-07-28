@@ -5,6 +5,7 @@
 
 package com.liferay.object.internal.site.provider;
 
+import com.liferay.depot.group.provider.SiteConnectedGroupGroupProvider;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
@@ -226,10 +227,21 @@ public class ObjectEntrySitemapURLProvider implements SitemapURLProvider {
 				QueryUtil.ALL_POS);
 		}
 
-		return _objectEntryService.getObjectEntries(
-			groupId, objectDefinition.getObjectDefinitionId(),
-			WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
-			QueryUtil.ALL_POS);
+		List<ObjectEntry> objectEntries = new ArrayList<>();
+
+		for (long connectedGroupId :
+				_siteConnectedGroupGroupProvider.
+					getCurrentAndAncestorSiteAndDepotGroupIds(groupId)) {
+
+			objectEntries.addAll(
+				_objectEntryService.getObjectEntries(
+					connectedGroupId,
+					objectDefinition.getObjectDefinitionId(),
+					WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS));
+		}
+
+		return objectEntries;
 	}
 
 	private Set<Locale> _getAvailableLocales(
@@ -389,6 +401,9 @@ public class ObjectEntrySitemapURLProvider implements SitemapURLProvider {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SiteConnectedGroupGroupProvider _siteConnectedGroupGroupProvider;
 
 	@Reference
 	private SitemapConfigurationManager _sitemapConfigurationManager;
