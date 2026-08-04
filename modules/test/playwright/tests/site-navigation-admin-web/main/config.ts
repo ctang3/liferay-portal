@@ -4,6 +4,7 @@
  */
 
 export const config = {
+	dependencies: ['page-management-site.main'],
 	name: 'site-navigation-admin-web.main',
 	testDir: 'tests/site-navigation-admin-web/main',
 };
