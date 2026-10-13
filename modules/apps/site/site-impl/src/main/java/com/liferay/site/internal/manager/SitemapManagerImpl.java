@@ -406,6 +406,15 @@ public class SitemapManagerImpl implements SitemapManager {
 			return _getIndexSitemap(groupId, privateLayout, themeDisplay);
 		}
 
+		if (Validator.isNotNull(layoutUuid) &&
+			_sitemapConfigurationManager.isCachedGenerationCompanyEnabled(
+				companyId) &&
+			_isIndexModeCompanyEnabled(
+				companyId, SitemapConstants.INDEX_MODE_PAGE_LAYOUT)) {
+
+			return _getLayoutSitemap(companyId, groupId, layoutUuid, page);
+		}
+
 		return _getSitemap(groupId, layoutUuid, privateLayout, themeDisplay);
 	}
 
@@ -428,11 +437,17 @@ public class SitemapManagerImpl implements SitemapManager {
 
 		if (_sitemapConfigurationManager.isCachedGenerationCompanyEnabled(
 				companyId) &&
-			_sitemapConfigurationManager.isIndexModeAssetTypeCompanyEnabled(
+			_sitemapConfigurationManager.isXMLSitemapIndexCompanyEnabled(
 				companyId)) {
 
 			try {
-				if (assetTypeKey == null) {
+				if (Validator.isNotNull(layoutUuid)) {
+					return _sitemapStorageHelper.getSitemapInputStream(
+						companyId, groupId,
+						_getPageLayoutSitemapKey(layoutUuid), page);
+				}
+
+				if (Validator.isNull(assetTypeKey)) {
 					return _sitemapStorageHelper.getSitemapInputStream(
 						companyId, groupId);
 				}
@@ -1312,6 +1327,42 @@ public class SitemapManagerImpl implements SitemapManager {
 		}
 
 		return Collections.emptyList();
+	}
+
+	private String _getLayoutSitemap(
+			long companyId, long groupId, String layoutUuid, int page)
+		throws PortalException {
+
+		String pageLayoutSitemapKey = _getPageLayoutSitemapKey(layoutUuid);
+
+		if (!_sitemapStorageHelper.hasSitemapFile(
+				companyId, groupId, pageLayoutSitemapKey, page)) {
+
+			if (page == 1) {
+				Layout layout = _layoutLocalService.fetchLayoutByUuidAndGroupId(
+					layoutUuid, groupId, false);
+
+				if (layout != null) {
+					scheduleRegenerateSitemap(
+						pageLayoutSitemapKey, companyId, groupId, null);
+				}
+			}
+
+			return null;
+		}
+
+		try {
+			return StringUtil.read(
+				_sitemapStorageHelper.getSitemapInputStream(
+					companyId, groupId, pageLayoutSitemapKey, page));
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception);
+			}
+		}
+
+		return null;
 	}
 
 	private Map<String, Integer> _getPageCountsBySitemapKey(
