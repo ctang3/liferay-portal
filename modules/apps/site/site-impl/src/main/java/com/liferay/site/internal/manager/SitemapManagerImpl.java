@@ -407,12 +407,11 @@ public class SitemapManagerImpl implements SitemapManager {
 		}
 
 		if (Validator.isNotNull(layoutUuid) &&
-			_sitemapConfigurationManager.isCachedGenerationCompanyEnabled(
-				companyId) &&
 			_isIndexModeCompanyEnabled(
 				companyId, SitemapConstants.INDEX_MODE_PAGE_LAYOUT)) {
 
-			return _getLayoutSitemap(companyId, groupId, layoutUuid, page);
+			return _getLayoutSitemap(
+				groupId, layoutUuid, page, privateLayout, themeDisplay);
 		}
 
 		return _getSitemap(groupId, layoutUuid, privateLayout, themeDisplay);
@@ -931,7 +930,7 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	private void _generateLayoutSitemap(
-			Layout layout, LayoutSet layoutSet, ThemeDisplay themeDisplay,
+			LayoutSet layoutSet, String layoutUuid, ThemeDisplay themeDisplay,
 			UnsafeBiConsumer<Integer, String, PortalException> unsafeBiConsumer)
 		throws PortalException {
 
@@ -945,11 +944,11 @@ public class SitemapManagerImpl implements SitemapManager {
 
 			_initEntriesAndSize(rootElement);
 			_initPagination(
-				themeDisplay.getCompanyId(), rootElement, layout.getGroupId(),
-				_getPageLayoutSitemapKey(layout.getUuid()));
+				themeDisplay.getCompanyId(), rootElement,
+				layoutSet.getGroupId(), _getPageLayoutSitemapKey(layoutUuid));
 
 			_visitLayoutSets(
-				rootElement, ListUtil.fromArray(layoutSet), layout.getUuid(),
+				rootElement, ListUtil.fromArray(layoutSet), layoutUuid,
 				themeDisplay);
 
 			_consumePage(
@@ -1330,8 +1329,41 @@ public class SitemapManagerImpl implements SitemapManager {
 	}
 
 	private String _getLayoutSitemap(
-			long companyId, long groupId, String layoutUuid, int page)
+			long groupId, String layoutUuid, int page, boolean privateLayout,
+			ThemeDisplay themeDisplay)
 		throws PortalException {
+
+		long companyId = themeDisplay.getCompanyId();
+
+		if (!_sitemapConfigurationManager.isCachedGenerationCompanyEnabled(
+				companyId)) {
+
+			PermissionChecker originalPermissionChecker =
+				PermissionThreadLocal.getPermissionChecker();
+
+			try {
+				PermissionThreadLocal.setPermissionChecker(
+					_permissionCheckerFactory.create(
+						_userLocalService.getGuestUser(companyId)));
+
+				String[] xml = {null};
+
+				_generateLayoutSitemap(
+					_layoutSetLocalService.getLayoutSet(groupId, privateLayout),
+					layoutUuid, themeDisplay,
+					(curPage, curXML) -> {
+						if (curPage == page) {
+							xml[0] = curXML;
+						}
+					});
+
+				return xml[0];
+			}
+			finally {
+				PermissionThreadLocal.setPermissionChecker(
+					originalPermissionChecker);
+			}
+		}
 
 		String pageLayoutSitemapKey = _getPageLayoutSitemapKey(layoutUuid);
 
@@ -1363,22 +1395,6 @@ public class SitemapManagerImpl implements SitemapManager {
 		}
 
 		return null;
-	}
-
-	private Map<String, Integer> _getPageCountsBySitemapKey(
-			LayoutSet layoutSet, ThemeDisplay themeDisplay)
-		throws PortalException {
-
-		long companyId = themeDisplay.getCompanyId();
-
-		if (!_sitemapConfigurationManager.isCachedGenerationCompanyEnabled(
-				companyId)) {
-
-			return Collections.emptyMap();
-		}
-
-		return _sitemapStorageHelper.getPageCountsBySitemapKey(
-			companyId, layoutSet.getGroupId());
 	}
 
 	private String _getPageLayoutSitemapKey(String layoutUuid) {
@@ -1972,28 +1988,37 @@ public class SitemapManagerImpl implements SitemapManager {
 			ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		int[] pageCount = {0};
+		int[] pageCountArray = {0};
 
 		long companyId = themeDisplay.getCompanyId();
 		String pageLayoutSitemapKey = _getPageLayoutSitemapKey(
 			layout.getUuid());
 
 		_generateLayoutSitemap(
-			layout, layoutSet, themeDisplay,
+			layoutSet, layout.getUuid(), themeDisplay,
 			(page, xml) -> {
-				pageCount[0] = page;
+				pageCountArray[0] = page;
 
 				_sitemapStorageHelper.storeSitemapFile(
 					companyId, layout.getGroupId(), pageLayoutSitemapKey, page,
 					xml);
 			});
 
-		for (int page = pageCount[0] + 1; page <= previousPageCount; page++) {
-			_sitemapStorageHelper.deleteSitemap(
-				companyId, layout.getGroupId(), pageLayoutSitemapKey, page);
+		try {
+			for (int page = pageCountArray[0] + 1; page <= previousPageCount;
+				 page++) {
+
+				_sitemapStorageHelper.deleteSitemap(
+					companyId, layout.getGroupId(), pageLayoutSitemapKey, page);
+			}
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception);
+			}
 		}
 
-		return pageCount[0];
+		return pageCountArray[0];
 	}
 
 	private void _unlockRegenerateSitemap(
@@ -2008,14 +2033,39 @@ public class SitemapManagerImpl implements SitemapManager {
 			Element element, LayoutSet layoutSet, ThemeDisplay themeDisplay)
 		throws PortalException {
 
+		long companyId = themeDisplay.getCompanyId();
+
+		boolean cachedGenerationCompanyEnabled =
+			_sitemapConfigurationManager.isCachedGenerationCompanyEnabled(
+				companyId);
+
+		Map<String, Integer> pageCountsBySitemapKey = Collections.emptyMap();
+
+		if (cachedGenerationCompanyEnabled) {
+			pageCountsBySitemapKey =
+				_sitemapStorageHelper.getPageCountsBySitemapKey(
+					companyId, layoutSet.getGroupId());
+		}
+
 		String portalURL = themeDisplay.getPortalURL();
-		Map<String, Integer> pageCountsBySitemapKey =
-			_getPageCountsBySitemapKey(layoutSet, themeDisplay);
 
 		for (Layout layout : _getSitemapLayouts(layoutSet)) {
-			int pageCount = GetterUtil.getInteger(
-				pageCountsBySitemapKey.get(
-					_getPageLayoutSitemapKey(layout.getUuid())));
+			int pageCount = 0;
+
+			if (cachedGenerationCompanyEnabled) {
+				pageCount = GetterUtil.getInteger(
+					pageCountsBySitemapKey.get(
+						_getPageLayoutSitemapKey(layout.getUuid())));
+			}
+			else {
+				int[] pageCountArray = {0};
+
+				_generateLayoutSitemap(
+					layoutSet, layout.getUuid(), themeDisplay,
+					(page, xml) -> pageCountArray[0]++);
+
+				pageCount = pageCountArray[0];
+			}
 
 			if (pageCount <= 1) {
 				_addLayoutSitemapElement(element, layout, 0, portalURL);
